@@ -1,5 +1,23 @@
 {
   "files": [],
+  "compilerOptions": {
+    "paths": {
+      // A new catch-all that replaces the baseUrl:
+      "*": ["./*"],
+
+      "@/components/*": ["./src/components/*"],
+      "@/pages/*": ["./src/pages/*"],
+      "@/services/*": ["./src/services/*"],
+      "@/utils/*": ["./src/utils/*"]
+    }
+  },
+
+  /* Linting */
+  "noUnusedLocals": true,
+  "noUnusedParameters": true,
+  "erasableSyntaxOnly": true,
+  "noFallthroughCasesInSwitch": true,
+
   "references": [
     { "path": "./tsconfig.app.json" },
     { "path": "./tsconfig.node.json" }

@@ -1,11 +1,12 @@
 import { configureStore } from "@reduxjs/toolkit";
 import { dataSlice } from "./data/dataSlice";
 import { listenerMiddleware } from "./listenerMiddleware";
-// TODO: include reducers here when we have them
+import { connectionReducer } from "./connection/connectionSlice";
 
 export const store = configureStore({
   reducer: {
     data: dataSlice.reducer,
+    connection: connectionReducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware().concat([listenerMiddleware.middleware]),

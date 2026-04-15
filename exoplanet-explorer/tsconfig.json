@@ -5,6 +5,7 @@
       // A new catch-all that replaces the baseUrl:
       "*": ["./*"],
 
+      "@/api/*": ["./src/api/*"],
       "@/components/*": ["./src/components/*"],
       "@/features/*": ["./src/features/*"],
       "@/hooks/*": ["./src/hooks/*"],

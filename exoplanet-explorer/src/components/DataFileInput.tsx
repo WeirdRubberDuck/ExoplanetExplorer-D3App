@@ -1,6 +1,6 @@
 import Papa from "papaparse";
 
-import { FileInput } from "@mantine/core";
+import { FileInput, Group, Text } from "@mantine/core";
 import { useAppDispatch } from "@/redux/hooks";
 import { initializeData } from "@/redux/data/dataSlice";
 
@@ -26,10 +26,14 @@ export function DataFileInput() {
   };
 
   return (
-    <FileInput
-      label="Upload CSV"
-      onChange={(file) => file && loadCsvData(file)}
-      accept=".csv"
-    />
+    <Group gap="xs">
+      <Text>Load Exoplanet CSV:</Text>
+      <FileInput
+        aria-label="Upload CSV"
+        onChange={(file) => file && loadCsvData(file)}
+        accept=".csv"
+        w={200}
+      />
+    </Group>
   );
 }

@@ -5,6 +5,7 @@ import {
 
 import type { AppDispatch, RootState } from "./store";
 import { addDataListener } from "./data/dataMiddleware";
+import { addConnectionListener } from "./connection/connectionMiddleware";
 
 export const listenerMiddleware = createListenerMiddleware();
 export type AppStartListening = TypedStartListening<RootState, AppDispatch>;
@@ -13,3 +14,4 @@ const startAppListening =
   listenerMiddleware.startListening as AppStartListening;
 
 addDataListener(startAppListening);
+addConnectionListener(startAppListening);

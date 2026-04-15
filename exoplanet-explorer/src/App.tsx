@@ -1,5 +1,4 @@
-import "@mantine/core/styles.css";
-
+import { Provider } from "react-redux";
 import {
   AppShell,
   createTheme,
@@ -8,14 +7,16 @@ import {
   MantineProvider,
   Text,
 } from "@mantine/core";
-import { HomePage } from "@/pages/HomePage";
-import { ColorSchemeToggle } from "@/components/ColorSchemeToggle";
 
-import { Provider } from "react-redux";
-import { store } from "@/redux/store";
+import { ColorSchemeToggle } from "@/components/ColorSchemeToggle";
 import { DataFileInput } from "@/components/DataFileInput";
+import { HomePage } from "@/pages/HomePage";
+import { store } from "@/redux/store";
+
 import { LuaApiProvider } from "./api/LuaApiProvider";
 import { ConnectionStatusHint } from "./components/ConnectionStatusHint";
+
+import "@mantine/core/styles.css";
 
 const theme = createTheme({});
 
@@ -23,8 +24,8 @@ export default function App() {
   return (
     <Provider store={store}>
       <LuaApiProvider>
-        <MantineProvider theme={theme} defaultColorScheme="dark">
-          <AppShell padding="md" header={{ height: 60 }}>
+        <MantineProvider theme={theme} defaultColorScheme={"dark"}>
+          <AppShell padding={"md"} header={{ height: 60 }}>
             <AppShell.Header p={"sm"}>
               <Flex justify={"space-between"} align={"center"} h={"100%"}>
                 <Group flex={1}>

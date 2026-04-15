@@ -1,7 +1,8 @@
 import { configureStore } from "@reduxjs/toolkit";
+
+import { connectionReducer } from "./connection/connectionSlice";
 import { dataSlice } from "./data/dataSlice";
 import { listenerMiddleware } from "./listenerMiddleware";
-import { connectionReducer } from "./connection/connectionSlice";
 
 export const store = configureStore({
   reducer: {

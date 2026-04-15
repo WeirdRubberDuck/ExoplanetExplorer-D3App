@@ -1,4 +1,5 @@
 import type { AppStartListening } from "@/services/redux/listenerMiddleware";
+
 import { initializeData } from "./dataSlice";
 
 export const addDataListener = (startListening: AppStartListening) => {

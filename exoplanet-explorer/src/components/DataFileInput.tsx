@@ -1,8 +1,8 @@
+import { FileInput, Group, Text } from "@mantine/core";
 import Papa from "papaparse";
 
-import { FileInput, Group, Text } from "@mantine/core";
-import { useAppDispatch } from "@/redux/hooks";
 import { initializeData } from "@/redux/data/dataSlice";
+import { useAppDispatch } from "@/redux/hooks";
 
 // This is a temporary component to load the CSV data into the Redux store, from a
 // local file. The data file must match the one used in OpenSpace
@@ -26,12 +26,12 @@ export function DataFileInput() {
   };
 
   return (
-    <Group gap="xs">
+    <Group gap={"xs"}>
       <Text>Load Exoplanet CSV:</Text>
       <FileInput
-        aria-label="Upload CSV"
+        aria-label={"Upload CSV"}
         onChange={(file) => file && loadCsvData(file)}
-        accept=".csv"
+        accept={".csv"}
         w={200}
       />
     </Group>

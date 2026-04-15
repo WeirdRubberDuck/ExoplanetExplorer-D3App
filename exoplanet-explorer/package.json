@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
-    "lint": "eslint .",
+    "lint": "npx prettier . --check & eslint .",
+    "lint-fix": "npx prettier . --write & eslint . --fix",
     "preview": "vite preview"
   },
   "dependencies": {
@@ -29,8 +30,11 @@
     "@types/react-dom": "^19.2.3",
     "@vitejs/plugin-react": "^6.0.1",
     "eslint": "^9.39.4",
+    "eslint-config-prettier": "^10.0.1",
+    "eslint-plugin-react": "^7.37.2",
     "eslint-plugin-react-hooks": "^7.0.1",
     "eslint-plugin-react-refresh": "^0.5.2",
+    "eslint-plugin-simple-import-sort": "^12.1.1",
     "globals": "^17.4.0",
     "postcss": "^8.5.9",
     "postcss-preset-mantine": "^1.18.0",

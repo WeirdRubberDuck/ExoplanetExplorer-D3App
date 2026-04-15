@@ -3,9 +3,9 @@ import {
   type TypedStartListening,
 } from "@reduxjs/toolkit";
 
-import type { AppDispatch, RootState } from "./store";
-import { addDataListener } from "./data/dataMiddleware";
 import { addConnectionListener } from "./connection/connectionMiddleware";
+import { addDataListener } from "./data/dataMiddleware";
+import type { AppDispatch, RootState } from "./store";
 
 export const listenerMiddleware = createListenerMiddleware();
 export type AppStartListening = TypedStartListening<RootState, AppDispatch>;

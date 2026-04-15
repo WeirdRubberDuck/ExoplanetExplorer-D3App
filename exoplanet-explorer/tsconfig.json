@@ -6,8 +6,10 @@
       "*": ["./*"],
 
       "@/components/*": ["./src/components/*"],
+      "@/features/*": ["./src/features/*"],
+      "@/hooks/*": ["./src/hooks/*"],
       "@/pages/*": ["./src/pages/*"],
-      "@/services/*": ["./src/services/*"],
+      "@/redux/*": ["./src/redux/*"],
       "@/utils/*": ["./src/utils/*"]
     }
   },

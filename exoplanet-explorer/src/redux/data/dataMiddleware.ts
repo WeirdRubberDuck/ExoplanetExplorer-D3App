@@ -1,4 +1,4 @@
-import type { AppStartListening } from "@/services/redux/listenerMiddleware";
+import type { AppStartListening } from "@/redux/listenerMiddleware";
 
 import { initializeData } from "./dataSlice";
 

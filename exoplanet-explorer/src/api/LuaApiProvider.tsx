@@ -32,11 +32,13 @@ export function LuaApiProvider({ children }: PropsWithChildren) {
         const res = await api.singleReturnLibrary();
         setLuaApi(res);
       } catch (e) {
-        console.error("Failed to fetch Lua API", e);
+        console.error("Failed to fetch Lua API:", e);
       }
     };
     if (isConnected) {
-      fetchApi();
+      // Delay fetching the API slightly to ensure it's ready
+      const timer = setTimeout(fetchApi, 100);
+      return () => clearTimeout(timer);
     }
   }, [isConnected, dispatch]);
 

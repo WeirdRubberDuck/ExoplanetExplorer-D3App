@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
+import { Stack } from "@mantine/core";
 
 import { useOpenSpaceApi } from "@/api/hooks";
-
-import "@mantine/core/styles.css";
+import { ParallelCoordinates } from "@/features/ParallelCoordinates/ParallelCoordinates";
 
 export function HomePage() {
   const [nNumPlanets, setNumPlanets] = useState<number | null>(null);
@@ -13,7 +13,8 @@ export function HomePage() {
       return;
     }
 
-    // TODO: Set up a subscription to this property instead of polling it once
+    // TODO: Set up a subscription to this property instead of polling it once.
+    // Actually, move to redux? Could keep polling the property and update the store when it changes
     luaApi
       .propertyValue("Modules.ExoplanetsExpertTool.FilteredDataRows")
       .then((res) => {
@@ -34,11 +35,11 @@ export function HomePage() {
   }, [luaApi]);
 
   return (
-    <>
-      Welcome to the Exoplanet Explorer!{" "}
+    <Stack>
       {nNumPlanets !== null
         ? ` (Detected filtering resulting in ${nNumPlanets} planets)`
         : ""}
-    </>
+      <ParallelCoordinates />
+    </Stack>
   );
 }

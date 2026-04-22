@@ -2,9 +2,6 @@
   "files": [],
   "compilerOptions": {
     "paths": {
-      // A new catch-all that replaces the baseUrl:
-      "*": ["./*"],
-
       "@/api/*": ["./src/api/*"],
       "@/components/*": ["./src/components/*"],
       "@/features/*": ["./src/features/*"],
@@ -12,14 +9,21 @@
       "@/pages/*": ["./src/pages/*"],
       "@/redux/*": ["./src/redux/*"],
       "@/utils/*": ["./src/utils/*"]
-    }
-  },
+    },
 
-  /* Linting */
-  "noUnusedLocals": true,
-  "noUnusedParameters": true,
-  "erasableSyntaxOnly": true,
-  "noFallthroughCasesInSwitch": true,
+    /* Bundler mode */
+    "moduleResolution": "bundler",
+    "allowImportingTsExtensions": true,
+    "isolatedModules": true,
+    "moduleDetection": "force",
+    "noEmit": true,
+
+    /* Linting */
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "erasableSyntaxOnly": true,
+    "noFallthroughCasesInSwitch": true
+  },
 
   "references": [
     { "path": "./tsconfig.app.json" },

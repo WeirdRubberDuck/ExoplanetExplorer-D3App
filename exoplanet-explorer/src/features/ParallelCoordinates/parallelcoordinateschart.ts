@@ -2,8 +2,8 @@ import * as d3 from "d3";
 
 import { hasValue } from "@/utils/util.ts";
 
-// TODO: Replace with actual data
-import { data } from "./dummydata.ts";
+import { dymmyData } from "./dummydata.ts"; // TODO: Replace with actual data
+import { type DataItem, type Dimension, inferDimensions } from "./util.ts";
 
 const pcDefaultColumns = [
   "discoverymethod",
@@ -34,23 +34,20 @@ export function makeParallelCoordinatesChart({
   svgRef,
   width,
   height,
-  columns,
 }: {
   svgRef: React.RefObject<SVGSVGElement | null>;
   width: number;
   height: number;
-  columns?: string[];
 }) {
-  if (!svgRef.current) return;
+  if (!svgRef.current) {
+    return;
+  }
 
   const svg = d3.select(svgRef.current);
   svg.selectAll("*").remove();
 
+  const data = dymmyData as DataItem[];
   console.log(data[0]);
-
-  // let dimensions = cfg.columns ? cfg.columns : Object.keys(data[0]); // Names of each axis
-  const dimensions = columns || pcDefaultColumns; // Names of each axis
-  // const errorDimName = (dim: string) => `${dim}_err`;
 
   /////////////////////////////////////////////////////////
   //////////// Create the container SVG and g /////////////
@@ -67,7 +64,10 @@ export function makeParallelCoordinatesChart({
     cfg.margin.right -
     extraRightMargin;
 
-  const internalHeight = height - cfg.margin.top - cfg.margin.bottom;
+  const extraHeight = 100; // Extra height to place the NaN axis
+
+  const internalHeight =
+    height - cfg.margin.top - cfg.margin.bottom - extraHeight;
 
   // Initiate the chart SVG
   const chart = svg
@@ -84,71 +84,68 @@ export function makeParallelCoordinatesChart({
   ////////////////// Scales for axes //////////////////////
   /////////////////////////////////////////////////////////
 
-  // Scale for the y axis
-  const yScales: {
-    [key: string]: d3.ScaleLinear<number, number> | d3.ScalePoint<string>;
-  } = {};
+  const dimensions: Dimension[] = inferDimensions(
+    data,
+    pcDefaultColumns,
+    internalHeight,
+  );
 
-  for (let i = 0; i < dimensions.length; i++) {
-    const name = dimensions[i];
+  const xScale = d3
+    .scalePoint<string>()
+    .domain(dimensions.map((d) => d.key))
+    .range([0, internalWidth]);
 
-    let isNumber = false;
-    for (const row in data) {
-      const value = data[row][name];
-      if (hasValue(value)) {
-        // Found a value, test what it is
-        isNumber = !isNaN(value);
-        break;
-      }
+  /////////////////////////////////////////////////////////
+  //////////////////// Draw the lines //////////////////////
+  /////////////////////////////////////////////////////////
+  const nanAxisYPos = 1.1 * internalHeight;
+
+  const line = d3.line<[number, number]>();
+
+  function yPos(d: DataItem, dim: Dimension): number {
+    if (dim.type === "number") {
+      const isMissing = !hasValue(d[dim.key]) || isNaN(Number(d[dim.key]));
+      return isMissing ? nanAxisYPos : dim.scale(Number(d[dim.key]));
     }
 
-    if (isNumber) {
-      const values: number[] = data
-        .map((d: { [x: string]: number }) => +d[name])
-        .filter((d: number) => hasValue(d));
-      yScales[name] = d3
-        .scaleLinear()
-        .domain(d3.extent(values) as [number, number])
-        .range([internalHeight, 0])
-        .nice();
-    } else {
-      // if string
-      let domain: string[] = [];
-      data.forEach((d: { [x: string]: string }) => {
-        const value = d[name];
-        if (!domain.includes(value)) {
-          domain.push(value);
-        }
-      });
-      domain = domain.sort().reverse();
-
-      yScales[name] = d3.scalePoint().domain(domain).range([internalHeight, 0]);
-    }
+    const isEmpty = d[dim.key] == null || String(d[dim.key]) === "";
+    return isEmpty ? nanAxisYPos : dim.scale(String(d[dim.key]))!;
   }
 
-  // Build the X scale -> it find the best position for each Y axis
-  const xScale = d3.scalePoint().domain(dimensions).range([0, internalWidth]);
+  function path(row: DataItem) {
+    const points: [number, number][] = dimensions.map((dim) => {
+      const x = xScale(dim.key)!;
+      const y = yPos(row, dim);
+      return [x, y];
+    });
+
+    return line(points);
+  }
+
+  // Foreground lines (colored)
+  const foreground = chart
+    .selectAll(".myPath")
+    .data(data)
+    .enter()
+    .append("path")
+    .attr("d", path)
+    .style("fill", "none")
+    .style("stroke", "steelblue")
+    .style("opacity", cfg.lineOpacity)
+    .style("stroke-width", cfg.strokeWidth + "px");
 
   /////////////////////////////////////////////////////////
   //////////////////// Draw the axes //////////////////////
   /////////////////////////////////////////////////////////
 
-  // Draw the axes
   const axes = chart
     .selectAll(".dimension")
     .data(dimensions)
     .enter()
     .append("g")
-    .attr("class", "dimension")
-    // Translate this element to its right position on the x axis
-    .attr("transform", (d) => `translate(${xScale(d)})`);
-
-  // Build the axis and title
-  axes
-    .append("g")
-    .attr("class", (d) => (d.endsWith("_err") ? "axis error" : "axis"))
+    .attr("transform", (d) => `translate(${xScale(d.key)},0)`)
     .each(function (d) {
-      const scale = yScales[d];
+      const { scale } = d;
       const axis =
         "ticks" in scale
           ? d3.axisLeft<number>(scale)
@@ -163,5 +160,5 @@ export function makeParallelCoordinatesChart({
     .style("font-size", "11px")
     .attr("transform", "rotate(-21)")
     .attr("y", -9)
-    .text((d: string) => d);
+    .text((d) => d.key);
 }

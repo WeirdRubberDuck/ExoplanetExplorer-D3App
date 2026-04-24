@@ -1,15 +1,14 @@
 import { useState } from 'react';
 
-import { type Dimension, NanBrushMode } from './types';
+import { type Dimension, NanBrushMode } from '../types';
 
 interface Props {
   dimension: Dimension;
-  x: number;
   y: number;
   onBrush?: (dimension: Dimension, mode: NanBrushMode | undefined) => void;
 }
 
-export function MissingValueAxis({ dimension, x, y, onBrush }: Props) {
+export function MissingValueAxis({ dimension, y, onBrush }: Props) {
   const [brushMode, setBrushMode] = useState<NanBrushMode | undefined>(undefined);
   const [hovered, setHovered] = useState(false);
 
@@ -41,7 +40,6 @@ export function MissingValueAxis({ dimension, x, y, onBrush }: Props) {
       r={hovered ? 7 : 5}
       fill={colorForMode(brushMode)}
       onClick={onClick}
-      transform={`translate(${x},0)`}
     />
   );
 }

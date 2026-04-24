@@ -4,60 +4,26 @@ import * as d3 from 'd3';
 
 import { hasValue } from '@/utils/util.ts';
 
-import { Axis } from './Axis.tsx';
-import { AxisBrush } from './AxisBrush.tsx';
-import { MissingValueAxis } from './MissingValueAxis.tsx';
+import { Axes } from './Axes/Axes.tsx';
+import { MissingValueAxisLabel } from './MissinValueAxisLabel.tsx';
 import { type Column, type DataItem, type Dimension, NanBrushMode } from './types.ts';
 import { inferDimensions } from './util.ts';
 
-function MissingValueAxisLabel({
-  yPos,
-  width,
-  showUncertaintyLabel = true
-}: {
-  yPos: number;
+interface Props {
+  data: DataItem[];
+  filteredData: DataItem[];
+  columns: Column[];
   width: number;
-  showUncertaintyLabel?: boolean;
-}) {
-  const textPositionX = -20;
-  const lineY = yPos + 15;
-  const xExtend = 30;
-
-  const line = d3.line()([
-    [0 - xExtend, lineY],
-    [width + xExtend, lineY]
-  ]);
-
-  return (
-    <>
-      <path d={line || undefined} stroke={'darkgray'} strokeWidth={0.4} />
-      <g>
-        <text
-          className={'legend'}
-          x={textPositionX}
-          y={lineY}
-          dy={-10}
-          fontSize={'11px'}
-          fill={'var(--mantine-color-default-color)'}
-          textAnchor={'end'}
-        >
-          Missing values
-        </text>
-        {showUncertaintyLabel && (
-          <text
-            x={textPositionX}
-            y={lineY}
-            dy={17}
-            fontSize={'11px'}
-            fill={'var(--mantine-color-default-color)'}
-            textAnchor={'end'}
-          >
-            Uncertainty axis
-          </text>
-        )}
-      </g>
-    </>
-  );
+  height: number;
+  cfg?: {
+    strokeWidth?: number;
+    lineOpacity?: number;
+    shadowLines?: boolean;
+    showGhostLines?: boolean;
+  };
+  handleBrush: (dimension: Dimension, y0: number, y1: number) => void;
+  handleBrushClear?: (dimension: Dimension) => void;
+  handleNanBrush?: (dimension: Dimension, mode: NanBrushMode | undefined) => void;
 }
 
 export function ParallelCoordinatesChart({
@@ -75,22 +41,7 @@ export function ParallelCoordinatesChart({
   handleBrush,
   handleBrushClear,
   handleNanBrush
-}: {
-  data: DataItem[];
-  filteredData: DataItem[];
-  columns: Column[];
-  width: number;
-  height: number;
-  cfg?: {
-    strokeWidth?: number;
-    lineOpacity?: number;
-    shadowLines?: boolean;
-    showGhostLines?: boolean;
-  };
-  handleBrush: (dimension: Dimension, y0: number, y1: number) => void;
-  handleBrushClear?: (dimension: Dimension) => void;
-  handleNanBrush?: (dimension: Dimension, mode: NanBrushMode | undefined) => void;
-}) {
+}: Props) {
   const { colorScheme } = useMantineColorScheme();
 
   // Extra margin for the left to fit the longest y axis labels
@@ -111,6 +62,7 @@ export function ParallelCoordinatesChart({
     width - margin.left - extraLeftMargin - margin.right - extraRightMargin;
 
   const internalHeight = height - margin.top - margin.bottom - extraHeight;
+  const nanAxisYPos = 1.1 * internalHeight;
 
   const dimensions: Dimension[] = useMemo(
     () => inferDimensions(data, columns, internalHeight),
@@ -125,8 +77,6 @@ export function ParallelCoordinatesChart({
         .range([0, internalWidth]),
     [dimensions, internalWidth]
   );
-
-  const nanAxisYPos = 1.1 * internalHeight;
 
   const line = useMemo(() => d3.line<[number, number]>(), []);
 
@@ -199,27 +149,14 @@ export function ParallelCoordinatesChart({
           ))}
         </g>
         {/* Axes */}
-        <g className={'axes'}>
-          {dimensions.map((dim) => (
-            <>
-              <Axis key={dim.key} dimension={dim} x={xScale(dim.key)!} />
-              <AxisBrush
-                key={dim.key + '-brush'}
-                dimension={dim}
-                x={xScale(dim.key)!}
-                handleBrush={handleBrush}
-                handleBrushClear={handleBrushClear}
-              />
-              <MissingValueAxis
-                key={dim.key + '-nan-axis'}
-                dimension={dim}
-                x={xScale(dim.key)!}
-                y={nanAxisYPos}
-                onBrush={handleNanBrush}
-              />
-            </>
-          ))}
-        </g>
+        <Axes
+          dimensions={dimensions}
+          xScale={xScale}
+          nanAxisYPos={nanAxisYPos}
+          handleBrush={handleBrush}
+          handleBrushClear={handleBrushClear}
+          handleNanBrush={handleNanBrush}
+        />
         {/* NaN axis line and label */}
         <MissingValueAxisLabel yPos={nanAxisYPos} width={internalWidth} />
       </g>

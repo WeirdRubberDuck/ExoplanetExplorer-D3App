@@ -1,3 +1,4 @@
+import { useCallback, useMemo } from 'react';
 import { useMantineColorScheme } from '@mantine/core';
 import * as d3 from 'd3';
 
@@ -89,8 +90,6 @@ export function ParallelCoordinatesChart({
     lineOpacity?: number;
   };
 }) {
-  console.log(data[0]);
-
   const { handleBrush, handleBrushClear, handleNanBrush, filteredData } =
     useBrushing(data);
 
@@ -115,45 +114,64 @@ export function ParallelCoordinatesChart({
 
   const internalHeight = height - margin.top - margin.bottom - extraHeight;
 
-  const dimensions: Dimension[] = inferDimensions(data, pcDefaultColumns, internalHeight);
+  const dimensions: Dimension[] = useMemo(
+    () => inferDimensions(data, pcDefaultColumns, internalHeight),
+    [data, internalHeight]
+  );
 
-  const xScale = d3
-    .scalePoint<string>()
-    .domain(dimensions.map((d) => d.key))
-    .range([0, internalWidth]);
+  const xScale = useMemo(
+    () =>
+      d3
+        .scalePoint<string>()
+        .domain(dimensions.map((d) => d.key))
+        .range([0, internalWidth]),
+    [dimensions, internalWidth]
+  );
 
   const nanAxisYPos = 1.1 * internalHeight;
 
-  const line = d3.line<[number, number]>();
+  const line = useMemo(() => d3.line<[number, number]>(), []);
 
-  function yPos(d: DataItem, dim: Dimension): number {
-    if (dim.type === 'number') {
-      const isMissing = !hasValue(d[dim.key]) || isNaN(Number(d[dim.key]));
-      return isMissing ? nanAxisYPos : dim.scale(Number(d[dim.key]));
-    }
+  const yPos = useCallback(
+    (d: DataItem, dim: Dimension): number => {
+      if (dim.type === 'number') {
+        const isMissing = !hasValue(d[dim.key]) || isNaN(Number(d[dim.key]));
+        return isMissing ? nanAxisYPos : dim.scale(Number(d[dim.key]));
+      }
 
-    const isEmpty = d[dim.key] == null || String(d[dim.key]) === '';
-    return isEmpty ? nanAxisYPos : dim.scale(String(d[dim.key]))!;
-  }
+      const isEmpty = d[dim.key] == null || String(d[dim.key]) === '';
+      return isEmpty ? nanAxisYPos : dim.scale(String(d[dim.key]))!;
+    },
+    [nanAxisYPos]
+  );
 
-  function path(row: DataItem) {
-    const points: [number, number][] = dimensions.map((dim) => {
-      const x = xScale(dim.key)!;
-      const y = yPos(row, dim);
-      return [x, y];
-    });
+  const path = useCallback(
+    (row: DataItem) => {
+      const points: [number, number][] = dimensions.map((dim) => {
+        const x = xScale(dim.key)!;
+        const y = yPos(row, dim);
+        return [x, y];
+      });
 
-    return line(points);
-  }
+      return line(points);
+    },
+    [dimensions, line, xScale, yPos]
+  );
+
+  const allPaths = useMemo(() => data.map((d) => path(d) ?? ''), [data, path]);
+  const filteredPaths = useMemo(
+    () => filteredData.map((d) => path(d) ?? ''),
+    [filteredData, path]
+  );
 
   return (
     <svg width={width} height={height}>
       <g transform={`translate(${margin.left + extraLeftMargin}, ${margin.top})`}>
         {/* Backround lines (for context when filtering) */}
-        {data.map((d, i) => (
+        {allPaths.map((d, i) => (
           <path
             key={i}
-            d={path(d) ?? undefined}
+            d={d || undefined}
             fill={'none'}
             stroke={
               colorScheme === 'dark'
@@ -164,10 +182,10 @@ export function ParallelCoordinatesChart({
           />
         ))}
         {/* Foreground lines (colored) */}
-        {filteredData.map((d, i) => (
+        {filteredPaths.map((d, i) => (
           <path
             key={i}
-            d={path(d) ?? undefined}
+            d={d || undefined}
             fill={'none'}
             stroke={'steelblue'}
             opacity={cfg.lineOpacity}

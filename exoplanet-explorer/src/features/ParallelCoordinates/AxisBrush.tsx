@@ -22,7 +22,7 @@ export function AxisBrush({ dimension, x, handleBrush, handleBrushClear }: Props
         [-brushWidth, dimension.scale.range()[1]],
         [brushWidth, dimension.scale.range()[0]]
       ])
-      .on('brush end', (event) => {
+      .on('end', (event) => {
         const { selection } = event;
 
         if (!selection) {

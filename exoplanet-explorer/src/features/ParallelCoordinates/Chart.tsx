@@ -79,7 +79,9 @@ export function ParallelCoordinatesChart({
   height,
   cfg = {
     strokeWidth: 1, // The width of the stroke around each blob
-    lineOpacity: 1.0 // Opacity of each line in the plot
+    lineOpacity: 1.0, // Opacity of each line in the plot
+    shadowLines: false, // Whether to shadow lines
+    showGhostLines: false // Whether to show ghost lines for filtered out paths
   }
 }: {
   data: DataItem[];
@@ -88,6 +90,8 @@ export function ParallelCoordinatesChart({
   cfg?: {
     strokeWidth?: number;
     lineOpacity?: number;
+    shadowLines?: boolean;
+    showGhostLines?: boolean;
   };
 }) {
   const { handleBrush, handleBrushClear, handleNanBrush, filteredData } =
@@ -167,32 +171,39 @@ export function ParallelCoordinatesChart({
   return (
     <svg width={width} height={height}>
       <g transform={`translate(${margin.left + extraLeftMargin}, ${margin.top})`}>
-        {/* Backround lines (for context when filtering) */}
-        {allPaths.map((d, i) => (
-          <path
-            key={i}
-            d={d || undefined}
-            fill={'none'}
-            stroke={
-              colorScheme === 'dark'
-                ? 'var(--mantine-color-dark-5)'
-                : 'var(--mantine-color-gray-2)'
-            }
-            strokeWidth={cfg.strokeWidth}
-          />
-        ))}
+        {/* Background lines (for context when filtering) */}
+        {cfg.showGhostLines &&
+          allPaths.map((d, i) => (
+            <path
+              key={i}
+              d={d || undefined}
+              fill={'none'}
+              stroke={
+                colorScheme === 'dark'
+                  ? 'var(--mantine-color-dark-5)'
+                  : 'var(--mantine-color-gray-2)'
+              }
+              strokeWidth={cfg.strokeWidth}
+            />
+          ))}
         {/* Foreground lines (colored) */}
-        {filteredPaths.map((d, i) => (
-          <path
-            key={i}
-            d={d || undefined}
-            fill={'none'}
-            stroke={'steelblue'}
-            opacity={cfg.lineOpacity}
-            strokeWidth={cfg.strokeWidth}
-            // style={{ filter: "drop-shadow( 1px 1px 1px rgba(0, 0, 0, .1))" }}
-          />
-        ))}
+        <g>
+          {filteredPaths.map((d, i) => (
+            <path
+              key={i}
+              d={d || undefined}
+              fill={'none'}
+              stroke={'steelblue'}
+              opacity={cfg.lineOpacity}
+              strokeWidth={cfg.strokeWidth}
+              style={{
+                filter: cfg.shadowLines
+                  ? 'drop-shadow( 1px 1px 1px rgba(0, 0, 0, .1))'
+                  : 'none'
+              }}
+            />
+          ))}
+        </g>
         {/* Axes */}
         <g className={'axes'}>
           {dimensions.map((dim) => (

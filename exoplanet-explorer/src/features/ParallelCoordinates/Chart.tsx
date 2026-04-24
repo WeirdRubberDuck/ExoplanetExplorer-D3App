@@ -17,7 +17,15 @@ const pcDefaultColumns = [
   "st_age",
 ];
 
-function Axis({ dimension, x }: { dimension: Dimension; x: number }) {
+function Axis({
+  dimension,
+  x,
+  nanAxisYPos,
+}: {
+  dimension: Dimension;
+  x: number;
+  nanAxisYPos: number;
+}) {
   const ref = useRef<SVGGElement>(null);
 
   useEffect(() => {
@@ -34,6 +42,7 @@ function Axis({ dimension, x }: { dimension: Dimension; x: number }) {
 
   return (
     <g ref={ref} transform={`translate(${x},0)`}>
+      {/* Axis label */}
       <text
         className={"legend"}
         y={-9}
@@ -44,7 +53,59 @@ function Axis({ dimension, x }: { dimension: Dimension; x: number }) {
       >
         {dimension.key}
       </text>
+      {/* NaN axis */}
+      <circle cx={0} cy={nanAxisYPos} r={4} fill={"darkgray"} />
     </g>
+  );
+}
+
+function MissingValueAxisLabel({
+  yPos,
+  width,
+  showUncertaintyLabel = true,
+}: {
+  yPos: number;
+  width: number;
+  showUncertaintyLabel?: boolean;
+}) {
+  const textPositionX = -20;
+  const lineY = yPos + 15;
+  const xExtend = 30;
+
+  const line = d3.line()([
+    [0 - xExtend, lineY],
+    [width + xExtend, lineY],
+  ]);
+
+  return (
+    <>
+      <path d={line || undefined} stroke={"darkgray"} strokeWidth={0.4} />
+      <g>
+        <text
+          className={"legend"}
+          x={textPositionX}
+          y={lineY}
+          dy={-10}
+          fontSize={"11px"}
+          fill={"var(--mantine-color-default-color)"}
+          textAnchor={"end"}
+        >
+          Missing values
+        </text>
+        {showUncertaintyLabel && (
+          <text
+            x={textPositionX}
+            y={lineY}
+            dy={17}
+            fontSize={"11px"}
+            fill={"var(--mantine-color-default-color)"}
+            textAnchor={"end"}
+          >
+            Uncertainty axis
+          </text>
+        )}
+      </g>
+    </>
   );
 }
 
@@ -85,7 +146,7 @@ export function ParallelCoordinatesChart({
   const internalWidth =
     width - margin.left - extraLeftMargin - margin.right - extraRightMargin;
 
-  const extraHeight = 50; // Extra height to place the NaN axis
+  const extraHeight = 60; // Extra height to place the NaN axis
 
   const internalHeight = height - margin.top - margin.bottom - extraHeight;
 
@@ -141,14 +202,22 @@ export function ParallelCoordinatesChart({
             stroke={"steelblue"}
             opacity={cfg.lineOpacity}
             strokeWidth={cfg.strokeWidth}
+            // style={{ filter: "drop-shadow( 1px 1px 1px rgba(0, 0, 0, .1))" }}
           />
         ))}
         {/* Axes */}
         <g className={"axes"}>
           {dimensions.map((dim) => (
-            <Axis key={dim.key} dimension={dim} x={xScale(dim.key)!} />
+            <Axis
+              key={dim.key}
+              dimension={dim}
+              x={xScale(dim.key)!}
+              nanAxisYPos={nanAxisYPos}
+            />
           ))}
         </g>
+        {/* NaN axis line and label */}
+        <MissingValueAxisLabel yPos={nanAxisYPos} width={internalWidth} />
       </g>
     </svg>
   );

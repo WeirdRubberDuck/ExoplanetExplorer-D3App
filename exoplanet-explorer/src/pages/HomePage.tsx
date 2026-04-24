@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import { Stack } from "@mantine/core";
 
 import { useOpenSpaceApi } from "@/api/hooks";
-import { DummyChart } from "@/features/DummyChart/DummyChart";
 import { ParallelCoordinates } from "@/features/ParallelCoordinates/ParallelCoordinates";
 
 export function HomePage() {
@@ -41,7 +40,6 @@ export function HomePage() {
         ? ` (Detected filtering resulting in ${nNumPlanets} planets)`
         : ""}
       <ParallelCoordinates />
-      <DummyChart />
     </Stack>
   );
 }

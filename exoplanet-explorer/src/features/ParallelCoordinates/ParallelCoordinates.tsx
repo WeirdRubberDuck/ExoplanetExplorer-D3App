@@ -1,9 +1,9 @@
-import { Box } from "@mantine/core";
-import { useResizeObserver, useViewportSize } from "@mantine/hooks";
+import { Box } from '@mantine/core';
+import { useResizeObserver, useViewportSize } from '@mantine/hooks';
 
-import { ParallelCoordinatesChart } from "./Chart.tsx";
-import { dymmyData } from "./dummydata.ts"; // TODO: Replace with actual data
-import type { DataItem } from "./util.ts";
+import { ParallelCoordinatesChart } from './Chart.tsx';
+import { dymmyData } from './dummydata.ts'; // TODO: Replace with actual data
+import type { DataItem } from './types.ts';
 
 export function ParallelCoordinates() {
   const [containerRef, container] = useResizeObserver();
@@ -13,11 +13,11 @@ export function ParallelCoordinates() {
   return (
     <Box
       style={{
-        resize: "vertical",
+        resize: 'vertical',
         height: 800,
         maxHeight: height,
         minHeight: 200,
-        overflow: "hidden",
+        overflow: 'hidden'
       }}
       ref={containerRef}
     >

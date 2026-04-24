@@ -1,0 +1,44 @@
+import { useState } from 'react';
+
+import { type Dimension, NanBrushMode } from './types';
+
+interface Props {
+  dimension: Dimension;
+  x: number;
+  y: number;
+  onBrush?: (dimension: Dimension, mode: NanBrushMode | undefined) => void;
+}
+
+export function MissingValueAxis({ dimension, x, y, onBrush }: Props) {
+  const [brushMode, setBrushMode] = useState<NanBrushMode | undefined>(undefined);
+
+  function colorForMode(mode: NanBrushMode | undefined) {
+    if (mode === NanBrushMode.Block) return 'rgba(220, 0, 0)';
+    if (mode === NanBrushMode.Filter) return 'rgba(0, 220, 0)';
+    return 'darkgray';
+  }
+
+  function onClick() {
+    let newMode: NanBrushMode | undefined;
+    if (brushMode === NanBrushMode.Block) {
+      newMode = NanBrushMode.Filter;
+    } else if (brushMode === NanBrushMode.Filter) {
+      newMode = undefined;
+    } else {
+      newMode = NanBrushMode.Block;
+    }
+    setBrushMode(newMode);
+    onBrush?.(dimension, newMode);
+  }
+
+  return (
+    <circle
+      cx={0}
+      cy={y}
+      r={4}
+      fill={colorForMode(brushMode)}
+      onClick={onClick}
+      transform={`translate(${x},0)`}
+    />
+  );
+}

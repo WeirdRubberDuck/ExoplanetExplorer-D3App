@@ -1,25 +1,11 @@
-import * as d3 from "d3";
+import * as d3 from 'd3';
 
-export type WithId = { id: string | number };
-export type Value = string | number | null;
-export type DataItem = WithId & Record<string, Value>;
-
-export type Dimension =
-  | {
-      key: string;
-      type: "number";
-      scale: d3.ScaleLinear<number, number>;
-    }
-  | {
-      key: string;
-      type: "string";
-      scale: d3.ScalePoint<string>;
-    };
+import type { Column, DataItem, Dimension } from './types';
 
 export function inferDimensions(
   data: DataItem[],
   columns: string[],
-  height: number,
+  height: number
 ): Dimension[] {
   if (!data.length) return [];
 
@@ -43,8 +29,8 @@ export function inferDimensions(
 
       return {
         key,
-        type: "number",
-        scale,
+        type: 'number',
+        scale
       };
     }
 
@@ -58,8 +44,25 @@ export function inferDimensions(
 
     return {
       key,
-      type: "string",
-      scale,
+      type: 'string',
+      scale
     };
   });
+}
+
+export function removeFromMap<T>(map: Record<Column, T>, key: string): Record<Column, T> {
+  const copy = { ...map };
+  delete copy[key];
+  return copy;
+}
+
+export function addToMap<T>(
+  map: Record<Column, T>,
+  key: string,
+  value: T
+): Record<Column, T> {
+  return {
+    ...map,
+    [key]: value
+  };
 }

@@ -1,16 +1,16 @@
-import { configureStore } from "@reduxjs/toolkit";
+import { configureStore } from '@reduxjs/toolkit';
 
-import { connectionReducer } from "./connection/connectionSlice";
-import { dataSlice } from "./data/dataSlice";
-import { listenerMiddleware } from "./listenerMiddleware";
+import { connectionReducer } from './connection/connectionSlice';
+import { dataSlice } from './data/dataSlice';
+import { listenerMiddleware } from './listenerMiddleware';
 
 export const store = configureStore({
   reducer: {
     data: dataSlice.reducer,
-    connection: connectionReducer,
+    connection: connectionReducer
   },
   middleware: (getDefaultMiddleware) =>
-    getDefaultMiddleware().concat([listenerMiddleware.middleware]),
+    getDefaultMiddleware().concat([listenerMiddleware.middleware])
 });
 
 // Infer the `RootState` and `AppDispatch` types from the store itself

@@ -1,4 +1,4 @@
-import { createSlice } from "@reduxjs/toolkit";
+import { createSlice } from '@reduxjs/toolkit';
 
 // TODO: Move these types somewhere else
 interface DataEntry {
@@ -16,31 +16,31 @@ interface DataState {
 
 const initialState: DataState = {
   full: [],
-  uncertainty: [],
+  uncertainty: []
 };
 
 export const dataSlice = createSlice({
-  name: "data",
+  name: 'data',
   initialState,
   reducers: {
     initializeData: (state, action) => {
       // Remove som non-interesting or problematic columns
       const columnsToRemove = [
-        "rastr",
-        "decstr",
-        "ed_ESM",
-        "sy_refname",
-        "pl_refname",
-        "st_refname",
-        "dt_obj",
-        "pl_rprs2",
-        "tran_flag",
-        "soltype",
-        "disc_facility",
-        "gaia_id",
-        "pl_bmassprov",
-        "default_flag",
-        "ttv_flag",
+        'rastr',
+        'decstr',
+        'ed_ESM',
+        'sy_refname',
+        'pl_refname',
+        'st_refname',
+        'dt_obj',
+        'pl_rprs2',
+        'tran_flag',
+        'soltype',
+        'disc_facility',
+        'gaia_id',
+        'pl_bmassprov',
+        'default_flag',
+        'ttv_flag'
       ];
 
       // Split the data into one part with the data values, and one with uncertainty
@@ -54,16 +54,16 @@ export const dataSlice = createSlice({
         for (const key in item) {
           // Skip some columns completely
           if (
-            key.endsWith("lim") ||
+            key.endsWith('lim') ||
             // key.endsWith("apogee") || // for now, skip metallicity cols
             // key.endsWith("galah") || // for now, skip metallicity cols
-            key.startsWith("molecule") || // and molecule columns
+            key.startsWith('molecule') || // and molecule columns
             columnsToRemove.includes(key)
           ) {
             continue;
           }
           // Handle uncertainty columns
-          if (key.endsWith("err1") || key.endsWith("err2")) {
+          if (key.endsWith('err1') || key.endsWith('err2')) {
             uncertaintyEntry[key] = item[key];
             continue;
           }
@@ -76,8 +76,8 @@ export const dataSlice = createSlice({
 
       state.full = fullData;
       state.uncertainty = uncertaintyData;
-    },
-  },
+    }
+  }
 });
 
 export const { initializeData } = dataSlice.actions;

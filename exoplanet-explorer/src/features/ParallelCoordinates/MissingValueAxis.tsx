@@ -11,6 +11,7 @@ interface Props {
 
 export function MissingValueAxis({ dimension, x, y, onBrush }: Props) {
   const [brushMode, setBrushMode] = useState<NanBrushMode | undefined>(undefined);
+  const [hovered, setHovered] = useState(false);
 
   function colorForMode(mode: NanBrushMode | undefined) {
     if (mode === NanBrushMode.Block) return 'rgba(220, 0, 0)';
@@ -33,9 +34,11 @@ export function MissingValueAxis({ dimension, x, y, onBrush }: Props) {
 
   return (
     <circle
+      onMouseOver={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
       cx={0}
       cy={y}
-      r={4}
+      r={hovered ? 7 : 5}
       fill={colorForMode(brushMode)}
       onClick={onClick}
       transform={`translate(${x},0)`}

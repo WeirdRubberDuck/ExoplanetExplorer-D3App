@@ -15,6 +15,11 @@ export function useBrushing(data: DataItem[]) {
   const [brushes, setBrushes] = useState<Record<Column, BrushFilter>>({});
   const [nanBrushes, setNanBrushes] = useState<Record<Column, NanBrushMode>>({});
 
+  function clearBrushes() {
+    setBrushes({});
+    setNanBrushes({});
+  }
+
   function handleBrush(dimension: Dimension, y0: number, y1: number) {
     if (dimension.type === 'number') {
       const { scale } = dimension;
@@ -98,6 +103,7 @@ export function useBrushing(data: DataItem[]) {
   );
 
   return {
+    clearBrushes,
     handleBrush,
     handleBrushClear,
     handleNanBrush,

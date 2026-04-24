@@ -6,22 +6,9 @@ import { hasValue } from '@/utils/util.ts';
 
 import { Axis } from './Axis.tsx';
 import { AxisBrush } from './AxisBrush.tsx';
-import { useBrushing } from './hooks.ts';
 import { MissingValueAxis } from './MissingValueAxis.tsx';
-import { type DataItem, type Dimension } from './types.ts';
+import { type Column, type DataItem, type Dimension, NanBrushMode } from './types.ts';
 import { inferDimensions } from './util.ts';
-
-const pcDefaultColumns = [
-  'discoverymethod',
-  'sy_pnum',
-  'pl_bmasse',
-  'pl_rade',
-  'pl_orbincl',
-  'pl_Teq',
-  'sy_dist',
-  'st_spectype',
-  'st_age'
-];
 
 function MissingValueAxisLabel({
   yPos,
@@ -75,6 +62,8 @@ function MissingValueAxisLabel({
 
 export function ParallelCoordinatesChart({
   data,
+  filteredData,
+  columns,
   width,
   height,
   cfg = {
@@ -82,9 +71,14 @@ export function ParallelCoordinatesChart({
     lineOpacity: 1.0, // Opacity of each line in the plot
     shadowLines: false, // Whether to shadow lines
     showGhostLines: false // Whether to show ghost lines for filtered out paths
-  }
+  },
+  handleBrush,
+  handleBrushClear,
+  handleNanBrush
 }: {
   data: DataItem[];
+  filteredData: DataItem[];
+  columns: Column[];
   width: number;
   height: number;
   cfg?: {
@@ -93,10 +87,10 @@ export function ParallelCoordinatesChart({
     shadowLines?: boolean;
     showGhostLines?: boolean;
   };
+  handleBrush: (dimension: Dimension, y0: number, y1: number) => void;
+  handleBrushClear?: (dimension: Dimension) => void;
+  handleNanBrush?: (dimension: Dimension, mode: NanBrushMode | undefined) => void;
 }) {
-  const { handleBrush, handleBrushClear, handleNanBrush, filteredData } =
-    useBrushing(data);
-
   const { colorScheme } = useMantineColorScheme();
 
   // Extra margin for the left to fit the longest y axis labels
@@ -119,8 +113,8 @@ export function ParallelCoordinatesChart({
   const internalHeight = height - margin.top - margin.bottom - extraHeight;
 
   const dimensions: Dimension[] = useMemo(
-    () => inferDimensions(data, pcDefaultColumns, internalHeight),
-    [data, internalHeight]
+    () => inferDimensions(data, columns, internalHeight),
+    [data, columns, internalHeight]
   );
 
   const xScale = useMemo(

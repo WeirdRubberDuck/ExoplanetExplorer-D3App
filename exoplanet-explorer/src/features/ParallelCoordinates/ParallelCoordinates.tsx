@@ -1,21 +1,55 @@
 import { useState } from 'react';
-import { Box, Checkbox, Slider, Stack, Text, Title } from '@mantine/core';
+import { Box, Button, Checkbox, Group, Slider, Stack, Text, Title } from '@mantine/core';
 import { useResizeObserver, useViewportSize } from '@mantine/hooks';
 
 import { ParallelCoordinatesChart } from './Chart.tsx';
-import { dymmyData } from './dummydata.ts'; // TODO: Replace with actual data
+import { dummyData } from './dummydata.ts'; // TODO: Replace with actual data
+import { useBrushing } from './hooks.ts';
 import type { DataItem } from './types.ts';
 
+const pcDefaultColumns = [
+  'discoverymethod',
+  'sy_pnum',
+  'pl_bmasse',
+  'pl_rade',
+  'pl_orbincl',
+  'pl_Teq',
+  'sy_dist',
+  'st_spectype',
+  'st_age'
+];
+
 export function ParallelCoordinates() {
+  const { clearBrushes, handleBrush, handleBrushClear, handleNanBrush, filteredData } =
+    useBrushing(dummyData as DataItem[]);
+
   const [lineOpacity, setLineOpacity] = useState(0.7);
   const [shouldShadowLines, setShadowLines] = useState(false);
   const [showGhostLines, setGhostLines] = useState(true);
+  const [chartRenderKey, setChartRenderKey] = useState(0);
 
   const [containerRef, container] = useResizeObserver();
   const { height } = useViewportSize();
 
+  const handleResetFilter = () => {
+    clearBrushes();
+    // Force re-render to clear brushes
+    setChartRenderKey((current) => current + 1);
+  };
+
   return (
     <>
+      <Group>
+        <Button onClick={handleResetFilter}>Reset filter</Button>
+        <Group gap={5}>
+          <Text size={'md'} fw={500}>
+            {filteredData.length}{' '}
+          </Text>
+          <Text size={'xs'} c={'dimmed'}>
+            / {dummyData.length} planets shown
+          </Text>
+        </Group>
+      </Group>
       <Box
         style={{
           resize: 'vertical',
@@ -27,7 +61,9 @@ export function ParallelCoordinates() {
         ref={containerRef}
       >
         <ParallelCoordinatesChart
-          data={dymmyData as DataItem[]}
+          key={chartRenderKey}
+          data={dummyData as DataItem[]}
+          filteredData={filteredData}
           width={container ? container.width : 400}
           height={container ? container.height : 400}
           cfg={{
@@ -35,6 +71,10 @@ export function ParallelCoordinates() {
             shadowLines: shouldShadowLines,
             showGhostLines: showGhostLines
           }}
+          handleBrush={handleBrush}
+          handleBrushClear={handleBrushClear}
+          handleNanBrush={handleNanBrush}
+          columns={pcDefaultColumns}
         />
       </Box>
       <Box w={300} p={'md'}>

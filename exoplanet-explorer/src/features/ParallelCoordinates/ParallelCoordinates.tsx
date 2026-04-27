@@ -1,21 +1,9 @@
 import { useState } from 'react';
-import {
-  Box,
-  Button,
-  Checkbox,
-  Group,
-  Skeleton,
-  Slider,
-  Stack,
-  Text,
-  Title
-} from '@mantine/core';
-import { useResizeObserver, useViewportSize } from '@mantine/hooks';
+import { Box, Checkbox, Slider, Stack, Text, Title } from '@mantine/core';
 
 import { data as dummyData } from '@/public/dummydata.ts'; // TODO: Replace with actual data
 
 import { ParallelCoordinatesChart } from './Chart.tsx';
-import { useBrushing } from './hooks.ts';
 import type { DataItem } from './types.ts';
 
 const pcDefaultColumns = [
@@ -31,68 +19,19 @@ const pcDefaultColumns = [
 ];
 
 export function ParallelCoordinates() {
-  const { clearBrushes, handleBrush, handleBrushClear, handleNanBrush, filteredData } =
-    useBrushing(dummyData as DataItem[]);
-
   const [lineOpacity, setLineOpacity] = useState(0.7);
   const [showGhostLines, setGhostLines] = useState(true);
-  const [chartRenderKey, setChartRenderKey] = useState(0);
-
-  const [containerRef, container] = useResizeObserver();
-  const { height } = useViewportSize();
-
-  const fallbackHeight = 400;
-  const computedHeight = height > 0 ? 0.5 * height : fallbackHeight;
-
-  const handleResetFilter = () => {
-    clearBrushes();
-    // Force re-render to clear brushes
-    setChartRenderKey((current) => current + 1);
-  };
 
   return (
     <>
-      <Group>
-        <Button onClick={handleResetFilter}>Reset filter</Button>
-        <Group gap={5}>
-          <Text size={'md'} fw={500}>
-            {filteredData.length}{' '}
-          </Text>
-          <Text size={'xs'} c={'dimmed'}>
-            / {dummyData.length} planets shown
-          </Text>
-        </Group>
-      </Group>
-      <Box
-        style={{
-          resize: 'vertical',
-          height: computedHeight,
-          maxHeight: height > 0 ? height : fallbackHeight,
-          minHeight: 200,
-          overflow: 'hidden'
+      <ParallelCoordinatesChart
+        data={dummyData as DataItem[]}
+        cfg={{
+          lineOpacity,
+          showGhostLines: showGhostLines
         }}
-        ref={containerRef}
-      >
-        {container?.height ? (
-          <ParallelCoordinatesChart
-            key={chartRenderKey}
-            data={dummyData as DataItem[]}
-            filteredData={filteredData}
-            width={container ? container.width : 400}
-            height={container ? container.height : computedHeight}
-            cfg={{
-              lineOpacity,
-              showGhostLines: showGhostLines
-            }}
-            handleBrush={handleBrush}
-            handleBrushClear={handleBrushClear}
-            handleNanBrush={handleNanBrush}
-            columns={pcDefaultColumns}
-          />
-        ) : (
-          <Skeleton height={computedHeight} />
-        )}
-      </Box>
+        columns={pcDefaultColumns}
+      />
       <Box w={300} p={'md'}>
         <Stack gap={'xs'}>
           <Title order={2}>Settings</Title>

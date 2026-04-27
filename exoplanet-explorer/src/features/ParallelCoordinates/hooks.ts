@@ -1,4 +1,5 @@
 import { useCallback, useMemo, useState } from 'react';
+import * as d3 from 'd3';
 
 import { hasValue } from '@/utils/util';
 
@@ -9,7 +10,44 @@ import {
   type Dimension,
   NanBrushMode
 } from './types';
-import { addToMap, removeFromMap } from './util';
+import { addToMap, inferDimensions, removeFromMap } from './util';
+
+export function useChartScales(
+  data: DataItem[],
+  columns: Column[],
+  width: number,
+  height: number,
+  nanAxisYPos: number
+) {
+  const dimensions: Dimension[] = useMemo(
+    () => inferDimensions(data, columns, height),
+    [data, columns, height]
+  );
+
+  const xScale = useMemo(
+    () =>
+      d3
+        .scalePoint<string>()
+        .domain(dimensions.map((d) => d.key))
+        .range([0, width]),
+    [dimensions, width]
+  );
+
+  const yPos = useCallback(
+    (d: DataItem, dim: Dimension): number => {
+      if (dim.type === 'number') {
+        const isMissing = !hasValue(d[dim.key]) || isNaN(Number(d[dim.key]));
+        return isMissing ? nanAxisYPos : dim.scale(Number(d[dim.key]));
+      }
+
+      const isEmpty = d[dim.key] == null || String(d[dim.key]) === '';
+      return isEmpty ? nanAxisYPos : dim.scale(String(d[dim.key]))!;
+    },
+    [nanAxisYPos]
+  );
+
+  return { dimensions, xScale, yPos };
+}
 
 export function useBrushing(data: DataItem[]) {
   const [brushes, setBrushes] = useState<Record<Column, BrushFilter>>({});

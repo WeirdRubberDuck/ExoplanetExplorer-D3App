@@ -26,6 +26,8 @@ export function ParallelCoordinates() {
     <>
       <ParallelCoordinatesChart
         data={dummyData as DataItem[]}
+        defaultHeight={400}
+        maxHeight={1000}
         cfg={{
           lineOpacity,
           showGhostLines: showGhostLines

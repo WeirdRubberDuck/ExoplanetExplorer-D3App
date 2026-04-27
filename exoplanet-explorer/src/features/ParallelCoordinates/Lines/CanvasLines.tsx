@@ -58,7 +58,7 @@ export function CanvasLines({
     // Pre-compute x positions to avoid repeated scale lookups in the inner loop
     const xPositions = dimensions.map((dim) => xScale(dim.key) ?? 0);
 
-    const CHUNK_SIZE = 200;
+    const CHUNK_SIZE = 300;
     let chunkIndex = 0;
     let rafId: number;
 

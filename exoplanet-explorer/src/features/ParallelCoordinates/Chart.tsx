@@ -121,7 +121,7 @@ export function ParallelCoordinatesChart({
         ) : (
           <div style={{ position: 'relative' }}>
             {/* Lines */}
-            <GhostLines {...linesProps} data={data} />
+            {cfg.showGhostLines && <GhostLines {...linesProps} data={data} />}
             <CanvasLines {...linesProps} data={filteredData} strokeColor={'steelblue'} />
 
             {/* Axes */}

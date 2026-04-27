@@ -35,7 +35,7 @@ export function Axis({ dimension, handleBrush, handleBrushClear }: Props) {
         [-brushWidth, dimension.scale.range()[1]],
         [brushWidth, dimension.scale.range()[0]]
       ])
-      .on('end', (event) => {
+      .on('brush end', (event) => {
         const { selection } = event;
 
         if (!selection) {

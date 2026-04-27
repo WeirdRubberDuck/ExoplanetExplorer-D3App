@@ -1,10 +1,11 @@
 import { useCallback, useMemo } from 'react';
-import { useMantineColorScheme } from '@mantine/core';
 import * as d3 from 'd3';
 
 import { hasValue } from '@/utils/util.ts';
 
 import { Axes } from './Axes/Axes.tsx';
+import { CanvasLines } from './Lines/CanvasLines.tsx';
+import { GhostLines } from './Lines/GhostLines.tsx';
 import { MissingValueAxisLabel } from './MissinValueAxisLabel.tsx';
 import { type Column, type DataItem, type Dimension, NanBrushMode } from './types.ts';
 import { inferDimensions } from './util.ts';
@@ -40,8 +41,6 @@ export function ParallelCoordinatesChart({
   handleBrushClear,
   handleNanBrush
 }: Props) {
-  const { colorScheme } = useMantineColorScheme();
-
   // Extra margin for the left to fit the longest y axis labels
   const extraLeftMargin = 100;
   const extraRightMargin = 50;
@@ -60,6 +59,7 @@ export function ParallelCoordinatesChart({
     width - margin.left - extraLeftMargin - margin.right - extraRightMargin;
 
   const internalHeight = height - margin.top - margin.bottom - extraHeight;
+  const heightWithNanAxis = height - extraHeight;
   const nanAxisYPos = 1.1 * internalHeight;
 
   const dimensions: Dimension[] = useMemo(
@@ -76,8 +76,6 @@ export function ParallelCoordinatesChart({
     [dimensions, internalWidth]
   );
 
-  const line = useMemo(() => d3.line<[number, number]>(), []);
-
   const yPos = useCallback(
     (d: DataItem, dim: Dimension): number => {
       if (dim.type === 'number') {
@@ -91,68 +89,39 @@ export function ParallelCoordinatesChart({
     [nanAxisYPos]
   );
 
-  const path = useCallback(
-    (row: DataItem) => {
-      const points: [number, number][] = dimensions.map((dim) => {
-        const x = xScale(dim.key)!;
-        const y = yPos(row, dim);
-        return [x, y];
-      });
-
-      return line(points);
-    },
-    [dimensions, line, xScale, yPos]
-  );
-
-  const allPaths = useMemo(() => data.map((d) => path(d) ?? ''), [data, path]);
-  const filteredPaths = useMemo(
-    () => filteredData.map((d) => path(d) ?? ''),
-    [filteredData, path]
-  );
+  const linesProps = {
+    dimensions,
+    xScale,
+    yPos,
+    xOffset: margin.left + extraLeftMargin,
+    yOffset: margin.top,
+    opacity: cfg.lineOpacity,
+    strokeWidth: cfg.strokeWidth,
+    width: internalWidth,
+    height: heightWithNanAxis
+  };
 
   return (
-    <svg width={width} height={height}>
-      <g transform={`translate(${margin.left + extraLeftMargin}, ${margin.top})`}>
-        {/* Background lines (for context when filtering) */}
-        {cfg.showGhostLines &&
-          allPaths.map((d, i) => (
-            <path
-              key={i}
-              d={d || undefined}
-              fill={'none'}
-              stroke={
-                colorScheme === 'dark'
-                  ? 'var(--mantine-color-dark-5)'
-                  : 'var(--mantine-color-gray-2)'
-              }
-              strokeWidth={cfg.strokeWidth}
-            />
-          ))}
-        {/* Foreground lines (colored) */}
-        <g>
-          {filteredPaths.map((d, i) => (
-            <path
-              key={i}
-              d={d || undefined}
-              fill={'none'}
-              stroke={'steelblue'}
-              opacity={cfg.lineOpacity}
-              strokeWidth={cfg.strokeWidth}
-            />
-          ))}
+    <div style={{ position: 'relative', width, height }}>
+      {/* Lines */}
+      <GhostLines {...linesProps} data={data} />
+      <CanvasLines {...linesProps} data={filteredData} strokeColor={'steelblue'} />
+
+      {/* Axes */}
+      <svg width={width} height={height} style={{ position: 'absolute', inset: 0 }}>
+        <g transform={`translate(${margin.left + extraLeftMargin}, ${margin.top})`}>
+          <Axes
+            dimensions={dimensions}
+            xScale={xScale}
+            nanAxisYPos={nanAxisYPos}
+            handleBrush={handleBrush}
+            handleBrushClear={handleBrushClear}
+            handleNanBrush={handleNanBrush}
+          />
+          {/* NaN axis line and label */}
+          <MissingValueAxisLabel yPos={nanAxisYPos} width={internalWidth} />
         </g>
-        {/* Axes */}
-        <Axes
-          dimensions={dimensions}
-          xScale={xScale}
-          nanAxisYPos={nanAxisYPos}
-          handleBrush={handleBrush}
-          handleBrushClear={handleBrushClear}
-          handleNanBrush={handleNanBrush}
-        />
-        {/* NaN axis line and label */}
-        <MissingValueAxisLabel yPos={nanAxisYPos} width={internalWidth} />
-      </g>
-    </svg>
+      </svg>
+    </div>
   );
 }

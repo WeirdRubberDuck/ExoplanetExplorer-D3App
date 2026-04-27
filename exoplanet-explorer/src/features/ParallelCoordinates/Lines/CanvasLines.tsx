@@ -58,24 +58,42 @@ export function CanvasLines({
     // Pre-compute x positions to avoid repeated scale lookups in the inner loop
     const xPositions = dimensions.map((dim) => xScale(dim.key) ?? 0);
 
-    // Batch all paths into a single stroke call
-    ctx.beginPath();
+    const CHUNK_SIZE = 200;
+    let chunkIndex = 0;
+    let rafId: number;
 
-    data.forEach((row) => {
-      dimensions.forEach((dim, idx) => {
-        const x = xPositions[idx];
-        const y = yPos(row, dim);
+    function renderChunk() {
+      const end = Math.min(chunkIndex + CHUNK_SIZE, data.length);
 
-        if (idx === 0) {
-          ctx.moveTo(x, y);
-        } else {
-          ctx.lineTo(x, y);
-        }
-      });
-    });
+      ctx!.beginPath();
+      for (let i = chunkIndex; i < end; i++) {
+        const row = data[i];
+        dimensions.forEach((dim, idx) => {
+          const x = xPositions[idx];
+          const y = yPos(row, dim);
+          if (idx === 0) {
+            ctx!.moveTo(x, y);
+          } else {
+            ctx!.lineTo(x, y);
+          }
+        });
+      }
+      ctx!.stroke();
 
-    ctx.stroke();
-    ctx.globalAlpha = 1;
+      chunkIndex = end;
+      if (chunkIndex < data.length) {
+        rafId = requestAnimationFrame(renderChunk);
+      } else {
+        ctx!.globalAlpha = 1;
+      }
+    }
+
+    renderChunk();
+
+    return () => {
+      cancelAnimationFrame(rafId);
+      ctx.globalAlpha = 1;
+    };
   }, [data, dimensions, xScale, yPos, width, height, opacity, strokeWidth, strokeColor]);
 
   return (

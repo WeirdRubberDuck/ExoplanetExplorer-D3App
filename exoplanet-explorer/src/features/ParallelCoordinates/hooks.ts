@@ -97,10 +97,12 @@ export function useBrushing(data: DataItem[]) {
     [brushes]
   );
 
-  const filteredData = useMemo(
-    () => data.filter((row) => passesNanBrushes(row) && passesAxisBrushes(row)),
-    [data, passesNanBrushes, passesAxisBrushes]
-  );
+  const filteredData = useMemo(() => {
+    if (Object.keys(brushes).length === 0 && Object.keys(nanBrushes).length === 0) {
+      return data;
+    }
+    return data.filter((row) => passesNanBrushes(row) && passesAxisBrushes(row));
+  }, [data, brushes, nanBrushes, passesNanBrushes, passesAxisBrushes]);
 
   return {
     clearBrushes,

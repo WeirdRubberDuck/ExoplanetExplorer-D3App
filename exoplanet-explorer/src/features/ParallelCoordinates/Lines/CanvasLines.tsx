@@ -55,11 +55,15 @@ export function CanvasLines({
     ctx.globalAlpha = opacity;
     ctx.lineWidth = strokeWidth;
 
-    data.forEach((row) => {
-      ctx.beginPath();
+    // Pre-compute x positions to avoid repeated scale lookups in the inner loop
+    const xPositions = dimensions.map((dim) => xScale(dim.key) ?? 0);
 
+    // Batch all paths into a single stroke call
+    ctx.beginPath();
+
+    data.forEach((row) => {
       dimensions.forEach((dim, idx) => {
-        const x = xScale(dim.key) ?? 0;
+        const x = xPositions[idx];
         const y = yPos(row, dim);
 
         if (idx === 0) {
@@ -68,10 +72,9 @@ export function CanvasLines({
           ctx.lineTo(x, y);
         }
       });
-
-      ctx.stroke();
     });
 
+    ctx.stroke();
     ctx.globalAlpha = 1;
   }, [data, dimensions, xScale, yPos, width, height, opacity, strokeWidth, strokeColor]);
 

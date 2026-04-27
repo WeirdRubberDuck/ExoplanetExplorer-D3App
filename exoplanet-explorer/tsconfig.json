@@ -7,6 +7,7 @@
       "@/features/*": ["./src/features/*"],
       "@/hooks/*": ["./src/hooks/*"],
       "@/pages/*": ["./src/pages/*"],
+      "@/public/*": ["./public/*"],
       "@/redux/*": ["./src/redux/*"],
       "@/utils/*": ["./src/utils/*"]
     },

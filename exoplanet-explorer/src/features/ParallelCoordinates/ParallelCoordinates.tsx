@@ -2,8 +2,9 @@ import { useState } from 'react';
 import { Box, Button, Checkbox, Group, Slider, Stack, Text, Title } from '@mantine/core';
 import { useResizeObserver, useViewportSize } from '@mantine/hooks';
 
+import { data as dummyData } from '@/public/dummydata.ts'; // TODO: Replace with actual data
+
 import { ParallelCoordinatesChart } from './Chart.tsx';
-import { dummyData } from './dummydata.ts'; // TODO: Replace with actual data
 import { useBrushing } from './hooks.ts';
 import type { DataItem } from './types.ts';
 
@@ -53,7 +54,7 @@ export function ParallelCoordinates() {
       <Box
         style={{
           resize: 'vertical',
-          height: 800,
+          height: 0.5 * height,
           maxHeight: height,
           minHeight: 200,
           overflow: 'hidden'
@@ -78,7 +79,7 @@ export function ParallelCoordinates() {
         />
       </Box>
       <Box w={300} p={'md'}>
-        <Stack>
+        <Stack gap={'xs'}>
           <Title order={2}>Settings</Title>
           <Box>
             <Text>Line opacity</Text>

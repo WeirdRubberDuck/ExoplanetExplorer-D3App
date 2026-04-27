@@ -49,7 +49,7 @@ export function ParallelCoordinatesChart({
   const extraRightMargin = 50;
 
   // Extra height to place the NaN axis
-  const extraHeight = 60;
+  const extraHeight = 0.05 * height;
 
   const margin = {
     top: 50,

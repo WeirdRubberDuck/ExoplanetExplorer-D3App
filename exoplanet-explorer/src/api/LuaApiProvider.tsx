@@ -1,19 +1,16 @@
-import { type PropsWithChildren, useEffect, useState } from "react";
+import { type PropsWithChildren, useEffect, useState } from 'react';
 
-import { api } from "@/api/api";
-import { closeConnection } from "@/redux/connection/connectionMiddleware";
-import {
-  ConnectionStatus,
-  startConnection,
-} from "@/redux/connection/connectionSlice";
-import { useAppDispatch, useAppSelector } from "@/redux/hooks";
+import { api } from '@/api/api';
+import { closeConnection } from '@/redux/connection/connectionMiddleware';
+import { ConnectionStatus, startConnection } from '@/redux/connection/connectionSlice';
+import { useAppDispatch, useAppSelector } from '@/redux/hooks';
 
-import { LuaApiContext } from "./LuaApiContext";
+import { LuaApiContext } from './LuaApiContext';
 
 export function LuaApiProvider({ children }: PropsWithChildren) {
   const [luaApi, setLuaApi] = useState<OpenSpace.openspace | null>(null);
   const isConnected = useAppSelector(
-    (state) => state.connection.connectionStatus === ConnectionStatus.Connected,
+    (state) => state.connection.connectionStatus === ConnectionStatus.Connected
   );
   const dispatch = useAppDispatch();
 
@@ -32,7 +29,7 @@ export function LuaApiProvider({ children }: PropsWithChildren) {
         const res = await api.singleReturnLibrary();
         setLuaApi(res);
       } catch (e) {
-        console.error("Failed to fetch Lua API:", e);
+        console.error('Failed to fetch Lua API:', e);
       }
     };
     if (isConnected) {
@@ -40,9 +37,8 @@ export function LuaApiProvider({ children }: PropsWithChildren) {
       const timer = setTimeout(fetchApi, 100);
       return () => clearTimeout(timer);
     }
+    return;
   }, [isConnected, dispatch]);
 
-  return (
-    <LuaApiContext.Provider value={luaApi}>{children}</LuaApiContext.Provider>
-  );
+  return <LuaApiContext.Provider value={luaApi}>{children}</LuaApiContext.Provider>;
 }

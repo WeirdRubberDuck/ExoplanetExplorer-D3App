@@ -1,5 +1,15 @@
 import { useState } from 'react';
-import { Box, Button, Checkbox, Group, Slider, Stack, Text, Title } from '@mantine/core';
+import {
+  Box,
+  Button,
+  Checkbox,
+  Group,
+  Skeleton,
+  Slider,
+  Stack,
+  Text,
+  Title
+} from '@mantine/core';
 import { useResizeObserver, useViewportSize } from '@mantine/hooks';
 
 import { data as dummyData } from '@/public/dummydata.ts'; // TODO: Replace with actual data
@@ -31,6 +41,9 @@ export function ParallelCoordinates() {
   const [containerRef, container] = useResizeObserver();
   const { height } = useViewportSize();
 
+  const fallbackHeight = 400;
+  const computedHeight = height > 0 ? 0.5 * height : fallbackHeight;
+
   const handleResetFilter = () => {
     clearBrushes();
     // Force re-render to clear brushes
@@ -53,28 +66,32 @@ export function ParallelCoordinates() {
       <Box
         style={{
           resize: 'vertical',
-          height: 0.5 * height,
-          maxHeight: height,
+          height: computedHeight,
+          maxHeight: height > 0 ? height : fallbackHeight,
           minHeight: 200,
           overflow: 'hidden'
         }}
         ref={containerRef}
       >
-        <ParallelCoordinatesChart
-          key={chartRenderKey}
-          data={dummyData as DataItem[]}
-          filteredData={filteredData}
-          width={container ? container.width : 400}
-          height={container ? container.height : 400}
-          cfg={{
-            lineOpacity,
-            showGhostLines: showGhostLines
-          }}
-          handleBrush={handleBrush}
-          handleBrushClear={handleBrushClear}
-          handleNanBrush={handleNanBrush}
-          columns={pcDefaultColumns}
-        />
+        {container?.height ? (
+          <ParallelCoordinatesChart
+            key={chartRenderKey}
+            data={dummyData as DataItem[]}
+            filteredData={filteredData}
+            width={container ? container.width : 400}
+            height={container ? container.height : computedHeight}
+            cfg={{
+              lineOpacity,
+              showGhostLines: showGhostLines
+            }}
+            handleBrush={handleBrush}
+            handleBrushClear={handleBrushClear}
+            handleNanBrush={handleNanBrush}
+            columns={pcDefaultColumns}
+          />
+        ) : (
+          <Skeleton height={computedHeight} />
+        )}
       </Box>
       <Box w={300} p={'md'}>
         <Stack gap={'xs'}>

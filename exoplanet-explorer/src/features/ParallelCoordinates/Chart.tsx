@@ -18,7 +18,6 @@ interface Props {
   cfg?: {
     strokeWidth?: number;
     lineOpacity?: number;
-    shadowLines?: boolean;
     showGhostLines?: boolean;
   };
   handleBrush: (dimension: Dimension, y0: number, y1: number) => void;
@@ -35,7 +34,6 @@ export function ParallelCoordinatesChart({
   cfg = {
     strokeWidth: 1, // The width of the stroke around each blob
     lineOpacity: 1.0, // Opacity of each line in the plot
-    shadowLines: false, // Whether to shadow lines
     showGhostLines: false // Whether to show ghost lines for filtered out paths
   },
   handleBrush,
@@ -140,11 +138,6 @@ export function ParallelCoordinatesChart({
               stroke={'steelblue'}
               opacity={cfg.lineOpacity}
               strokeWidth={cfg.strokeWidth}
-              style={{
-                filter: cfg.shadowLines
-                  ? 'drop-shadow( 1px 1px 1px rgba(0, 0, 0, .1))'
-                  : 'none'
-              }}
             />
           ))}
         </g>

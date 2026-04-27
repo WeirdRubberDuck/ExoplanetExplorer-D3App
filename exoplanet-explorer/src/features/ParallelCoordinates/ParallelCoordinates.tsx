@@ -25,7 +25,6 @@ export function ParallelCoordinates() {
     useBrushing(dummyData as DataItem[]);
 
   const [lineOpacity, setLineOpacity] = useState(0.7);
-  const [shouldShadowLines, setShadowLines] = useState(false);
   const [showGhostLines, setGhostLines] = useState(true);
   const [chartRenderKey, setChartRenderKey] = useState(0);
 
@@ -69,7 +68,6 @@ export function ParallelCoordinates() {
           height={container ? container.height : 400}
           cfg={{
             lineOpacity,
-            shadowLines: shouldShadowLines,
             showGhostLines: showGhostLines
           }}
           handleBrush={handleBrush}
@@ -91,11 +89,6 @@ export function ParallelCoordinates() {
               step={0.01}
             />
           </Box>
-          <Checkbox
-            label={'Shadow lines (slows down interaction)'}
-            checked={shouldShadowLines}
-            onChange={(e) => setShadowLines(e.target.checked)}
-          />
           <Checkbox
             label={'Show ghost lines for filtered out paths'}
             checked={showGhostLines}

@@ -4,6 +4,7 @@ import { Box, Checkbox, Slider, Stack, Text, Title } from '@mantine/core';
 import { data as dummyData } from '@/public/dummydata.ts'; // TODO: Replace with actual data
 
 import { ParallelCoordinatesChart } from './Chart.tsx';
+import { ColumnSelection } from './ColumnSelection.tsx';
 import type { DataItem } from './types.ts';
 
 const pcDefaultColumns = [
@@ -22,6 +23,8 @@ export function ParallelCoordinates() {
   const [lineOpacity, setLineOpacity] = useState(0.7);
   const [showGhostLines, setGhostLines] = useState(true);
 
+  const [selectedColumns, setSelectedColumns] = useState<string[]>(pcDefaultColumns);
+
   return (
     <>
       <ParallelCoordinatesChart
@@ -32,7 +35,7 @@ export function ParallelCoordinates() {
           lineOpacity,
           showGhostLines: showGhostLines
         }}
-        columns={pcDefaultColumns}
+        columns={selectedColumns}
       />
       <Box w={300} p={'md'}>
         <Stack gap={'xs'}>
@@ -51,6 +54,12 @@ export function ParallelCoordinates() {
             label={'Show ghost lines for filtered out paths'}
             checked={showGhostLines}
             onChange={(e) => setGhostLines(e.target.checked)}
+          />
+          <ColumnSelection
+            columns={dummyData.length > 0 ? Object.keys(dummyData[0]) : []}
+            primaryColumns={pcDefaultColumns}
+            defaultSelection={selectedColumns}
+            onSelectionChange={setSelectedColumns}
           />
         </Stack>
       </Box>

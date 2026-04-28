@@ -1,7 +1,8 @@
-import { useEffect, useState } from 'react';
-import { Box, Checkbox, Group, MultiSelect, Title } from '@mantine/core';
+import { useEffect, useMemo, useState } from 'react';
+import { Button, Checkbox, Group, MultiSelect } from '@mantine/core';
 
 import type { Column } from './types';
+import { isSameColumnArray } from './util';
 
 interface Props {
   columns: Column[];
@@ -33,9 +34,13 @@ export function ColumnSelection({
     }
   }
 
+  const selectionIsDefault = useMemo(
+    () => isSameColumnArray(selected, defaultSelection || []),
+    [selected, defaultSelection]
+  );
+
   return (
-    <Box w={600}>
-      <Title order={2}>Column selection</Title>
+    <>
       <Checkbox.Group
         label={'Primary columns'}
         value={selected.filter((col) => primaryColumns.includes(col))}
@@ -49,7 +54,7 @@ export function ColumnSelection({
               value={column}
               checked={selected.includes(column)}
               onChange={(event) => onTogglePrimary(column, event.currentTarget.checked)}
-              w={100}
+              w={110}
             />
           ))}
         </Group>
@@ -62,6 +67,13 @@ export function ColumnSelection({
         onChange={setSelected}
         hidePickedOptions
       />
-    </Box>
+      <Button
+        variant={'default'}
+        disabled={selectionIsDefault}
+        onClick={() => setSelected(defaultSelection || [])}
+      >
+        Reset columns
+      </Button>
+    </>
   );
 }

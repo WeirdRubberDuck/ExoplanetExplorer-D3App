@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Stack, Text } from '@mantine/core';
+import { Text } from '@mantine/core';
 
 import { useOpenSpaceApi } from '@/api/hooks';
 import { ParallelCoordinates } from '@/features/ParallelCoordinates/ParallelCoordinates';
@@ -35,13 +35,13 @@ export function HomePage() {
   }, [luaApi]);
 
   return (
-    <Stack gap={'xs'}>
+    <>
       <Text size={'xs'} c={'dimmed'}>
         {nNumPlanets !== null
           ? ` (Detected filtering in OpenSpace resulting in ${nNumPlanets} planets)`
           : ''}
       </Text>
       <ParallelCoordinates />
-    </Stack>
+    </>
   );
 }

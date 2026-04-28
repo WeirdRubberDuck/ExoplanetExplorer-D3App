@@ -66,3 +66,17 @@ export function addToMap<T>(
     [key]: value
   };
 }
+
+export function isSameColumnArray(arr1: Column[], arr2: Column[]): boolean {
+  if (arr1.length !== arr2.length) {
+    return false;
+  }
+  const set1 = new Set(arr1);
+  const set2 = new Set(arr2);
+  for (const col of set2) {
+    if (!set1.has(col)) {
+      return false;
+    }
+  }
+  return true;
+}

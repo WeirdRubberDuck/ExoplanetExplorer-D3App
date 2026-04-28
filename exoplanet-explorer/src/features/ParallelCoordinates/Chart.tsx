@@ -108,7 +108,7 @@ export function ParallelCoordinatesChart({
       </Group>
       <Box
         style={{
-          resize: 'vertical',
+          resize: 'both',
           height: defaultHeight,
           maxHeight: maxHeight,
           minHeight: 200,

@@ -1,18 +1,21 @@
 import * as d3 from 'd3';
 
 interface Props {
-  yPos: number;
   width: number;
+  lineY: number;
+  missingValueLabelY?: number;
+  uncertaintyLabelY?: number;
   showUncertaintyLabel?: boolean;
 }
 
 export function MissingValueAxisLabel({
-  yPos,
   width,
+  lineY,
+  missingValueLabelY = lineY - 10,
+  uncertaintyLabelY = lineY + 17,
   showUncertaintyLabel = true
 }: Props) {
   const textPositionX = -20;
-  const lineY = yPos + 15;
   const xExtend = 30;
 
   const line = d3.line()([
@@ -27,22 +30,22 @@ export function MissingValueAxisLabel({
         <text
           className={'legend'}
           x={textPositionX}
-          y={lineY}
-          dy={-10}
+          y={missingValueLabelY}
           fontSize={'11px'}
           fill={'var(--mantine-color-default-color)'}
           textAnchor={'end'}
+          dominantBaseline={'middle'}
         >
           Missing values
         </text>
         {showUncertaintyLabel && (
           <text
             x={textPositionX}
-            y={lineY}
-            dy={17}
+            y={uncertaintyLabelY}
             fontSize={'11px'}
             fill={'var(--mantine-color-default-color)'}
             textAnchor={'end'}
+            dominantBaseline={'middle'}
           >
             Uncertainty axis
           </text>

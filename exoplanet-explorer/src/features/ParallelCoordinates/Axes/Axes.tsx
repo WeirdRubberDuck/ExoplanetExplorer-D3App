@@ -4,6 +4,8 @@ import { type Dimension, NanBrushMode } from '../types.ts';
 
 import { Axis } from './Axis.tsx';
 import { MissingValueAxis } from './MissingValueAxis.tsx';
+import { MissingValueAxisLabel } from './MissinValueAxisLabel.tsx';
+import { UncertaintyAxisCheckbox } from './UncertaintyAxisCheckbox.tsx';
 
 interface Props {
   dimensions: Dimension[];
@@ -22,8 +24,14 @@ export function Axes({
   handleBrushClear,
   handleNanBrush
 }: Props) {
+  // TODO: Move the axis label in here
+
+  const internalWidth = xScale.range()[1] - xScale.range()[0];
+  const missingValueY = nanAxisYPos;
+  const axisLabelY = nanAxisYPos + 15;
+  const uncertaintyCheckboxY = nanAxisYPos + 32;
   return (
-    <g className={'axes'}>
+    <>
       {dimensions.map((dim) => (
         <g key={dim.key} transform={`translate(${xScale(dim.key)},0)`}>
           {/* Axis label - used for dragging */}
@@ -42,9 +50,17 @@ export function Axes({
             handleBrush={handleBrush}
             handleBrushClear={handleBrushClear}
           />
-          <MissingValueAxis dimension={dim} y={nanAxisYPos} onBrush={handleNanBrush} />
+          <MissingValueAxis dimension={dim} y={missingValueY} onBrush={handleNanBrush} />
+          <UncertaintyAxisCheckbox y={uncertaintyCheckboxY} size={14} strokeWidth={3} />
         </g>
       ))}
-    </g>
+      {/* NaN axis line and label */}
+      <MissingValueAxisLabel
+        lineY={axisLabelY}
+        missingValueLabelY={missingValueY}
+        uncertaintyLabelY={uncertaintyCheckboxY}
+        width={internalWidth}
+      />
+    </>
   );
 }

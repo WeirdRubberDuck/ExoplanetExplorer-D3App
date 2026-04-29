@@ -6,7 +6,6 @@ import { Axes } from './Axes/Axes.tsx';
 import { CanvasLines } from './Lines/CanvasLines.tsx';
 import { GhostLines } from './Lines/GhostLines.tsx';
 import { useBrushing, useChartScales } from './hooks.ts';
-import { MissingValueAxisLabel } from './MissinValueAxisLabel.tsx';
 import { type Column, type DataItem } from './types.ts';
 
 interface Props {
@@ -26,7 +25,7 @@ const extraLeftMargin = 100;
 const extraRightMargin = 50;
 
 function useChartLayout(containerWidth: number, containerHeight: number) {
-  const extraHeight = 0.05 * containerHeight;
+  const extraHeight = 0.1 * containerHeight;
   const internalWidth =
     containerWidth - margin.left - extraLeftMargin - margin.right - extraRightMargin;
   const internalHeight = containerHeight - margin.top - margin.bottom - extraHeight;
@@ -140,8 +139,6 @@ export function ParallelCoordinatesChart({
                   handleBrushClear={handleBrushClear}
                   handleNanBrush={handleNanBrush}
                 />
-                {/* NaN axis line and label */}
-                <MissingValueAxisLabel yPos={nanAxisYPos} width={internalWidth} />
               </g>
             </svg>
           </div>

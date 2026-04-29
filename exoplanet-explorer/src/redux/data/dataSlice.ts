@@ -1,22 +1,25 @@
 import { createSlice } from '@reduxjs/toolkit';
 
-// TODO: Move these types somewhere else
-interface DataEntry {
-  [key: string]: unknown;
-}
+import type { Column, DataItem, UncertaintyDataItem } from '@/types/types';
+import { hasValue } from '@/utils/util';
 
 interface DataState {
   // Data structures for full dataset, but with uncertainty data
   // Note that the ID of each planet corresponds to the index in these lists
-  full: DataEntry[];
+  full: DataItem[];
+  columns: Column[];
 
   // Just the uncertainty columns
-  uncertainty?: DataEntry[];
+  uncertainty: UncertaintyDataItem[];
+  // Uncertainty domains for each column (in percentage)
+  uncertaintyDomains: Record<Column, { min: number; max: number }>;
 }
 
 const initialState: DataState = {
   full: [],
-  uncertainty: []
+  columns: [],
+  uncertainty: [],
+  uncertaintyDomains: {}
 };
 
 export const dataSlice = createSlice({
@@ -24,50 +27,57 @@ export const dataSlice = createSlice({
   initialState,
   reducers: {
     initializeData: (state, action) => {
-      // Remove som non-interesting or problematic columns
-      const columnsToRemove = [
-        'rastr',
-        'decstr',
-        'ed_ESM',
-        'sy_refname',
-        'pl_refname',
-        'st_refname',
-        'dt_obj',
-        'pl_rprs2',
-        'tran_flag',
-        'soltype',
-        'disc_facility',
-        'gaia_id',
-        'pl_bmassprov',
-        'default_flag',
-        'ttv_flag'
-      ];
-
       // Split the data into one part with the data values, and one with uncertainty
       // columns
-      const fullData: DataEntry[] = [];
-      const uncertaintyData: DataEntry[] = [];
+      const fullData: DataItem[] = [];
+      const uncertaintyData: UncertaintyDataItem[] = [];
 
-      action.payload.forEach((item: DataEntry) => {
-        const newEntry: DataEntry = {};
-        const uncertaintyEntry: DataEntry = {};
+      action.payload.forEach((item: DataItem, index: number) => {
+        const newEntry: DataItem = { id: index };
+        const uncertaintyEntry: UncertaintyDataItem = {};
         for (const key in item) {
           // Skip some columns completely
-          if (
-            key.endsWith('lim') ||
-            // key.endsWith("apogee") || // for now, skip metallicity cols
-            // key.endsWith("galah") || // for now, skip metallicity cols
-            key.startsWith('molecule') || // and molecule columns
-            columnsToRemove.includes(key)
-          ) {
+          if (key.endsWith('lim')) {
             continue;
           }
           // Handle uncertainty columns
           if (key.endsWith('err1') || key.endsWith('err2')) {
-            uncertaintyEntry[key] = item[key];
+            const baseKey = key.slice(0, -4);
+            const value = hasValue(item[key]) ? Number(item[key]) : null;
+
+            // TODO: Compute the absolute uncertainty range (in percentage) not just the upper and lower bounds
+            if (key.endsWith('err1')) {
+              uncertaintyEntry[baseKey] = {
+                ...uncertaintyEntry[baseKey],
+                lower: value
+              };
+            } else {
+              uncertaintyEntry[baseKey] = {
+                ...uncertaintyEntry[baseKey],
+                upper: value
+              };
+            }
             continue;
           }
           newEntry[key] = item[key];
+        }
+
+        // Compute percentage uncertainty for each column that has both upper and lower
+        // bounds. keep track of the domains
+        for (const col in uncertaintyEntry) {
+          const value = hasValue(item[col]) ? Number(item[col]) : null;
+
+          const { upper, lower } = uncertaintyEntry[col];
+          if (value !== null && lower !== null && upper !== null) {
+            const percentage =
+              (100.0 * (Math.abs(upper) + Math.abs(lower))) / Math.abs(value);
+            uncertaintyEntry[col].percentage = percentage;
+
+            state.uncertaintyDomains[col] = {
+              min: Math.min(state.uncertaintyDomains[col]?.min ?? Infinity, percentage),
+              max: Math.max(state.uncertaintyDomains[col]?.max ?? -Infinity, percentage)
+            };
+          }
         }
 
         fullData.push(newEntry);
@@ -76,6 +86,8 @@ export const dataSlice = createSlice({
 
       state.full = fullData;
       state.uncertainty = uncertaintyData;
+
+      state.columns = Object.keys(fullData[0] || {}).filter((col) => col !== 'id');
     }
   }
 });

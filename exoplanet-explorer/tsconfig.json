@@ -9,6 +9,7 @@
       "@/pages/*": ["./src/pages/*"],
       "@/public/*": ["./public/*"],
       "@/redux/*": ["./src/redux/*"],
+      "@/types/*": ["./src/types/*"],
       "@/utils/*": ["./src/utils/*"]
     },
 

@@ -2,15 +2,18 @@ import { useState } from 'react';
 import { Box, Button, Group, Loader, Text } from '@mantine/core';
 import { useDebouncedValue, useResizeObserver } from '@mantine/hooks';
 
+import { useAppSelector } from '@/redux/hooks.ts';
+import type { Column, DataItem, UncertaintyDataItem } from '@/types/types.ts';
+
 import { Axes } from './Axes/Axes.tsx';
 import { CanvasLines } from './Lines/CanvasLines.tsx';
 import { GhostLines } from './Lines/GhostLines.tsx';
 import { useBrushing, useChartScales } from './hooks.ts';
-import { type Column, type DataItem } from './types.ts';
 
 interface Props {
   data: DataItem[];
   columns: Column[];
+  uncertaintyData?: Record<Column, UncertaintyDataItem>[];
   defaultHeight?: number;
   maxHeight?: number;
   cfg?: {
@@ -47,6 +50,18 @@ export function ParallelCoordinatesChart({
   }
 }: Props) {
   const [axisRenderKey, setAxisRenderKey] = useState(0);
+  const [enabledUncertaintyColumns, setEnabledUncertaintyColumns] = useState<Column[]>(
+    []
+  );
+
+  const columnWithUncertainty =
+    useAppSelector(
+      (state) =>
+        state.data.uncertaintyDomains && Object.keys(state.data.uncertaintyDomains)
+    ) || [];
+
+  // @TODO: Replace the data object with a more specific one that includes all the chosen
+  // columns and the uncetainty data
 
   const { clearBrushes, handleBrush, handleBrushClear, handleNanBrush, filteredData } =
     useBrushing(data);
@@ -70,6 +85,7 @@ export function ParallelCoordinatesChart({
   const { dimensions, xScale, yPos } = useChartScales(
     data,
     columns,
+    enabledUncertaintyColumns,
     internalWidth,
     internalHeight,
     nanAxisYPos
@@ -133,11 +149,22 @@ export function ParallelCoordinatesChart({
                 <Axes
                   key={axisRenderKey}
                   dimensions={dimensions}
+                  columnsWithUncertainty={columnWithUncertainty}
+                  enabledUncertaintyColumns={enabledUncertaintyColumns}
                   xScale={xScale}
                   nanAxisYPos={nanAxisYPos}
                   handleBrush={handleBrush}
                   handleBrushClear={handleBrushClear}
                   handleNanBrush={handleNanBrush}
+                  onUncertaintyToggle={(dimensionKey, enabled) => {
+                    if (enabled) {
+                      setEnabledUncertaintyColumns((prev) => [...prev, dimensionKey]);
+                    } else {
+                      setEnabledUncertaintyColumns((prev) =>
+                        prev.filter((col) => col !== dimensionKey)
+                      );
+                    }
+                  }}
                 />
               </g>
             </svg>

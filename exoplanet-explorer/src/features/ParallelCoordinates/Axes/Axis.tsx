@@ -52,7 +52,18 @@ export function Axis({ dimension, handleBrush, handleBrushClear }: Props) {
 
   return (
     <>
-      <g ref={ref} />
+      <text
+        className={'legend'}
+        y={-9}
+        fontSize={'11px'}
+        fill={'var(--mantine-color-default-color)'}
+        transform={'rotate(-21)'}
+        textAnchor={'start'}
+        opacity={dimension.isUncertainty ? 0.5 : 1.0}
+      >
+        {dimension.key}
+      </text>
+      <g ref={ref} opacity={dimension.isUncertainty ? 0.5 : 1.0} />
       <g ref={brushRef} />
     </>
   );

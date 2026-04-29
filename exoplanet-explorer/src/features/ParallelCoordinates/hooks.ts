@@ -1,40 +1,72 @@
 import { useCallback, useMemo, useState } from 'react';
 import * as d3 from 'd3';
 
+import { useAppSelector } from '@/redux/hooks';
+import type { Column, DataItem } from '@/types/types';
 import { hasValue } from '@/utils/util';
 
-import {
-  type BrushFilter,
-  type Column,
-  type DataItem,
-  type Dimension,
-  NanBrushMode
-} from './types';
+import { type BrushFilter, type Dimension, NanBrushMode } from './types';
 import { addToMap, inferDimensions, removeFromMap } from './util';
 
 export function useChartScales(
   data: DataItem[],
   columns: Column[],
+  enabledUncertaintyColumns: Column[],
   width: number,
   height: number,
   nanAxisYPos: number
 ) {
+  const uncertaintyDomains = useAppSelector((state) => state.data.uncertaintyDomains);
+  const uncertaintyData = useAppSelector((state) => state.data.uncertainty);
+
   const dimensions: Dimension[] = useMemo(
     () => inferDimensions(data, columns, height),
     [data, columns, height]
   );
 
+  const combinedDimensions = useMemo(() => {
+    const finalDimensions: Dimension[] = [];
+    dimensions.forEach((dim) => {
+      finalDimensions.push(dim);
+
+      if (
+        enabledUncertaintyColumns.includes(dim.key) &&
+        dim.type === 'number' &&
+        uncertaintyDomains[dim.key]
+      ) {
+        const { min, max } = uncertaintyDomains[dim.key];
+        const scale = d3.scaleLinear().domain([min, max]).nice().range([height, 0]);
+
+        finalDimensions.push({
+          key: `${dim.key}_err`,
+          type: 'number',
+          scale,
+          isUncertainty: true
+        });
+      }
+    });
+    return finalDimensions;
+  }, [dimensions, enabledUncertaintyColumns, uncertaintyDomains, height]);
+
   const xScale = useMemo(
     () =>
       d3
         .scalePoint<string>()
-        .domain(dimensions.map((d) => d.key))
+        .domain(combinedDimensions.map((d) => d.key))
         .range([0, width]),
-    [dimensions, width]
+    [combinedDimensions, width]
   );
 
   const yPos = useCallback(
     (d: DataItem, dim: Dimension): number => {
+      if (dim.isUncertainty) {
+        const baseKey = dim.key.replace('_err', '');
+        const uncertainty = uncertaintyData[d.id]?.[baseKey].percentage;
+        console.log('uncertainty', dim.key, d.id, uncertainty);
+
+        return uncertainty != null ? dim.scale(uncertainty) : nanAxisYPos;
+      }
+
       if (dim.type === 'number') {
         const isMissing = !hasValue(d[dim.key]) || isNaN(Number(d[dim.key]));
         return isMissing ? nanAxisYPos : dim.scale(Number(d[dim.key]));
@@ -43,10 +75,10 @@ export function useChartScales(
       const isEmpty = d[dim.key] == null || String(d[dim.key]) === '';
       return isEmpty ? nanAxisYPos : dim.scale(String(d[dim.key]))!;
     },
-    [nanAxisYPos]
+    [nanAxisYPos, uncertaintyData]
   );
 
-  return { dimensions, xScale, yPos };
+  return { dimensions: combinedDimensions, xScale, yPos };
 }
 
 export function useBrushing(data: DataItem[]) {

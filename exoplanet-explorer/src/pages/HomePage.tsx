@@ -3,10 +3,19 @@ import { Text } from '@mantine/core';
 
 import { useOpenSpaceApi } from '@/api/hooks';
 import { ParallelCoordinates } from '@/features/ParallelCoordinates/ParallelCoordinates';
+import { data } from '@/public/dummydata'; // TODO: Replace with actual data
+import { initializeData } from '@/redux/data/dataSlice';
+import { useAppDispatch } from '@/redux/hooks';
 
 export function HomePage() {
   const [nNumPlanets, setNumPlanets] = useState<number | null>(null);
   const luaApi = useOpenSpaceApi();
+
+  const dispatch = useAppDispatch();
+
+  useEffect(() => {
+    dispatch(initializeData(data));
+  }, [dispatch]);
 
   useEffect(() => {
     if (!luaApi) {

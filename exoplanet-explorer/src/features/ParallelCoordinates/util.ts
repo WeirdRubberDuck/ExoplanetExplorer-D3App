@@ -1,6 +1,8 @@
 import * as d3 from 'd3';
 
-import type { Column, DataItem, Dimension } from './types';
+import type { Column, DataItem } from '@/types/types';
+
+import type { Dimension } from './types';
 
 export function inferDimensions(
   data: DataItem[],

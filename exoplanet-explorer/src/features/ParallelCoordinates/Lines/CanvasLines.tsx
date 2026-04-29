@@ -1,7 +1,9 @@
 import { useEffect, useRef } from 'react';
 import * as d3 from 'd3';
 
-import { type DataItem, type Dimension } from '../types.ts';
+import type { DataItem } from '@/types/types.ts';
+
+import { type Dimension } from '../types.ts';
 
 export interface CanvasLinesProps {
   data: DataItem[];

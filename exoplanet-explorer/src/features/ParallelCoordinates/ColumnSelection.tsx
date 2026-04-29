@@ -1,7 +1,8 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Button, Checkbox, Group, MultiSelect } from '@mantine/core';
 
-import type { Column } from './types';
+import type { Column } from '@/types/types';
+
 import { isSameColumnArray } from './util';
 
 interface Props {

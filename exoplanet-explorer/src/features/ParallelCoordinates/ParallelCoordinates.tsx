@@ -13,11 +13,10 @@ import {
 } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 
-import { data as dummyData } from '@/public/dummydata.ts'; // TODO: Replace with actual data
+import { useAppSelector } from '@/redux/hooks.ts';
 
 import { ParallelCoordinatesChart } from './Chart.tsx';
 import { ColumnSelection } from './ColumnSelection.tsx';
-import type { DataItem } from './types.ts';
 import { isSameColumnArray } from './util.ts';
 
 const pcDefaultColumns = [
@@ -38,6 +37,8 @@ export function ParallelCoordinates() {
   const [showGhostLines, setGhostLines] = useState(true);
 
   const [selectedColumns, setSelectedColumns] = useState<string[]>(pcDefaultColumns);
+
+  const { full: data, columns } = useAppSelector((state) => state.data);
 
   const [settingsOpened, { open, close }] = useDisclosure(false);
 
@@ -61,7 +62,7 @@ export function ParallelCoordinates() {
         </Button>
       </Group>
       <ParallelCoordinatesChart
-        data={dummyData as DataItem[]}
+        data={data}
         defaultHeight={400}
         maxHeight={1000}
         cfg={{
@@ -96,7 +97,7 @@ export function ParallelCoordinates() {
             onChange={(e) => setGhostLines(e.target.checked)}
           />
           <ColumnSelection
-            columns={dummyData.length > 0 ? Object.keys(dummyData[0]) : []}
+            columns={columns}
             primaryColumns={pcDefaultColumns}
             defaultSelection={pcDefaultColumns}
             onSelectionChange={setSelectedColumns}

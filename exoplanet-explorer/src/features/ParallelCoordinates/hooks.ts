@@ -8,6 +8,15 @@ import { hasValue } from '@/utils/util';
 import { type BrushFilter, type Dimension, NanBrushMode } from './types';
 import { addToMap, inferDimensions, removeFromMap } from './util';
 
+export function useHasUncertaintyColumn() {
+  const uncertaintyDomains = useAppSelector((state) => state.data.uncertaintyDomains);
+
+  function hasUncertaintyColumn(column: Column): boolean {
+    return uncertaintyDomains[column] !== undefined;
+  }
+  return { hasUncertaintyColumn };
+}
+
 export function useChartScales(
   data: DataItem[],
   columns: Column[],
@@ -17,7 +26,6 @@ export function useChartScales(
   nanAxisYPos: number
 ) {
   const uncertaintyDomains = useAppSelector((state) => state.data.uncertaintyDomains);
-  const uncertaintyData = useAppSelector((state) => state.data.uncertainty);
 
   const dimensions: Dimension[] = useMemo(
     () => inferDimensions(data, columns, height),
@@ -59,14 +67,6 @@ export function useChartScales(
 
   const yPos = useCallback(
     (d: DataItem, dim: Dimension): number => {
-      if (dim.isUncertainty) {
-        const baseKey = dim.key.replace('_err', '');
-        const uncertainty = uncertaintyData[d.id]?.[baseKey].percentage;
-        console.log('uncertainty', dim.key, d.id, uncertainty);
-
-        return uncertainty != null ? dim.scale(uncertainty) : nanAxisYPos;
-      }
-
       if (dim.type === 'number') {
         const isMissing = !hasValue(d[dim.key]) || isNaN(Number(d[dim.key]));
         return isMissing ? nanAxisYPos : dim.scale(Number(d[dim.key]));
@@ -75,7 +75,7 @@ export function useChartScales(
       const isEmpty = d[dim.key] == null || String(d[dim.key]) === '';
       return isEmpty ? nanAxisYPos : dim.scale(String(d[dim.key]))!;
     },
-    [nanAxisYPos, uncertaintyData]
+    [nanAxisYPos]
   );
 
   return { dimensions: combinedDimensions, xScale, yPos };

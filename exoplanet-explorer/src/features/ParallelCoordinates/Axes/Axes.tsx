@@ -2,6 +2,7 @@ import * as d3 from 'd3';
 
 import type { Column } from '@/types/types.ts';
 
+import { useHasUncertaintyColumn } from '../hooks.ts';
 import { type Dimension, NanBrushMode } from '../types.ts';
 
 import { Axis } from './Axis.tsx';
@@ -11,7 +12,6 @@ import { UncertaintyAxisCheckbox } from './UncertaintyAxisCheckbox.tsx';
 
 interface Props {
   dimensions: Dimension[];
-  columnsWithUncertainty: Column[];
   enabledUncertaintyColumns: Column[];
   xScale: d3.ScalePoint<string>;
   nanAxisYPos: number;
@@ -23,7 +23,6 @@ interface Props {
 
 export function Axes({
   dimensions,
-  columnsWithUncertainty,
   enabledUncertaintyColumns,
   xScale,
   nanAxisYPos,
@@ -32,10 +31,12 @@ export function Axes({
   handleNanBrush,
   onUncertaintyToggle
 }: Props) {
+  const { hasUncertaintyColumn } = useHasUncertaintyColumn();
   const internalWidth = xScale.range()[1] - xScale.range()[0];
   const missingValueY = nanAxisYPos;
   const axisLabelY = nanAxisYPos + 15;
   const uncertaintyCheckboxY = nanAxisYPos + 32;
+
   return (
     <>
       {dimensions.map((dim) => (
@@ -46,7 +47,7 @@ export function Axes({
             handleBrushClear={handleBrushClear}
           />
           <MissingValueAxis dimension={dim} y={missingValueY} onBrush={handleNanBrush} />
-          {columnsWithUncertainty.includes(dim.key) && (
+          {hasUncertaintyColumn(dim.key) && (
             <UncertaintyAxisCheckbox
               defaultChecked={enabledUncertaintyColumns.includes(dim.key)}
               y={uncertaintyCheckboxY}

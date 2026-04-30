@@ -57,7 +57,6 @@ export const dataSlice = createSlice({
                 upper: value
               };
             }
-            continue;
           }
           newEntry[key] = item[key];
         }

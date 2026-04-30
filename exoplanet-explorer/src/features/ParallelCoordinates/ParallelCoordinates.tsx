@@ -14,6 +14,7 @@ import {
 import { useDisclosure } from '@mantine/hooks';
 
 import { useAppSelector } from '@/redux/hooks.ts';
+import type { DataItem } from '@/types/types.ts';
 
 import { ParallelCoordinatesChart } from './Chart.tsx';
 import { ColumnSelection } from './ColumnSelection.tsx';
@@ -38,7 +39,7 @@ export function ParallelCoordinates() {
 
   const [selectedColumns, setSelectedColumns] = useState<string[]>(pcDefaultColumns);
 
-  const { full: data, columns } = useAppSelector((state) => state.data);
+  const { full: data, columns, uncertainty } = useAppSelector((state) => state.data);
 
   const [settingsOpened, { open, close }] = useDisclosure(false);
 
@@ -46,6 +47,21 @@ export function ParallelCoordinates() {
     () => isSameColumnArray(selectedColumns, pcDefaultColumns),
     [selectedColumns]
   );
+
+  // Collect the data for the parallel coordinates chart based on the selected columns
+  // and the uncertainty data. We need nothing more
+  const pcData = useMemo(() => {
+    return data.map((item) => {
+      const newItem: DataItem = { id: item.id };
+      selectedColumns.forEach((col) => {
+        newItem[col] = item[col];
+        if (uncertainty[item.id] && uncertainty[item.id][col]) {
+          newItem[`${col}_err`] = uncertainty[item.id][col].percentage ?? null;
+        }
+      });
+      return newItem;
+    });
+  }, [data, selectedColumns, uncertainty]);
 
   return (
     <>
@@ -62,14 +78,14 @@ export function ParallelCoordinates() {
         </Button>
       </Group>
       <ParallelCoordinatesChart
-        data={data}
+        data={pcData}
+        columns={selectedColumns}
         defaultHeight={400}
         maxHeight={1000}
         cfg={{
           lineOpacity,
           showGhostLines: showGhostLines
         }}
-        columns={selectedColumns}
       />
       <Drawer
         opened={settingsOpened}

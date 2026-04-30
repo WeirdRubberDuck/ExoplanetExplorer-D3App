@@ -2,7 +2,6 @@ import { useState } from 'react';
 import { Box, Button, Group, Loader, Text } from '@mantine/core';
 import { useDebouncedValue, useResizeObserver } from '@mantine/hooks';
 
-import { useAppSelector } from '@/redux/hooks.ts';
 import type { Column, DataItem, UncertaintyDataItem } from '@/types/types.ts';
 
 import { Axes } from './Axes/Axes.tsx';
@@ -54,34 +53,26 @@ export function ParallelCoordinatesChart({
     []
   );
 
-  const columnWithUncertainty =
-    useAppSelector(
-      (state) =>
-        state.data.uncertaintyDomains && Object.keys(state.data.uncertaintyDomains)
-    ) || [];
-
-  // @TODO: Replace the data object with a more specific one that includes all the chosen
-  // columns and the uncetainty data
-
   const { clearBrushes, handleBrush, handleBrushClear, handleNanBrush, filteredData } =
     useBrushing(data);
 
   const [containerRef, container] = useResizeObserver();
 
-  const [chartHeight] = useDebouncedValue(
-    container ? container.height : defaultHeight,
+  const [{ chartHeight, chartWidth }] = useDebouncedValue(
+    {
+      chartHeight: container ? container.height : defaultHeight,
+      chartWidth: container ? container.width : 400
+    },
     200,
     { leading: true }
   );
-  const [chartWidth] = useDebouncedValue(container ? container.width : 400, 200, {
-    leading: true
-  });
 
   const isLoading = !container || chartWidth === 0 || chartHeight === 0;
 
   const { internalWidth, internalHeight, heightWithNanAxis, nanAxisYPos } =
     useChartLayout(chartWidth, chartHeight);
 
+  // Dimensions are the diimensions to render, including uncertainty axes if enabled
   const { dimensions, xScale, yPos } = useChartScales(
     data,
     columns,
@@ -149,7 +140,6 @@ export function ParallelCoordinatesChart({
                 <Axes
                   key={axisRenderKey}
                   dimensions={dimensions}
-                  columnsWithUncertainty={columnWithUncertainty}
                   enabledUncertaintyColumns={enabledUncertaintyColumns}
                   xScale={xScale}
                   nanAxisYPos={nanAxisYPos}

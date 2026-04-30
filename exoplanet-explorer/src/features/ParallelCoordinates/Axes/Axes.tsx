@@ -19,6 +19,7 @@ interface Props {
   handleBrushClear: (dimension: Dimension) => void;
   handleNanBrush: (dimension: Dimension, mode: NanBrushMode | undefined) => void;
   onUncertaintyToggle: (dimensionKey: string, enabled: boolean) => void;
+  onAxisMove: (dimensionKey: string, direction: 'previous' | 'next') => void;
 }
 
 export function Axes({
@@ -29,7 +30,8 @@ export function Axes({
   handleBrush,
   handleBrushClear,
   handleNanBrush,
-  onUncertaintyToggle
+  onUncertaintyToggle,
+  onAxisMove
 }: Props) {
   const { hasUncertaintyColumn } = useHasUncertaintyColumn();
   const internalWidth = xScale.range()[1] - xScale.range()[0];
@@ -45,6 +47,8 @@ export function Axes({
             dimension={dim}
             handleBrush={handleBrush}
             handleBrushClear={handleBrushClear}
+            onMovePrevious={() => onAxisMove(dim.key, 'previous')}
+            onMoveNext={() => onAxisMove(dim.key, 'next')}
           />
           <MissingValueAxis dimension={dim} y={missingValueY} onBrush={handleNanBrush} />
           {hasUncertaintyColumn(dim.key) && (

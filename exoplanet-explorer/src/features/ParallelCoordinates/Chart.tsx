@@ -49,6 +49,7 @@ export function ParallelCoordinatesChart({
   }
 }: Props) {
   const [axisRenderKey, setAxisRenderKey] = useState(0);
+  const [orderedColumns, setOrderedColumns] = useState<Column[]>(columns);
   const [enabledUncertaintyColumns, setEnabledUncertaintyColumns] = useState<Column[]>(
     []
   );
@@ -75,17 +76,36 @@ export function ParallelCoordinatesChart({
   // Dimensions are the diimensions to render, including uncertainty axes if enabled
   const { dimensions, xScale, yPos } = useChartScales(
     data,
-    columns,
+    orderedColumns,
     enabledUncertaintyColumns,
     internalWidth,
     internalHeight,
     nanAxisYPos
   );
 
-  const handleResetFilter = () => {
+  function handleResetFilter() {
     clearBrushes();
     setAxisRenderKey((current) => current + 1);
-  };
+  }
+
+  function onAxisMove(dimensionKey: string, direction: 'previous' | 'next') {
+    const currentIndex = orderedColumns.findIndex((col) => col === dimensionKey);
+    if (currentIndex === -1) return;
+
+    let newIndex;
+    if (direction === 'previous') {
+      newIndex = currentIndex === 0 ? orderedColumns.length - 1 : currentIndex - 1;
+    } else {
+      newIndex = currentIndex === orderedColumns.length - 1 ? 0 : currentIndex + 1;
+    }
+
+    const newColumns = [...orderedColumns];
+    [newColumns[currentIndex], newColumns[newIndex]] = [
+      newColumns[newIndex],
+      newColumns[currentIndex]
+    ];
+    setOrderedColumns(newColumns);
+  }
 
   const linesProps = {
     dimensions,
@@ -146,6 +166,7 @@ export function ParallelCoordinatesChart({
                   handleBrush={handleBrush}
                   handleBrushClear={handleBrushClear}
                   handleNanBrush={handleNanBrush}
+                  onAxisMove={onAxisMove}
                   onUncertaintyToggle={(dimensionKey, enabled) => {
                     if (enabled) {
                       setEnabledUncertaintyColumns((prev) => [...prev, dimensionKey]);

@@ -13,39 +13,25 @@ import {
 } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 
-import { useAppSelector } from '@/redux/hooks.ts';
+import { useAppDispatch, useAppSelector } from '@/redux/hooks.ts';
+import { resetParallelCoordinates } from '@/redux/local/localSlice.ts';
 import type { DataItem } from '@/types/types.ts';
 
 import { ParallelCoordinatesChart } from './Chart.tsx';
 import { ColumnSelection } from './ColumnSelection.tsx';
-import { isSameColumnArray } from './util.ts';
-
-const pcDefaultColumns = [
-  'discoverymethod',
-  'sy_pnum',
-  'pl_bmasse',
-  'pl_rade',
-  'pl_orbincl',
-  'pl_Teq',
-  'sy_dist',
-  'st_spectype',
-  'st_age'
-];
 
 export function ParallelCoordinates() {
-  // TODO: Move this to local redux state, so we can move it out of this component
   const [lineOpacity, setLineOpacity] = useState(0.7);
   const [showGhostLines, setGhostLines] = useState(true);
-  const [selectedColumns, setSelectedColumns] = useState<string[]>(pcDefaultColumns);
 
   const { full: data, columns, uncertainty } = useAppSelector((state) => state.data);
+  const { columnSelectionIsDefault, selectedColumns, defaultColumns } = useAppSelector(
+    (state) => state.local.parallelCoordinates
+  );
 
   const [settingsOpened, { open, close }] = useDisclosure(false);
 
-  const columnSelectionIsDefault = useMemo(
-    () => isSameColumnArray(selectedColumns, pcDefaultColumns),
-    [selectedColumns]
-  );
+  const dispatch = useAppDispatch();
 
   // Collect the data for the parallel coordinates chart based on the selected columns
   // and the uncertainty data. We need nothing more
@@ -70,7 +56,7 @@ export function ParallelCoordinates() {
         </Button>
         <Button
           variant={'default'}
-          onClick={() => setSelectedColumns(pcDefaultColumns)}
+          onClick={() => dispatch(resetParallelCoordinates())}
           disabled={columnSelectionIsDefault}
         >
           Reset columns
@@ -78,7 +64,6 @@ export function ParallelCoordinates() {
       </Group>
       <ParallelCoordinatesChart
         data={pcData}
-        columns={selectedColumns}
         defaultHeight={400}
         maxHeight={1000}
         cfg={{
@@ -111,12 +96,7 @@ export function ParallelCoordinates() {
             checked={showGhostLines}
             onChange={(e) => setGhostLines(e.target.checked)}
           />
-          <ColumnSelection
-            columns={columns}
-            primaryColumns={pcDefaultColumns}
-            defaultSelection={pcDefaultColumns}
-            onSelectionChange={setSelectedColumns}
-          />
+          <ColumnSelection columns={columns} primaryColumns={defaultColumns} />
         </Stack>
       </Drawer>
     </>

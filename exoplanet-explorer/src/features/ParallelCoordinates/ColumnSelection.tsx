@@ -1,59 +1,53 @@
-import { useEffect, useMemo, useState } from 'react';
 import { Button, Checkbox, Group, MultiSelect } from '@mantine/core';
 
+import { useAppDispatch, useAppSelector } from '@/redux/hooks';
+import {
+  resetParallelCoordinates,
+  setParallelCoordinatesSelectedColumns
+} from '@/redux/local/localSlice';
 import type { Column } from '@/types/types';
-
-import { isSameColumnArray } from './util';
 
 interface Props {
   columns: Column[];
   primaryColumns: Column[];
-  defaultSelection?: Column[];
-  onSelectionChange?: (selected: Column[]) => void;
 }
 
-export function ColumnSelection({
-  columns,
-  primaryColumns,
-  defaultSelection,
-  onSelectionChange
-}: Props) {
-  const [selected, setSelected] = useState<string[]>(defaultSelection || []);
+export function ColumnSelection({ columns, primaryColumns }: Props) {
+  const { columnSelectionIsDefault, selectedColumns } = useAppSelector(
+    (state) => state.local.parallelCoordinates
+  );
 
-  useEffect(() => {
-    if (onSelectionChange) {
-      onSelectionChange(selected);
-    }
-  }, [selected, onSelectionChange]);
+  const dispatch = useAppDispatch();
+
+  function setSelected(newSelected: Column[]) {
+    dispatch(setParallelCoordinatesSelectedColumns(newSelected));
+  }
 
   function onTogglePrimary(column: Column, checked: boolean) {
-    if (checked && !selected.includes(column)) {
-      setSelected((prev) => [...prev, column]);
+    if (checked && !selectedColumns.includes(column)) {
+      setSelected([...selectedColumns, column]);
     }
     if (!checked) {
-      setSelected((prev) => prev.filter((col) => col !== column));
+      setSelected(selectedColumns.filter((col) => col !== column));
     }
   }
 
-  const selectionIsDefault = useMemo(
-    () => isSameColumnArray(selected, defaultSelection || []),
-    [selected, defaultSelection]
-  );
+  const sortedPrimaryColumns = primaryColumns.slice().sort();
 
   return (
     <>
       <Checkbox.Group
         label={'Primary columns'}
-        value={selected.filter((col) => primaryColumns.includes(col))}
+        value={selectedColumns.filter((col) => primaryColumns.includes(col))}
       >
         <Group gap={5}>
-          {primaryColumns.sort().map((column) => (
+          {sortedPrimaryColumns.sort().map((column) => (
             <Checkbox
               key={`primary-${column}`}
               size={'xs'}
               label={column}
               value={column}
-              checked={selected.includes(column)}
+              checked={selectedColumns.includes(column)}
               onChange={(event) => onTogglePrimary(column, event.currentTarget.checked)}
               w={110}
             />
@@ -64,14 +58,14 @@ export function ColumnSelection({
         label={'All columns'}
         data={columns}
         searchable
-        value={selected}
+        value={selectedColumns}
         onChange={setSelected}
         hidePickedOptions
       />
       <Button
         variant={'default'}
-        disabled={selectionIsDefault}
-        onClick={() => setSelected(defaultSelection || [])}
+        disabled={columnSelectionIsDefault}
+        onClick={() => dispatch(resetParallelCoordinates())}
       >
         Reset columns
       </Button>

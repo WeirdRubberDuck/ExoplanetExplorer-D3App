@@ -1,7 +1,9 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { Box, Button, Group, Loader, Text } from '@mantine/core';
 import { useDebouncedValue, useResizeObserver } from '@mantine/hooks';
 
+import { useAppDispatch, useAppSelector } from '@/redux/hooks.ts';
+import { setParallelCoordinatesColumnOrder } from '@/redux/local/localSlice.ts';
 import type { Column, DataItem, UncertaintyDataItem } from '@/types/types.ts';
 
 import { Axes } from './Axes/Axes.tsx';
@@ -11,7 +13,6 @@ import { useBrushing, useChartScales } from './hooks.ts';
 
 interface Props {
   data: DataItem[];
-  columns: Column[];
   uncertaintyData?: Record<Column, UncertaintyDataItem>[];
   defaultHeight?: number;
   maxHeight?: number;
@@ -39,7 +40,6 @@ function useChartLayout(containerWidth: number, containerHeight: number) {
 
 export function ParallelCoordinatesChart({
   data,
-  columns,
   defaultHeight = 400,
   maxHeight = 1000,
   cfg = {
@@ -49,11 +49,14 @@ export function ParallelCoordinatesChart({
   }
 }: Props) {
   const [axisRenderKey, setAxisRenderKey] = useState(0);
-  // TODO: This need to be lifted up to the redux state to not be reset every time settings is opened/closed
-  const [orderedColumns, setOrderedColumns] = useState<Column[]>(columns);
   const [enabledUncertaintyColumns, setEnabledUncertaintyColumns] = useState<Column[]>(
     []
   );
+
+  const orderedColumns = useAppSelector(
+    (state) => state.local.parallelCoordinates.columnOrder
+  );
+  const dispatch = useAppDispatch();
 
   const { clearBrushes, handleBrush, handleBrushClear, handleNanBrush, filteredData } =
     useBrushing(data);
@@ -68,10 +71,6 @@ export function ParallelCoordinatesChart({
     200,
     { leading: true }
   );
-
-  useEffect(() => {
-    setOrderedColumns(columns);
-  }, [columns]);
 
   const isLoading = !container || chartWidth === 0 || chartHeight === 0;
 
@@ -109,7 +108,7 @@ export function ParallelCoordinatesChart({
       newColumns[newIndex],
       newColumns[currentIndex]
     ];
-    setOrderedColumns(newColumns);
+    dispatch(setParallelCoordinatesColumnOrder(newColumns));
   }
 
   const linesProps = {

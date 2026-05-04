@@ -2,12 +2,14 @@ import { configureStore } from '@reduxjs/toolkit';
 
 import { connectionReducer } from './connection/connectionSlice';
 import { dataSlice } from './data/dataSlice';
+import { localSlice } from './local/localSlice';
 import { listenerMiddleware } from './listenerMiddleware';
 
 export const store = configureStore({
   reducer: {
     data: dataSlice.reducer,
-    connection: connectionReducer
+    connection: connectionReducer,
+    local: localSlice.reducer
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware().concat([listenerMiddleware.middleware])

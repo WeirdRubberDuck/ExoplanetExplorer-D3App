@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Box, Button, Group, Loader, Text } from '@mantine/core';
 import { useDebouncedValue, useResizeObserver } from '@mantine/hooks';
 
@@ -49,6 +49,7 @@ export function ParallelCoordinatesChart({
   }
 }: Props) {
   const [axisRenderKey, setAxisRenderKey] = useState(0);
+  // TODO: This need to be lifted up to the redux state to not be reset every time settings is opened/closed
   const [orderedColumns, setOrderedColumns] = useState<Column[]>(columns);
   const [enabledUncertaintyColumns, setEnabledUncertaintyColumns] = useState<Column[]>(
     []
@@ -67,6 +68,10 @@ export function ParallelCoordinatesChart({
     200,
     { leading: true }
   );
+
+  useEffect(() => {
+    setOrderedColumns(columns);
+  }, [columns]);
 
   const isLoading = !container || chartWidth === 0 || chartHeight === 0;
 

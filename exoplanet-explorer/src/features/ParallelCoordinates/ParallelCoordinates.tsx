@@ -36,7 +36,6 @@ export function ParallelCoordinates() {
   // TODO: Move this to local redux state, so we can move it out of this component
   const [lineOpacity, setLineOpacity] = useState(0.7);
   const [showGhostLines, setGhostLines] = useState(true);
-
   const [selectedColumns, setSelectedColumns] = useState<string[]>(pcDefaultColumns);
 
   const { full: data, columns, uncertainty } = useAppSelector((state) => state.data);

@@ -31,10 +31,17 @@ export function MissingValueAxis({ dimension, y, onBrush }: Props) {
     onBrush?.(dimension, newMode);
   }
 
+  function onRightClick(event: React.MouseEvent) {
+    event.preventDefault();
+    setBrushMode(undefined);
+    onBrush?.(dimension, undefined);
+  }
+
   return (
     <circle
       onMouseOver={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
+      onContextMenu={onRightClick}
       cx={0}
       cy={y}
       r={hovered ? 7 : 5}

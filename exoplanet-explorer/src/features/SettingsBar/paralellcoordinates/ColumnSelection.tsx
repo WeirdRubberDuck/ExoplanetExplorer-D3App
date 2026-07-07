@@ -13,9 +13,10 @@ interface Props {
 }
 
 export function ColumnSelection({ columns, primaryColumns }: Props) {
-  const { columnSelectionIsDefault, selectedColumns } = useAppSelector(
-    (state) => state.local.parallelCoordinates
-  );
+  const {
+    columnSelectionIsDefault,
+    settings: { selectedColumns }
+  } = useAppSelector((state) => state.local.parallelCoordinates);
 
   const dispatch = useAppDispatch();
 

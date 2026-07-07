@@ -3,6 +3,7 @@ import { Text } from '@mantine/core';
 
 import { ParallelCoordinates } from '@/features/ParallelCoordinates/ParallelCoordinates';
 import { SelectionList } from '@/features/SelectionList/SelectionList';
+import { SettingsBar } from '@/features/SettingsBar/SettingsBar';
 import { data } from '@/public/dummydata'; // TODO: Replace with actual data
 import { initializeData } from '@/redux/data/dataSlice';
 import { useAppDispatch, useAppSelector } from '@/redux/hooks';
@@ -23,7 +24,10 @@ export function HomePage() {
       <Text size={'xs'} c={'dimmed'}>
         {` (Detected filtering in OpenSpace resulting in ${filteringFromOpenSpace?.length ?? 0} planets)`}
       </Text>
+
+      <SettingsBar />
       <ParallelCoordinates />
+
       <SelectionList />
     </>
   );

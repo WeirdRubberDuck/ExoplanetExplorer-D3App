@@ -26,19 +26,24 @@ interface LocalState {
      * determine whether to show the "Reset to default" button in the column selection UI.
      */
     columnSelectionIsDefault: boolean;
-    /**
-     * The columns currently selected to be shown in the parallel coordinates chart.
-     */
-    selectedColumns: Column[];
+
     /**
      * The order of the columns in the parallel coordinates chart. This is separate from
      * the order in the data.columns because the user can reorder them in the graph.
      */
     columnOrder: Column[];
+
     /**
      * Default columns to show in the parallel coordinates chart.
      */
     defaultColumns: Column[];
+
+    settings: {
+      selectedColumns: Column[];
+      lineOpacity: number;
+      showGhostLines: boolean;
+    };
+
     /**
      * IDs currently included by active parallel coordinates filters.
      * Empty list means no active filter. The ID corresponds to the index of the planet
@@ -51,7 +56,11 @@ interface LocalState {
 const initialState: LocalState = {
   parallelCoordinates: {
     columnSelectionIsDefault: true,
-    selectedColumns: pcDefaultColumns,
+    settings: {
+      selectedColumns: pcDefaultColumns,
+      lineOpacity: 0.7,
+      showGhostLines: true
+    },
     columnOrder: pcDefaultColumns,
     defaultColumns: pcDefaultColumns,
     filteredIds: []
@@ -64,7 +73,7 @@ export const localSlice = createSlice({
   reducers: {
     setParallelCoordinatesSelectedColumns: (state, action) => {
       const newColumns: Column[] = action.payload;
-      state.parallelCoordinates.selectedColumns = newColumns;
+      state.parallelCoordinates.settings.selectedColumns = newColumns;
 
       const columnSelectionIsDefault = isSameColumnArray(
         newColumns,
@@ -95,11 +104,17 @@ export const localSlice = createSlice({
       console.log('Filtered IDs set to:', action.payload);
     },
     resetParallelCoordinates: (state) => {
-      state.parallelCoordinates.selectedColumns =
+      state.parallelCoordinates.settings.selectedColumns =
         state.parallelCoordinates.defaultColumns;
       state.parallelCoordinates.columnOrder = state.parallelCoordinates.defaultColumns;
       state.parallelCoordinates.columnSelectionIsDefault = true;
       state.parallelCoordinates.filteredIds = [];
+    },
+    setParallelCoordinatesLineOpacity: (state, action) => {
+      state.parallelCoordinates.settings.lineOpacity = action.payload;
+    },
+    setParallelCoordinatesShowGhostLines: (state, action) => {
+      state.parallelCoordinates.settings.showGhostLines = action.payload;
     }
   }
 });
@@ -108,7 +123,9 @@ export const {
   setParallelCoordinatesSelectedColumns,
   setParallelCoordinatesColumnOrder,
   setParallelCoordinatesFilteredIds,
-  resetParallelCoordinates
+  resetParallelCoordinates,
+  setParallelCoordinatesLineOpacity,
+  setParallelCoordinatesShowGhostLines
 } = localSlice.actions;
 
 export default localSlice.reducer;

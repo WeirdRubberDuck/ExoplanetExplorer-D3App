@@ -1,13 +1,19 @@
-import { useMemo } from 'react';
-import { List, Paper, Text, Title } from '@mantine/core';
+import { useMemo, useState } from 'react';
+import { Box, Paper, Text, Title } from '@mantine/core';
 
 import { useAppSelector } from '@/redux/hooks';
 
 export function SelectionList() {
+  const [scrollTop, setScrollTop] = useState(0);
+
   const filteredIds = useAppSelector(
     (state) => state.local.parallelCoordinates.filteredIds
   );
   const fullData = useAppSelector((state) => state.data.full);
+
+  const rowHeight = 30;
+  const listHeight = 320;
+  const overscan = 6;
 
   const filteredRows = useMemo(() => {
     if (filteredIds.length === 0) {
@@ -17,6 +23,16 @@ export function SelectionList() {
     const idSet = new Set(filteredIds);
     return fullData.filter((row) => idSet.has(row.id));
   }, [fullData, filteredIds]);
+
+  const visibleRowCount = Math.ceil(listHeight / rowHeight);
+  const startIndex = Math.max(0, Math.floor(scrollTop / rowHeight) - overscan);
+  const endIndex = Math.min(
+    filteredRows.length,
+    startIndex + visibleRowCount + overscan * 2
+  );
+  const visibleRows = filteredRows.slice(startIndex, endIndex);
+  const yOffset = startIndex * rowHeight;
+  const totalHeight = filteredRows.length * rowHeight;
 
   return (
     <Paper withBorder p={'md'} mt={'md'}>
@@ -31,15 +47,26 @@ export function SelectionList() {
           No rows matched the current filtered IDs.
         </Text>
       ) : (
-        <List size={'sm'} mt={'xs'} spacing={'xs'}>
-          {filteredRows.map((row) => (
-            <List.Item key={row.id}>
-              {typeof row.pl_name === 'string' && row.pl_name.trim() !== ''
-                ? row.pl_name
-                : `Unnamed planet (${row.id})`}
-            </List.Item>
-          ))}
-        </List>
+        <Box
+          mt={'xs'}
+          style={{
+            height: listHeight,
+            overflowY: 'auto',
+            border: '1px solid var(--mantine-color-default-border)',
+            borderRadius: 4
+          }}
+          onScroll={(event) => setScrollTop(event.currentTarget.scrollTop)}
+        >
+          <Box style={{ height: totalHeight, position: 'relative' }}>
+            <Box style={{ transform: `translateY(${yOffset}px)` }}>
+              {visibleRows.map((row) => (
+                <Text key={row.id} size={'sm'} px={'xs'} py={2}>
+                  {row.pl_name}
+                </Text>
+              ))}
+            </Box>
+          </Box>
+        </Box>
       )}
     </Paper>
   );

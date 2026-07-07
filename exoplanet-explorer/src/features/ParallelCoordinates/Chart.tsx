@@ -14,6 +14,7 @@ import { useBrushing, useChartScales } from './hooks.ts';
 interface Props {
   data: DataItem[];
   uncertaintyData?: Record<Column, UncertaintyDataItem>[];
+  defaultWidth?: number;
   defaultHeight?: number;
   maxHeight?: number;
   cfg?: {
@@ -40,6 +41,7 @@ function useChartLayout(containerWidth: number, containerHeight: number) {
 
 export function ParallelCoordinatesChart({
   data,
+  defaultWidth = 800,
   defaultHeight = 400,
   maxHeight = 1000,
   cfg = {
@@ -66,7 +68,7 @@ export function ParallelCoordinatesChart({
   const [{ chartHeight, chartWidth }] = useDebouncedValue(
     {
       chartHeight: container ? container.height : defaultHeight,
-      chartWidth: container ? container.width : 400
+      chartWidth: container ? container.width : defaultWidth
     },
     200,
     { leading: true }
@@ -142,6 +144,7 @@ export function ParallelCoordinatesChart({
           height: defaultHeight,
           maxHeight: maxHeight,
           minHeight: 200,
+          width: defaultWidth,
           overflow: 'hidden'
         }}
         ref={containerRef}

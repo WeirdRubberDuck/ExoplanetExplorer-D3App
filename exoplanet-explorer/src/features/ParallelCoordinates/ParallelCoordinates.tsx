@@ -29,6 +29,7 @@ export function ParallelCoordinates() {
   return (
     <ParallelCoordinatesChart
       data={pcData}
+      defaultWidth={1200}
       defaultHeight={400}
       maxHeight={1000}
       cfg={{

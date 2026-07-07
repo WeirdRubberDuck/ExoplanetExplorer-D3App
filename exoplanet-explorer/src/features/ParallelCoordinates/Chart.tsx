@@ -93,7 +93,7 @@ export function ParallelCoordinatesChart({
   }
 
   function onAxisMove(dimensionKey: string, direction: 'previous' | 'next') {
-    const currentIndex = orderedColumns.findIndex((col) => col === dimensionKey);
+    const currentIndex = orderedColumns.findIndex((col: Column) => col === dimensionKey);
     if (currentIndex === -1) return;
 
     let newIndex;
@@ -129,7 +129,7 @@ export function ParallelCoordinatesChart({
         <Button onClick={handleResetFilter}>Reset filter</Button>
         <Group gap={5}>
           <Text size={'md'} fw={500}>
-            {filteredData.length}{' '}
+            {filteredData.rows.length}{' '}
           </Text>
           <Text size={'xs'} c={'dimmed'}>
             / {data.length} planets shown
@@ -152,7 +152,11 @@ export function ParallelCoordinatesChart({
           <div style={{ position: 'relative' }}>
             {/* Lines */}
             {cfg.showGhostLines && <GhostLines {...linesProps} data={data} />}
-            <CanvasLines {...linesProps} data={filteredData} strokeColor={'steelblue'} />
+            <CanvasLines
+              {...linesProps}
+              data={filteredData.rows}
+              strokeColor={'steelblue'}
+            />
 
             {/* Axes */}
             <svg

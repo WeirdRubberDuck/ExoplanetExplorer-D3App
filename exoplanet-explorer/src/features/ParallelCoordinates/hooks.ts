@@ -1,12 +1,18 @@
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import * as d3 from 'd3';
 
-import { useAppSelector } from '@/redux/hooks';
+import { useAppDispatch, useAppSelector } from '@/redux/hooks';
+import { setParallelCoordinatesFilteredIds } from '@/redux/local/localSlice';
 import type { Column, DataItem } from '@/types/types';
 import { hasValue } from '@/utils/util';
 
 import { type BrushFilter, type Dimension, NanBrushMode } from './types';
 import { addToMap, inferDimensions, removeFromMap } from './util';
+
+export interface FilteredDataView {
+  rows: DataItem[];
+  ids: number[];
+}
 
 export function useHasUncertaintyColumn() {
   const uncertaintyDomains = useAppSelector((state) => state.data.uncertaintyDomains);
@@ -82,6 +88,7 @@ export function useChartScales(
 }
 
 export function useBrushing(data: DataItem[]) {
+  const dispatch = useAppDispatch();
   const [brushes, setBrushes] = useState<Record<Column, BrushFilter>>({});
   const [nanBrushes, setNanBrushes] = useState<Record<Column, NanBrushMode>>({});
 
@@ -167,12 +174,30 @@ export function useBrushing(data: DataItem[]) {
     [brushes]
   );
 
-  const filteredData = useMemo(() => {
-    if (Object.keys(brushes).length === 0 && Object.keys(nanBrushes).length === 0) {
+  const hasActiveFilters = useMemo(
+    () => Object.keys(brushes).length > 0 || Object.keys(nanBrushes).length > 0,
+    [brushes, nanBrushes]
+  );
+
+  const filteredRows = useMemo(() => {
+    if (!hasActiveFilters) {
       return data;
     }
     return data.filter((row) => passesNanBrushes(row) && passesAxisBrushes(row));
-  }, [data, brushes, nanBrushes, passesNanBrushes, passesAxisBrushes]);
+  }, [data, hasActiveFilters, passesNanBrushes, passesAxisBrushes]);
+
+  const filteredData = useMemo<FilteredDataView>(() => {
+    const ids = filteredRows.map((row) => row.id);
+
+    return {
+      rows: filteredRows,
+      ids
+    };
+  }, [filteredRows]);
+
+  useEffect(() => {
+    dispatch(setParallelCoordinatesFilteredIds(hasActiveFilters ? filteredData.ids : []));
+  }, [dispatch, hasActiveFilters, filteredData.ids]);
 
   return {
     clearBrushes,

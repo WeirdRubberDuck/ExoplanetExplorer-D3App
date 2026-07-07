@@ -38,7 +38,7 @@ export function ParallelCoordinates() {
   const pcData = useMemo(() => {
     return data.map((item) => {
       const newItem: DataItem = { id: item.id };
-      selectedColumns.forEach((col) => {
+      selectedColumns.forEach((col: string | number) => {
         newItem[col] = item[col];
         if (uncertainty[item.id] && uncertainty[item.id][col]) {
           newItem[`${col}_err`] = uncertainty[item.id][col].percentage ?? null;

@@ -89,7 +89,6 @@ export function useChartScales(
 
 export function useBrushing(data: DataItem[]) {
   const dispatch = useAppDispatch();
-  const previousDispatchedIdsRef = useRef<number[]>([]);
   const [brushes, setBrushes] = useState<Record<Column, BrushFilter>>({});
   const [nanBrushes, setNanBrushes] = useState<Record<Column, NanBrushMode>>({});
 
@@ -196,9 +195,21 @@ export function useBrushing(data: DataItem[]) {
     };
   }, [filteredRows]);
 
+  const previousDispatchedIdsRef = useRef<number[] | undefined>(undefined);
+
   useEffect(() => {
-    const nextIds = hasActiveFilters ? filteredData.ids : [];
+    const nextIds = hasActiveFilters ? filteredData.ids : undefined;
     const prevIds = previousDispatchedIdsRef.current;
+
+    if (nextIds === undefined && prevIds === undefined) {
+      return;
+    }
+
+    if (nextIds === undefined || prevIds === undefined) {
+      previousDispatchedIdsRef.current = nextIds;
+      dispatch(setParallelCoordinatesFilteredIds(nextIds));
+      return;
+    }
 
     const isSame =
       prevIds.length === nextIds.length &&

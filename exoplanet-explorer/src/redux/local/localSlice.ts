@@ -46,10 +46,10 @@ interface LocalState {
 
     /**
      * IDs currently included by active parallel coordinates filters.
-     * Empty list means no active filter. The ID corresponds to the index of the planet
+     * Undefined means no active filter. The ID corresponds to the index of the planet
      * in the data.full array.
      */
-    filteredIds: number[];
+    filteredIds: number[] | undefined;
   };
   hoveredId: number | undefined;
   autoSyncOpenSpaceSelection: boolean;
@@ -65,7 +65,7 @@ const initialState: LocalState = {
     },
     columnOrder: pcDefaultColumns,
     defaultColumns: pcDefaultColumns,
-    filteredIds: []
+    filteredIds: undefined
   },
   hoveredId: undefined,
   autoSyncOpenSpaceSelection: false
@@ -104,8 +104,17 @@ export const localSlice = createSlice({
       state.parallelCoordinates.columnOrder = action.payload;
     },
     setParallelCoordinatesFilteredIds: (state, action) => {
-      const incoming: number[] = action.payload;
+      const incoming: number[] | undefined = action.payload;
       const current = state.parallelCoordinates.filteredIds;
+
+      if (incoming === undefined && current === undefined) {
+        return;
+      }
+
+      if (incoming === undefined || current === undefined) {
+        state.parallelCoordinates.filteredIds = incoming;
+        return;
+      }
 
       const isSame =
         current.length === incoming.length &&
@@ -121,7 +130,7 @@ export const localSlice = createSlice({
         state.parallelCoordinates.defaultColumns;
       state.parallelCoordinates.columnOrder = state.parallelCoordinates.defaultColumns;
       state.parallelCoordinates.columnSelectionIsDefault = true;
-      state.parallelCoordinates.filteredIds = [];
+      state.parallelCoordinates.filteredIds = undefined;
     },
     setParallelCoordinatesLineOpacity: (state, action) => {
       state.parallelCoordinates.settings.lineOpacity = action.payload;

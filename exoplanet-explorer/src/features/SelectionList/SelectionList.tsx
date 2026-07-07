@@ -1,8 +1,10 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { Box, Paper, Text, Title } from '@mantine/core';
 import { useResizeObserver } from '@mantine/hooks';
 
+import { useBaseDataset } from '@/hooks/data';
 import { useAppSelector } from '@/redux/hooks';
+import type { DataItem } from '@/types/types';
 
 import { PlanetListItem } from './PlanetListItem';
 
@@ -12,6 +14,7 @@ export function SelectionList() {
   const filteredIds = useAppSelector(
     (state) => state.local.parallelCoordinates.filteredIds
   );
+  const data = useBaseDataset();
 
   const [ref, rect] = useResizeObserver();
 
@@ -19,27 +22,31 @@ export function SelectionList() {
   const listHeight = rect?.height ?? 300;
   const overscan = 6;
 
+  const idsToRender = useMemo(() => {
+    if (filteredIds === undefined) {
+      return data.map((row) => row.id);
+    }
+
+    return filteredIds;
+  }, [filteredIds, data]);
+
   const visibleRowCount = Math.ceil(listHeight / rowHeight);
   const startIndex = Math.max(0, Math.floor(scrollTop / rowHeight) - overscan);
   const endIndex = Math.min(
-    filteredIds.length,
+    idsToRender.length,
     startIndex + visibleRowCount + overscan * 2
   );
-  const visibleRows = filteredIds.slice(startIndex, endIndex);
+  const visibleRows = idsToRender.slice(startIndex, endIndex);
   const yOffset = startIndex * rowHeight;
-  const totalHeight = filteredIds.length * rowHeight;
+  const totalHeight = idsToRender.length * rowHeight;
 
   return (
     <Paper withBorder p={'md'} mt={'md'}>
-      <Title order={4}>Filtered Planets ({filteredIds.length})</Title>
+      <Title order={4}>{`Planets (${idsToRender.length})`}</Title>
 
-      {filteredIds.length === 0 ? (
+      {idsToRender.length === 0 ? (
         <Text size={'sm'} c={'dimmed'} mt={'xs'}>
-          No active filter.
-        </Text>
-      ) : filteredIds.length === 0 ? (
-        <Text size={'sm'} c={'dimmed'} mt={'xs'}>
-          No rows matched the current filtered IDs.
+          No rows matched the current filter.
         </Text>
       ) : (
         <Box
@@ -57,7 +64,7 @@ export function SelectionList() {
         >
           <Box style={{ height: totalHeight, position: 'relative' }}>
             <Box style={{ transform: `translateY(${yOffset}px)` }}>
-              {visibleRows.map((id) => (
+              {visibleRows.map((id: DataItem['id']) => (
                 <PlanetListItem key={id} id={id} />
               ))}
             </Box>

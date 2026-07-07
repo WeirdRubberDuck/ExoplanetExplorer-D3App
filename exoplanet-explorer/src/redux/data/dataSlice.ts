@@ -13,13 +13,17 @@ interface DataState {
   uncertainty: UncertaintyDataItem[];
   // Uncertainty domains for each column (in percentage)
   uncertaintyDomains: Record<Column, { min: number; max: number }>;
+
+  // Number of planets currently included in OpenSpace's filtered rows property
+  filteredPlanetsFromOpenSpace: number[] | undefined;
 }
 
 const initialState: DataState = {
   full: [],
   columns: [],
   uncertainty: [],
-  uncertaintyDomains: {}
+  uncertaintyDomains: {},
+  filteredPlanetsFromOpenSpace: undefined
 };
 
 export const dataSlice = createSlice({
@@ -87,10 +91,13 @@ export const dataSlice = createSlice({
       state.uncertainty = uncertaintyData;
 
       state.columns = Object.keys(fullData[0] || {}).filter((col) => col !== 'id');
+    },
+    setFilteredPlanetsFromOpenSpace: (state, action) => {
+      state.filteredPlanetsFromOpenSpace = action.payload;
     }
   }
 });
 
-export const { initializeData } = dataSlice.actions;
+export const { initializeData, setFilteredPlanetsFromOpenSpace } = dataSlice.actions;
 
 export default dataSlice.reducer;

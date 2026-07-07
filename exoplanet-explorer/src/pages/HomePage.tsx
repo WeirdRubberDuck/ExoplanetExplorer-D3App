@@ -1,15 +1,15 @@
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { Text } from '@mantine/core';
 
-import { useOpenSpaceApi } from '@/api/hooks';
 import { ParallelCoordinates } from '@/features/ParallelCoordinates/ParallelCoordinates';
 import { data } from '@/public/dummydata'; // TODO: Replace with actual data
 import { initializeData } from '@/redux/data/dataSlice';
-import { useAppDispatch } from '@/redux/hooks';
+import { useAppDispatch, useAppSelector } from '@/redux/hooks';
 
 export function HomePage() {
-  const [nNumPlanets, setNumPlanets] = useState<number | null>(null);
-  const luaApi = useOpenSpaceApi();
+  const filteringFromOpenSpace = useAppSelector(
+    (state) => state.data.filteredPlanetsFromOpenSpace
+  );
 
   const dispatch = useAppDispatch();
 
@@ -17,38 +17,10 @@ export function HomePage() {
     dispatch(initializeData(data));
   }, [dispatch]);
 
-  useEffect(() => {
-    if (!luaApi) {
-      return;
-    }
-
-    // TODO: Set up a subscription to this property instead of polling it once.
-    // Actually, move to redux? Could keep polling the property and update the store when it changes
-    luaApi
-      .propertyValue('Modules.ExoplanetsExpertTool.FilteredDataRows')
-      .then((res) => {
-        console.log('Got property value:', res);
-        if (!res) {
-          console.warn('Property value is null or undefined');
-          setNumPlanets(null);
-          return;
-        }
-
-        console.log('Type of res:', Object.values(res));
-        const numPlanets = Object.values(res).length;
-        setNumPlanets(numPlanets);
-      })
-      .catch((e) => {
-        console.error('Failed to get property value:', e);
-      });
-  }, [luaApi]);
-
   return (
     <>
       <Text size={'xs'} c={'dimmed'}>
-        {nNumPlanets !== null
-          ? ` (Detected filtering in OpenSpace resulting in ${nNumPlanets} planets)`
-          : ''}
+        {` (Detected filtering in OpenSpace resulting in ${filteringFromOpenSpace?.length ?? 0} planets)`}
       </Text>
       <ParallelCoordinates />
     </>

@@ -27,7 +27,7 @@ export function HomePage() {
 
       <SettingsBar />
 
-      <Group align={'flex-start'}>
+      <Group align={'flex-start'} wrap={'nowrap'}>
         <Box>
           <ParallelCoordinates />
         </Box>

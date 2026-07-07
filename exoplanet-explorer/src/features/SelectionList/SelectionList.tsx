@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Box, Paper, Text, Title } from '@mantine/core';
+import { useResizeObserver } from '@mantine/hooks';
 
 import { useAppSelector } from '@/redux/hooks';
 
@@ -11,8 +12,10 @@ export function SelectionList() {
   );
   const fullData = useAppSelector((state) => state.data.full);
 
+  const [ref, rect] = useResizeObserver();
+
   const rowHeight = 30;
-  const listHeight = 320;
+  const listHeight = rect?.height ?? 300;
   const overscan = 6;
 
   const visibleRowCount = Math.ceil(listHeight / rowHeight);
@@ -44,8 +47,10 @@ export function SelectionList() {
             height: listHeight,
             overflowY: 'auto',
             border: '1px solid var(--mantine-color-default-border)',
-            borderRadius: 4
+            borderRadius: 4,
+            resize: 'vertical'
           }}
+          ref={ref}
           onScroll={(event) => setScrollTop(event.currentTarget.scrollTop)}
         >
           <Box style={{ height: totalHeight, position: 'relative' }}>

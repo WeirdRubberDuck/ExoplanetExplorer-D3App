@@ -1,13 +1,11 @@
 import { Provider } from 'react-redux';
-import { AppShell, createTheme, Flex, Group, MantineProvider, Text } from '@mantine/core';
+import { AppShell, createTheme, MantineProvider } from '@mantine/core';
 
-import { ColorSchemeToggle } from '@/components/ColorSchemeToggle';
-import { DataFileInput } from '@/components/DataFileInput';
+import { Header } from '@/pages/Header';
 import { HomePage } from '@/pages/HomePage';
 import { store } from '@/redux/store';
 
 import { LuaApiProvider } from './api/LuaApiProvider';
-import { ConnectionStatusHint } from './components/ConnectionStatusHint';
 
 import '@mantine/core/styles.css';
 
@@ -20,16 +18,7 @@ export default function App() {
         <MantineProvider theme={theme} defaultColorScheme={'dark'}>
           <AppShell padding={'md'} header={{ height: 60 }}>
             <AppShell.Header p={'sm'}>
-              <Flex justify={'space-between'} align={'center'} h={'100%'}>
-                <Group flex={1}>
-                  <Text>Exoplanet Explorer</Text>
-                  <ConnectionStatusHint />
-                </Group>
-                <Group>
-                  <DataFileInput />
-                  <ColorSchemeToggle />
-                </Group>
-              </Flex>
+              <Header />
             </AppShell.Header>
             <AppShell.Main>
               <HomePage />

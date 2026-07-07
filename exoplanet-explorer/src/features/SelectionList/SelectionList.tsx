@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useState } from 'react';
 import { Box, Paper, Text, Title } from '@mantine/core';
 
 import { useAppSelector } from '@/redux/hooks';
@@ -15,24 +15,15 @@ export function SelectionList() {
   const listHeight = 320;
   const overscan = 6;
 
-  const filteredRows = useMemo(() => {
-    if (filteredIds.length === 0) {
-      return [];
-    }
-
-    const idSet = new Set(filteredIds);
-    return fullData.filter((row) => idSet.has(row.id));
-  }, [fullData, filteredIds]);
-
   const visibleRowCount = Math.ceil(listHeight / rowHeight);
   const startIndex = Math.max(0, Math.floor(scrollTop / rowHeight) - overscan);
   const endIndex = Math.min(
-    filteredRows.length,
+    filteredIds.length,
     startIndex + visibleRowCount + overscan * 2
   );
-  const visibleRows = filteredRows.slice(startIndex, endIndex);
+  const visibleRows = filteredIds.slice(startIndex, endIndex);
   const yOffset = startIndex * rowHeight;
-  const totalHeight = filteredRows.length * rowHeight;
+  const totalHeight = filteredIds.length * rowHeight;
 
   return (
     <Paper withBorder p={'md'} mt={'md'}>
@@ -42,7 +33,7 @@ export function SelectionList() {
         <Text size={'sm'} c={'dimmed'} mt={'xs'}>
           No active filter.
         </Text>
-      ) : filteredRows.length === 0 ? (
+      ) : filteredIds.length === 0 ? (
         <Text size={'sm'} c={'dimmed'} mt={'xs'}>
           No rows matched the current filtered IDs.
         </Text>
@@ -59,9 +50,9 @@ export function SelectionList() {
         >
           <Box style={{ height: totalHeight, position: 'relative' }}>
             <Box style={{ transform: `translateY(${yOffset}px)` }}>
-              {visibleRows.map((row) => (
-                <Text key={row.id} size={'sm'} px={'xs'} py={2}>
-                  {row.pl_name}
+              {visibleRows.map((id) => (
+                <Text key={id} size={'sm'} px={'xs'} py={2}>
+                  {fullData[id]?.pl_name}
                 </Text>
               ))}
             </Box>

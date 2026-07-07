@@ -41,7 +41,8 @@ interface LocalState {
     defaultColumns: Column[];
     /**
      * IDs currently included by active parallel coordinates filters.
-     * Empty list means no active filter.
+     * Empty list means no active filter. The ID corresponds to the index of the planet
+     * in the data.full array.
      */
     filteredIds: number[];
   };

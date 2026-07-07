@@ -9,7 +9,16 @@ import { LuaApiProvider } from './api/LuaApiProvider';
 
 import '@mantine/core/styles.css';
 
-const theme = createTheme({});
+const theme = createTheme({
+  components: {
+    Tooltip: {
+      defaultProps: {
+        withArrow: true,
+        openDelay: 500
+      }
+    }
+  }
+});
 
 export default function App() {
   return (

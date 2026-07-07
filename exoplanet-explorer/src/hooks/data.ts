@@ -26,3 +26,12 @@ export function useBaseDataset() {
 
   return filteredDataset;
 }
+
+export function useFilteredIds() {
+  // TODO: Should combine multiple selections, but for now just use the PC filtered IDs
+  const filteredIds = useAppSelector(
+    (state) => state.local.parallelCoordinates.filteredIds
+  );
+  const count = filteredIds ? filteredIds.length : undefined;
+  return { filteredIds, count };
+}

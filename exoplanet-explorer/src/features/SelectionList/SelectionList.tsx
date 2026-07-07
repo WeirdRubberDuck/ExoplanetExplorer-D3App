@@ -43,6 +43,7 @@ export function SelectionList() {
       ) : (
         <Box
           mt={'xs'}
+          h={400} // Default height
           style={{
             height: listHeight,
             overflowY: 'auto',

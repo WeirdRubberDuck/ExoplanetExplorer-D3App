@@ -51,6 +51,7 @@ interface LocalState {
      */
     filteredIds: number[];
   };
+  hoveredId: number | undefined;
 }
 
 const initialState: LocalState = {
@@ -64,7 +65,8 @@ const initialState: LocalState = {
     columnOrder: pcDefaultColumns,
     defaultColumns: pcDefaultColumns,
     filteredIds: []
-  }
+  },
+  hoveredId: undefined
 };
 
 export const localSlice = createSlice({
@@ -124,6 +126,9 @@ export const localSlice = createSlice({
     },
     setParallelCoordinatesShowGhostLines: (state, action) => {
       state.parallelCoordinates.settings.showGhostLines = action.payload;
+    },
+    setHoveredItemId: (state, action) => {
+      state.hoveredId = action.payload;
     }
   }
 });
@@ -134,7 +139,8 @@ export const {
   setParallelCoordinatesFilteredIds,
   resetParallelCoordinates,
   setParallelCoordinatesLineOpacity,
-  setParallelCoordinatesShowGhostLines
+  setParallelCoordinatesShowGhostLines,
+  setHoveredItemId
 } = localSlice.actions;
 
 export default localSlice.reducer;

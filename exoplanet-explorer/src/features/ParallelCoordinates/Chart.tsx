@@ -9,6 +9,7 @@ import type { Column, DataItem, UncertaintyDataItem } from '@/types/types.ts';
 import { Axes } from './Axes/Axes.tsx';
 import { CanvasLines } from './Lines/CanvasLines.tsx';
 import { GhostLines } from './Lines/GhostLines.tsx';
+import { HighlightedLine } from './Lines/HighlightedLine.tsx';
 import { useBrushing, useChartScales } from './hooks.ts';
 
 interface Props {
@@ -168,6 +169,7 @@ export function ParallelCoordinatesChart({
               data={filteredData.rows}
               strokeColor={'steelblue'}
             />
+            <HighlightedLine {...linesProps} />
 
             {/* Axes */}
             <svg

@@ -12,7 +12,7 @@ export function GhostLines(props: Props) {
 
   const ghostLineColor = useMemo(() => {
     const colorVariable =
-      colorScheme === 'dark' ? '--mantine-color-dark-5' : '--mantine-color-gray-2';
+      colorScheme === 'dark' ? '--mantine-color-dark-5' : '--mantine-color-dark-0';
 
     const resolvedColor = getComputedStyle(document.documentElement)
       .getPropertyValue(colorVariable)

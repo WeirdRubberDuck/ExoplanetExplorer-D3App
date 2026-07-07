@@ -4,13 +4,14 @@ import { useResizeObserver } from '@mantine/hooks';
 
 import { useAppSelector } from '@/redux/hooks';
 
+import { PlanetListItem } from './PlanetListItem';
+
 export function SelectionList() {
   const [scrollTop, setScrollTop] = useState(0);
 
   const filteredIds = useAppSelector(
     (state) => state.local.parallelCoordinates.filteredIds
   );
-  const fullData = useAppSelector((state) => state.data.full);
 
   const [ref, rect] = useResizeObserver();
 
@@ -57,9 +58,7 @@ export function SelectionList() {
           <Box style={{ height: totalHeight, position: 'relative' }}>
             <Box style={{ transform: `translateY(${yOffset}px)` }}>
               {visibleRows.map((id) => (
-                <Text key={id} size={'sm'} px={'xs'} py={2}>
-                  {fullData[id]?.pl_name}
-                </Text>
+                <PlanetListItem key={id} id={id} />
               ))}
             </Box>
           </Box>

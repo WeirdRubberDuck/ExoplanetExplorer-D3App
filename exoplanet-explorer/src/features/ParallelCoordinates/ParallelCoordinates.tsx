@@ -1,15 +1,18 @@
 import { useMemo } from 'react';
 
+import { useBaseDataset } from '@/hooks/data.ts';
 import { useAppSelector } from '@/redux/hooks.ts';
 import type { DataItem } from '@/types/types.ts';
 
 import { ParallelCoordinatesChart } from './Chart.tsx';
 
 export function ParallelCoordinates() {
-  const { full: data, uncertainty } = useAppSelector((state) => state.data);
+  const { uncertainty } = useAppSelector((state) => state.data);
   const { selectedColumns, lineOpacity, showGhostLines } = useAppSelector(
     (state) => state.local.parallelCoordinates.settings
   );
+
+  const data = useBaseDataset();
 
   // Collect the data for the parallel coordinates chart based on the selected columns
   // and the uncertainty data. We need nothing more

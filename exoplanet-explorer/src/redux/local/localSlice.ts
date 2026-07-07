@@ -100,8 +100,17 @@ export const localSlice = createSlice({
       state.parallelCoordinates.columnOrder = action.payload;
     },
     setParallelCoordinatesFilteredIds: (state, action) => {
-      state.parallelCoordinates.filteredIds = action.payload;
-      console.log('Filtered IDs set to:', action.payload);
+      const incoming: number[] = action.payload;
+      const current = state.parallelCoordinates.filteredIds;
+
+      const isSame =
+        current.length === incoming.length &&
+        current.every((id, index) => id === incoming[index]);
+      if (isSame) {
+        return;
+      }
+
+      state.parallelCoordinates.filteredIds = incoming;
     },
     resetParallelCoordinates: (state) => {
       state.parallelCoordinates.settings.selectedColumns =

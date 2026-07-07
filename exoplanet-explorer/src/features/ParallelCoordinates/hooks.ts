@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import * as d3 from 'd3';
 
 import { useAppDispatch, useAppSelector } from '@/redux/hooks';
@@ -89,6 +89,7 @@ export function useChartScales(
 
 export function useBrushing(data: DataItem[]) {
   const dispatch = useAppDispatch();
+  const previousDispatchedIdsRef = useRef<number[]>([]);
   const [brushes, setBrushes] = useState<Record<Column, BrushFilter>>({});
   const [nanBrushes, setNanBrushes] = useState<Record<Column, NanBrushMode>>({});
 
@@ -196,7 +197,18 @@ export function useBrushing(data: DataItem[]) {
   }, [filteredRows]);
 
   useEffect(() => {
-    dispatch(setParallelCoordinatesFilteredIds(hasActiveFilters ? filteredData.ids : []));
+    const nextIds = hasActiveFilters ? filteredData.ids : [];
+    const prevIds = previousDispatchedIdsRef.current;
+
+    const isSame =
+      prevIds.length === nextIds.length &&
+      prevIds.every((id, index) => id === nextIds[index]);
+    if (isSame) {
+      return;
+    }
+
+    previousDispatchedIdsRef.current = nextIds;
+    dispatch(setParallelCoordinatesFilteredIds(nextIds));
   }, [dispatch, hasActiveFilters, filteredData.ids]);
 
   return {

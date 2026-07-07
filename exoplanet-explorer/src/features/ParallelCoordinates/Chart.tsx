@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { Box, Button, Group, Loader, Text } from '@mantine/core';
 import { useDebouncedValue, useResizeObserver } from '@mantine/hooks';
 
@@ -65,14 +65,11 @@ export function ParallelCoordinatesChart({
 
   const [containerRef, container] = useResizeObserver();
 
-  const [{ chartHeight, chartWidth }] = useDebouncedValue(
-    {
-      chartHeight: container ? container.height : defaultHeight,
-      chartWidth: container ? container.width : defaultWidth
-    },
-    200,
-    { leading: true }
-  );
+  const rawChartHeight = container ? container.height : defaultHeight;
+  const rawChartWidth = container ? container.width : defaultWidth;
+
+  const [chartHeight] = useDebouncedValue(rawChartHeight, 200, { leading: true });
+  const [chartWidth] = useDebouncedValue(rawChartWidth, 200, { leading: true });
 
   const isLoading = !container || chartWidth === 0 || chartHeight === 0;
 
@@ -113,17 +110,28 @@ export function ParallelCoordinatesChart({
     dispatch(setParallelCoordinatesColumnOrder(newColumns));
   }
 
-  const linesProps = {
-    dimensions,
-    xScale,
-    yPos,
-    xOffset: margin.left + extraLeftMargin,
-    yOffset: margin.top,
-    opacity: cfg.lineOpacity,
-    strokeWidth: cfg.strokeWidth,
-    width: internalWidth,
-    height: heightWithNanAxis
-  };
+  const linesProps = useMemo(
+    () => ({
+      dimensions,
+      xScale,
+      yPos,
+      xOffset: margin.left + extraLeftMargin,
+      yOffset: margin.top,
+      opacity: cfg.lineOpacity,
+      strokeWidth: cfg.strokeWidth,
+      width: internalWidth,
+      height: heightWithNanAxis
+    }),
+    [
+      dimensions,
+      xScale,
+      yPos,
+      cfg.lineOpacity,
+      cfg.strokeWidth,
+      internalWidth,
+      heightWithNanAxis
+    ]
+  );
 
   return (
     <>

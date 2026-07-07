@@ -26,7 +26,7 @@ export function LuaApiProvider({ children }: PropsWithChildren) {
   useEffect(() => {
     const fetchApi = async () => {
       try {
-        const res = await api.singleReturnLibrary();
+        const res = await api.library();
         setLuaApi(res);
       } catch (e) {
         console.error('Failed to fetch Lua API:', e);

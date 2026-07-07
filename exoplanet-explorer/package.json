@@ -15,7 +15,7 @@
     "@mantine/core": "^9.0.2",
     "@mantine/hooks": "^9.0.2",
     "d3": "^7.9.0",
-    "openspace-api-js": "^0.1.6",
+    "openspace-api-js": "^1.0.2",
     "papaparse": "^5.5.3",
     "react": "^19.2.4",
     "react-dom": "^19.2.4",

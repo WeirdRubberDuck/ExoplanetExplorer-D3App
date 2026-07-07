@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { Text } from '@mantine/core';
+import { Box, Group, Text } from '@mantine/core';
 
 import { ParallelCoordinates } from '@/features/ParallelCoordinates/ParallelCoordinates';
 import { SelectionList } from '@/features/SelectionList/SelectionList';
@@ -26,9 +26,15 @@ export function HomePage() {
       </Text>
 
       <SettingsBar />
-      <ParallelCoordinates />
 
-      <SelectionList />
+      <Group align={'flex-start'}>
+        <Box>
+          <ParallelCoordinates />
+        </Box>
+        <Box w={300}>
+          <SelectionList />
+        </Box>
+      </Group>
     </>
   );
 }

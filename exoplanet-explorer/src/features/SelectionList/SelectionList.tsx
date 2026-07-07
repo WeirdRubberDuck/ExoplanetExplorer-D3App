@@ -27,7 +27,7 @@ export function SelectionList() {
 
   return (
     <Paper withBorder p={'md'} mt={'md'}>
-      <Title order={4}>Filtered Planet Names</Title>
+      <Title order={4}>Filtered Planets ({filteredIds.length})</Title>
 
       {filteredIds.length === 0 ? (
         <Text size={'sm'} c={'dimmed'} mt={'xs'}>

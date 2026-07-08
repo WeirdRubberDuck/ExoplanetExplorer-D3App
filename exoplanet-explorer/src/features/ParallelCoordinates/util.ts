@@ -12,17 +12,33 @@ export function inferDimensions(
   if (!data.length) return [];
 
   return columns.map((key) => {
-    const values = data.map((d) => d[key]).filter((v) => v != null);
+    // Filter out null, undefined, and empty string values (missing values)
+    const values = data
+      .map((d) => d[key])
+      .filter((v): v is string | number => {
+        if (v == null) {
+          return false;
+        }
 
-    const numericValues = values.map((v) => Number(v));
+        if (typeof v === 'string') {
+          return v.trim() !== '';
+        }
 
-    const numericCount = numericValues.filter((v) => !isNaN(v)).length;
-    const numericRatio = values.length === 0 ? 0 : numericCount / values.length;
-    const isNumeric = numericRatio > 0.8;
+        return true;
+      });
+
+    const numericValues = values
+      .map((v) => Number(v))
+      .filter((v): v is number => Number.isFinite(v));
+
+    // Try to determine if the column is numeric based on the ratio of numeric values to
+    // total values
+    const MIN_NUMERIC_SAMPLE_SIZE = 5;
+    const numericRatio = values.length === 0 ? 0 : numericValues.length / values.length;
+    const isNumeric = values.length >= MIN_NUMERIC_SAMPLE_SIZE && numericRatio > 0.8;
 
     if (isNumeric) {
-      const cleanValues = numericValues.filter((v) => !isNaN(v));
-
+      const cleanValues = numericValues;
       const scale = d3
         .scaleLinear()
         .domain(d3.extent(cleanValues) as [number, number])
@@ -34,21 +50,20 @@ export function inferDimensions(
         type: 'number',
         scale
       };
+    } else {
+      const categories = Array.from(new Set(values.map((v) => String(v))));
+      const scale = d3
+        .scalePoint<string>()
+        .domain(categories)
+        .range([height, 0])
+        .padding(0.5);
+
+      return {
+        key,
+        type: 'string',
+        scale
+      };
     }
-
-    const categories = Array.from(new Set(values.map((v) => String(v))));
-
-    const scale = d3
-      .scalePoint<string>()
-      .domain(categories)
-      .range([height, 0])
-      .padding(0.5);
-
-    return {
-      key,
-      type: 'string',
-      scale
-    };
   });
 }
 

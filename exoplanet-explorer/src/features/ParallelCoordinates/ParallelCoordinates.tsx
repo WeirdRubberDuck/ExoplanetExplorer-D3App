@@ -37,7 +37,7 @@ export function ParallelCoordinates() {
       maxHeight={1000}
       cfg={{
         lineOpacity,
-        showGhostLines: showGhostLines
+        showGhostLines
       }}
     />
   );

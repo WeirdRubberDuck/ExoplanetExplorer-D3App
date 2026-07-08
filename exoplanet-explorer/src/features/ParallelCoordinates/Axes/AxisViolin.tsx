@@ -9,6 +9,8 @@ import type { Dimension } from '../types';
 interface Props {
   dimension: Dimension;
   data: DataItem[];
+  missingValueY?: number;
+  includeMissingValueLobe?: boolean;
   maxHalfWidth?: number;
   fill?: string;
   opacity?: number;
@@ -42,29 +44,45 @@ function computeValueY(
 export function AxisViolin({
   dimension,
   data,
+  missingValueY,
+  includeMissingValueLobe = true,
   maxHalfWidth = 8,
   fill = 'var(--mantine-primary-color-filled)',
   opacity = 0.2
 }: Props) {
   const pathD = useMemo(() => {
-    if (data.length < 2) {
+    if (data.length === 0) {
       return undefined;
     }
 
     const range = dimension.scale.range();
-    const minY = Math.min(...range);
-    const maxY = Math.max(...range);
-    const axisHeight = maxY - minY;
+    const baseMinY = Math.min(...range);
+    const baseMaxY = Math.max(...range);
 
-    if (!isFinite(axisHeight) || axisHeight <= 0) {
+    const { yValues, missingCount } = data.reduce(
+      (acc, row) => {
+        const y = computeValueY(row[dimension.key], dimension);
+        if (y === undefined) {
+          acc.missingCount += 1;
+        } else {
+          acc.yValues.push(y);
+        }
+        return acc;
+      },
+      { yValues: [] as number[], missingCount: 0 }
+    );
+
+    const includeMissingLobe =
+      includeMissingValueLobe && missingValueY !== undefined && missingCount > 0;
+    if (yValues.length < 2 && !includeMissingLobe) {
       return undefined;
     }
 
-    const yValues = data
-      .map((row) => computeValueY(row[dimension.key], dimension))
-      .filter((value): value is number => value !== undefined);
+    const minY = includeMissingLobe ? Math.min(baseMinY, missingValueY!) : baseMinY;
+    const maxY = includeMissingLobe ? Math.max(baseMaxY, missingValueY!) : baseMaxY;
+    const axisHeight = maxY - minY;
 
-    if (yValues.length < 2) {
+    if (!isFinite(axisHeight) || axisHeight <= 0) {
       return undefined;
     }
 
@@ -86,6 +104,23 @@ export function AxisViolin({
       const next = counts[Math.min(binCount - 1, index + 1)];
       return (prev + 2 * curr + next) / 4;
     });
+
+    if (includeMissingLobe) {
+      const missingY = Math.max(minY, Math.min(maxY, missingValueY));
+      const missingIndex = Math.max(
+        0,
+        Math.min(binCount - 1, Math.floor((missingY - minY) / binSize))
+      );
+
+      // Add missing values as a bump around the dedicated missing-value axis location
+      smoothed[missingIndex] += missingCount;
+      if (missingIndex > 0) {
+        smoothed[missingIndex - 1] += missingCount * 0.35;
+      }
+      if (missingIndex < binCount - 1) {
+        smoothed[missingIndex + 1] += missingCount * 0.35;
+      }
+    }
 
     const maxCount = Math.max(...smoothed);
     if (maxCount <= 0) {
@@ -114,7 +149,7 @@ export function AxisViolin({
 
     const d = line(points);
     return d ? `${d}Z` : undefined;
-  }, [data, dimension, maxHalfWidth]);
+  }, [data, dimension, missingValueY, includeMissingValueLobe, maxHalfWidth]);
 
   if (!pathD) {
     return null;

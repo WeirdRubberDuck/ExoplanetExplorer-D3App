@@ -2,7 +2,7 @@
  * Data related to the local state of the app.
  */
 
-import { createSlice } from '@reduxjs/toolkit';
+import { createSlice, type PayloadAction } from '@reduxjs/toolkit';
 
 import { isSameColumnArray } from '@/features/ParallelCoordinates/util';
 import type { Column } from '@/types/types';
@@ -42,6 +42,10 @@ interface LocalState {
       selectedColumns: Column[];
       lineOpacity: number;
       showGhostLines: boolean;
+      axisViolinPlots: {
+        show: boolean;
+        showMissingValueLobe: boolean;
+      };
     };
 
     /**
@@ -55,13 +59,23 @@ interface LocalState {
   autoSyncOpenSpaceSelection: boolean;
 }
 
+type ParallelCoordinatesSettings = LocalState['parallelCoordinates']['settings'];
+type ParallelCoordinatesVisualSettings = Omit<
+  ParallelCoordinatesSettings,
+  'selectedColumns'
+>;
+
 const initialState: LocalState = {
   parallelCoordinates: {
     columnSelectionIsDefault: true,
     settings: {
       selectedColumns: pcDefaultColumns,
       lineOpacity: 0.7,
-      showGhostLines: true
+      showGhostLines: true,
+      axisViolinPlots: {
+        show: true,
+        showMissingValueLobe: true
+      }
     },
     columnOrder: pcDefaultColumns,
     defaultColumns: pcDefaultColumns,
@@ -132,11 +146,26 @@ export const localSlice = createSlice({
       state.parallelCoordinates.columnSelectionIsDefault = true;
       state.parallelCoordinates.filteredIds = undefined;
     },
-    setParallelCoordinatesLineOpacity: (state, action) => {
-      state.parallelCoordinates.settings.lineOpacity = action.payload;
-    },
-    setParallelCoordinatesShowGhostLines: (state, action) => {
-      state.parallelCoordinates.settings.showGhostLines = action.payload;
+    setParallelCoordinatesSettings: (
+      state,
+      action: PayloadAction<Partial<ParallelCoordinatesVisualSettings>>
+    ) => {
+      const patch = action.payload;
+
+      if (patch.lineOpacity !== undefined) {
+        state.parallelCoordinates.settings.lineOpacity = patch.lineOpacity;
+      }
+
+      if (patch.showGhostLines !== undefined) {
+        state.parallelCoordinates.settings.showGhostLines = patch.showGhostLines;
+      }
+
+      if (patch.axisViolinPlots !== undefined) {
+        state.parallelCoordinates.settings.axisViolinPlots = {
+          ...state.parallelCoordinates.settings.axisViolinPlots,
+          ...patch.axisViolinPlots
+        };
+      }
     },
 
     setHoveredItemId: (state, action) => {
@@ -153,8 +182,7 @@ export const {
   setParallelCoordinatesColumnOrder,
   setParallelCoordinatesFilteredIds,
   resetParallelCoordinates,
-  setParallelCoordinatesLineOpacity,
-  setParallelCoordinatesShowGhostLines,
+  setParallelCoordinatesSettings,
 
   setHoveredItemId,
   setAutoSyncOpenSpaceSelection

@@ -22,6 +22,7 @@ interface Props {
     strokeWidth?: number;
     lineOpacity?: number;
     showGhostLines?: boolean;
+    showMissingValueViolin?: boolean;
   };
 }
 
@@ -48,7 +49,8 @@ export function ParallelCoordinatesChart({
   cfg = {
     strokeWidth: 1,
     lineOpacity: 1.0,
-    showGhostLines: false
+    showGhostLines: false,
+    showMissingValueViolin: true
   }
 }: Props) {
   const [axisRenderKey, setAxisRenderKey] = useState(0);
@@ -59,6 +61,9 @@ export function ParallelCoordinatesChart({
   const orderedColumns = useAppSelector(
     (state) => state.local.parallelCoordinates.columnOrder
   );
+
+  const settings = useAppSelector((state) => state.local.parallelCoordinates.settings);
+
   const dispatch = useAppDispatch();
 
   const {
@@ -199,6 +204,7 @@ export function ParallelCoordinatesChart({
                   key={axisRenderKey}
                   dimensions={dimensions}
                   enabledUncertaintyColumns={enabledUncertaintyColumns}
+                  violinPlots={settings.axisViolinPlots}
                   xScale={xScale}
                   nanAxisYPos={nanAxisYPos}
                   handleBrush={handleBrush}

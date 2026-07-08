@@ -1,6 +1,5 @@
 import { IoMdSettings } from 'react-icons/io';
 import {
-  Box,
   Button,
   Checkbox,
   Drawer,
@@ -15,8 +14,7 @@ import { useDisclosure } from '@mantine/hooks';
 import { useAppDispatch, useAppSelector } from '@/redux/hooks.ts';
 import {
   resetParallelCoordinates,
-  setParallelCoordinatesLineOpacity,
-  setParallelCoordinatesShowGhostLines
+  setParallelCoordinatesSettings
 } from '@/redux/local/localSlice.ts';
 
 import { ColumnSelection } from './paralellcoordinates/ColumnSelection';
@@ -55,27 +53,73 @@ export function SettingsBar() {
         padding={'md'}
         size={400}
       >
-        <Title order={2}>Parallel coordinates</Title>
+        <Title order={2} mb={'xs'}>
+          Parallel coordinates
+        </Title>
 
         <Stack gap={'xs'}>
-          <Box>
-            <Text>Line opacity</Text>
+          <ColumnSelection columns={columns} primaryColumns={defaultColumns} />
+
+          <Title order={3} size={'md'}>
+            Lines
+          </Title>
+          <Group w={'100%'}>
+            <Text size={'sm'}>Line opacity</Text>
             <Slider
               value={settings.lineOpacity}
-              onChange={(value) => dispatch(setParallelCoordinatesLineOpacity(value))}
+              onChange={(value) =>
+                dispatch(setParallelCoordinatesSettings({ lineOpacity: value }))
+              }
               min={0}
               max={1}
               step={0.01}
+              flex={1}
             />
-          </Box>
+          </Group>
           <Checkbox
             label={'Show ghost lines for filtered out paths'}
             checked={settings.showGhostLines}
             onChange={(e) =>
-              dispatch(setParallelCoordinatesShowGhostLines(e.target.checked))
+              dispatch(
+                setParallelCoordinatesSettings({
+                  showGhostLines: e.target.checked
+                })
+              )
             }
           />
-          <ColumnSelection columns={columns} primaryColumns={defaultColumns} />
+
+          <Title order={3} size={'md'}>
+            Axes
+          </Title>
+          <Checkbox
+            label={'Show violin plots'}
+            checked={settings.axisViolinPlots.show}
+            onChange={(e) =>
+              dispatch(
+                setParallelCoordinatesSettings({
+                  axisViolinPlots: {
+                    ...settings.axisViolinPlots,
+                    show: e.target.checked
+                  }
+                })
+              )
+            }
+          />
+          <Checkbox
+            label={'Include missing values in violin plots'}
+            checked={settings.axisViolinPlots.showMissingValueLobe}
+            onChange={(e) =>
+              dispatch(
+                setParallelCoordinatesSettings({
+                  axisViolinPlots: {
+                    ...settings.axisViolinPlots,
+                    showMissingValueLobe: e.target.checked
+                  }
+                })
+              )
+            }
+            disabled={!settings.axisViolinPlots.show}
+          />
         </Stack>
       </Drawer>
     </>

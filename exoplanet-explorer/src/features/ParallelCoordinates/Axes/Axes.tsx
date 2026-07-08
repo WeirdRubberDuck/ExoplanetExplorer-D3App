@@ -15,6 +15,10 @@ interface Props {
   data: DataItem[];
   dimensions: Dimension[];
   enabledUncertaintyColumns: Column[];
+  violinPlots?: {
+    show?: boolean;
+    showMissingValueLobe?: boolean;
+  };
   xScale: d3.ScalePoint<string>;
   nanAxisYPos: number;
   handleBrush: (dimension: Dimension, y0: number, y1: number) => void;
@@ -29,6 +33,7 @@ export function Axes({
   data,
   dimensions,
   enabledUncertaintyColumns,
+  violinPlots = { show: true, showMissingValueLobe: true },
   xScale,
   nanAxisYPos,
   handleBrush,
@@ -48,13 +53,16 @@ export function Axes({
     <>
       {dimensions.map((dim) => (
         <g key={dim.key} transform={`translate(${xScale(dim.key)},0)`}>
-          <AxisViolin
-            dimension={dim}
-            data={data}
-            opacity={0.7}
-            fill={'var(--mantine-color-indigo-9)'}
-          />
-
+          {violinPlots.show && (
+            <AxisViolin
+              dimension={dim}
+              data={data}
+              missingValueY={missingValueY}
+              includeMissingValueLobe={violinPlots.showMissingValueLobe}
+              opacity={0.7}
+              fill={'var(--mantine-color-indigo-9)'}
+            />
+          )}
           <Axis
             dimension={dim}
             handleBrush={handleBrush}

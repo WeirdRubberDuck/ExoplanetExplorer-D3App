@@ -79,11 +79,9 @@ export function HighlightedLine({ sourceData, ...props }: Props) {
                 key={`highlight-value-${dim.key}`}
                 x={x + 4}
                 y={y - 4}
-                fontSize={10}
-                fill={'lime'}
-                stroke={'rgba(0, 0, 0, 0.65)'}
-                strokeWidth={2}
-                paintOrder={'stroke'}
+                fontSize={12}
+                fontWeight={600}
+                fill={'var(--mantine-color-text)'}
               >
                 {value}
               </text>

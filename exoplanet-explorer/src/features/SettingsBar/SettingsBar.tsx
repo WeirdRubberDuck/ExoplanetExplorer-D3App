@@ -4,6 +4,7 @@ import {
   Checkbox,
   Drawer,
   Group,
+  Select,
   Slider,
   Stack,
   Text,
@@ -14,6 +15,7 @@ import { useDisclosure } from '@mantine/hooks';
 import { useAppDispatch, useAppSelector } from '@/redux/hooks.ts';
 import {
   resetParallelCoordinates,
+  setObjectNameColumn,
   setParallelCoordinatesSettings
 } from '@/redux/local/localSlice.ts';
 
@@ -26,6 +28,8 @@ export function SettingsBar() {
   const { columnSelectionIsDefault, defaultColumns, settings } = useAppSelector(
     (state) => state.local.parallelCoordinates
   );
+
+  const objectNameColumn = useAppSelector((state) => state.local.objectNameColumn);
 
   const [settingsOpened, { open, close }] = useDisclosure(false);
 
@@ -53,6 +57,13 @@ export function SettingsBar() {
         padding={'md'}
         size={400}
       >
+        <Select
+          label={'Object name column'}
+          value={objectNameColumn}
+          onChange={(value) => dispatch(setObjectNameColumn(value))}
+          data={columns.map((col) => ({ value: col, label: col }))}
+          searchable
+        />
         <Title order={2} mb={'xs'}>
           Parallel coordinates
         </Title>

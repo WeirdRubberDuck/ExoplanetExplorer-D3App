@@ -58,6 +58,7 @@ interface LocalState {
   };
   hoveredId: number | undefined;
   autoSyncOpenSpaceSelection: boolean;
+  objectNameColumn: Column;
 }
 
 type ParallelCoordinatesSettings = LocalState['parallelCoordinates']['settings'];
@@ -84,7 +85,8 @@ const initialState: LocalState = {
     filteredIds: undefined
   },
   hoveredId: undefined,
-  autoSyncOpenSpaceSelection: false
+  autoSyncOpenSpaceSelection: false,
+  objectNameColumn: 'pl_name'
 };
 
 export const localSlice = createSlice({
@@ -180,6 +182,9 @@ export const localSlice = createSlice({
     },
     setAutoSyncOpenSpaceSelection: (state, action) => {
       state.autoSyncOpenSpaceSelection = action.payload;
+    },
+    setObjectNameColumn: (state, action) => {
+      state.objectNameColumn = action.payload;
     }
   }
 });
@@ -192,7 +197,8 @@ export const {
   setParallelCoordinatesSettings,
 
   setHoveredItemId,
-  setAutoSyncOpenSpaceSelection
+  setAutoSyncOpenSpaceSelection,
+  setObjectNameColumn
 } = localSlice.actions;
 
 export default localSlice.reducer;

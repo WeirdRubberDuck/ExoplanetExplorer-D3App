@@ -9,6 +9,7 @@ export function PlanetListItem({ id }: { id: number }) {
   const dispatch = useAppDispatch();
 
   const data = useAppSelector((state) => state.data.full[id]);
+  const objectNameColumn = useAppSelector((state) => state.local.objectNameColumn);
 
   function setIdOnHover(id: number | undefined) {
     setIsHovered(id !== undefined);
@@ -25,7 +26,7 @@ export function PlanetListItem({ id }: { id: number }) {
       onMouseEnter={() => setIdOnHover(id)}
       onMouseLeave={() => setIdOnHover(undefined)}
     >
-      {data?.pl_name}
+      {data?.[objectNameColumn]}
     </Text>
   );
 }

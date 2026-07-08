@@ -1,6 +1,6 @@
 import { useCallback, useMemo, useState } from 'react';
 import { Box, Button, Group, Loader, Text } from '@mantine/core';
-import { useDebouncedValue, useResizeObserver } from '@mantine/hooks';
+import { useResizeObserver, useThrottledValue } from '@mantine/hooks';
 
 import { useAppDispatch, useAppSelector } from '@/redux/hooks.ts';
 import { setParallelCoordinatesColumnOrder } from '@/redux/local/localSlice.ts';
@@ -75,8 +75,8 @@ export function ParallelCoordinatesChart({
   const rawChartHeight = container ? container.height : defaultHeight;
   const rawChartWidth = container ? container.width : defaultWidth;
 
-  const [chartHeight] = useDebouncedValue(rawChartHeight, 200, { leading: true });
-  const [chartWidth] = useDebouncedValue(rawChartWidth, 200, { leading: true });
+  const chartHeight = useThrottledValue(rawChartHeight, 16);
+  const chartWidth = useThrottledValue(rawChartWidth, 16);
 
   const isLoading = !container || chartWidth === 0 || chartHeight === 0;
 

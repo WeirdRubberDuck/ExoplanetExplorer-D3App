@@ -195,6 +195,7 @@ export function ParallelCoordinatesChart({
             >
               <g transform={`translate(${margin.left + extraLeftMargin}, ${margin.top})`}>
                 <Axes
+                  data={filteredData.rows}
                   key={axisRenderKey}
                   dimensions={dimensions}
                   enabledUncertaintyColumns={enabledUncertaintyColumns}

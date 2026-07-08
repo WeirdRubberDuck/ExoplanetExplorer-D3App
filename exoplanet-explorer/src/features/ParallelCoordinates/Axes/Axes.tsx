@@ -1,16 +1,18 @@
 import * as d3 from 'd3';
 
-import type { Column } from '@/types/types.ts';
+import type { Column, DataItem } from '@/types/types.ts';
 
 import { useHasUncertaintyColumn } from '../hooks.ts';
 import { type Dimension, NanBrushMode } from '../types.ts';
 
 import { Axis } from './Axis.tsx';
+import { AxisViolin } from './AxisViolin.tsx';
 import { MissingValueAxis } from './MissingValueAxis.tsx';
 import { MissingValueAxisLabel } from './MissinValueAxisLabel.tsx';
 import { UncertaintyAxisCheckbox } from './UncertaintyAxisCheckbox.tsx';
 
 interface Props {
+  data: DataItem[];
   dimensions: Dimension[];
   enabledUncertaintyColumns: Column[];
   xScale: d3.ScalePoint<string>;
@@ -24,6 +26,7 @@ interface Props {
 }
 
 export function Axes({
+  data,
   dimensions,
   enabledUncertaintyColumns,
   xScale,
@@ -45,6 +48,13 @@ export function Axes({
     <>
       {dimensions.map((dim) => (
         <g key={dim.key} transform={`translate(${xScale(dim.key)},0)`}>
+          <AxisViolin
+            dimension={dim}
+            data={data}
+            opacity={0.7}
+            fill={'var(--mantine-color-indigo-9)'}
+          />
+
           <Axis
             dimension={dim}
             handleBrush={handleBrush}

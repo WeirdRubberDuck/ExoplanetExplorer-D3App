@@ -82,6 +82,9 @@ export function HighlightedLine({ sourceData, ...props }: Props) {
                 fontSize={12}
                 fontWeight={600}
                 fill={'var(--mantine-color-text)'}
+                style={{
+                  filter: 'drop-shadow(0 0 5px var(--mantine-color-body))'
+                }}
               >
                 {value}
               </text>

@@ -7,6 +7,7 @@ interface Props {
   dimension: Dimension;
   handleBrush: (dimension: Dimension, y0: number, y1: number) => void;
   handleBrushClear?: (dimension: Dimension) => void;
+  brushSelection?: [number, number];
   onMovePrevious?: () => void;
   onMoveNext?: () => void;
 }
@@ -15,6 +16,7 @@ export function Axis({
   dimension,
   handleBrush,
   handleBrushClear,
+  brushSelection,
   onMovePrevious,
   onMoveNext
 }: Props) {
@@ -45,6 +47,10 @@ export function Axis({
         [brushWidth, dimension.scale.range()[0]]
       ])
       .on('brush end', (event) => {
+        if (!event.sourceEvent) {
+          return;
+        }
+
         const { selection } = event;
 
         if (!selection) {
@@ -56,8 +62,10 @@ export function Axis({
         handleBrush(dimension, y0, y1);
       });
 
-    d3.select(brushRef.current).call(brush);
-  }, [dimension, handleBrush, handleBrushClear]);
+    const brushSelectionGroup = d3.select(brushRef.current);
+    brushSelectionGroup.call(brush);
+    brushSelectionGroup.call(brush.move, brushSelection ?? null);
+  }, [dimension, handleBrush, handleBrushClear, brushSelection]);
 
   return (
     <g>

@@ -61,8 +61,14 @@ export function ParallelCoordinatesChart({
   );
   const dispatch = useAppDispatch();
 
-  const { clearBrushes, handleBrush, handleBrushClear, handleNanBrush, filteredData } =
-    useBrushing(data);
+  const {
+    clearBrushes,
+    handleBrush,
+    handleBrushClear,
+    handleNanBrush,
+    filteredData,
+    getBrushSelection
+  } = useBrushing(data);
 
   const [containerRef, container] = useResizeObserver();
 
@@ -196,6 +202,7 @@ export function ParallelCoordinatesChart({
                   nanAxisYPos={nanAxisYPos}
                   handleBrush={handleBrush}
                   handleBrushClear={handleBrushClear}
+                  getBrushSelection={getBrushSelection}
                   handleNanBrush={handleNanBrush}
                   onAxisMove={onAxisMove}
                   onUncertaintyToggle={onUncertaintyToggle}

@@ -195,6 +195,34 @@ export function useBrushing(data: DataItem[]) {
     };
   }, [filteredRows]);
 
+  const getBrushSelection = useCallback(
+    (dimension: Dimension): [number, number] | undefined => {
+      const filter = brushes[dimension.key];
+      if (!filter) {
+        return undefined;
+      }
+
+      if (dimension.type === 'number' && filter.type === 'number') {
+        const y0 = dimension.scale(filter.extent[1]);
+        const y1 = dimension.scale(filter.extent[0]);
+        return [Math.min(y0, y1), Math.max(y0, y1)];
+      }
+
+      if (dimension.type === 'string' && filter.type === 'string') {
+        const ys = filter.selected
+          .map((value) => dimension.scale(value))
+          .filter((value): value is number => value != null);
+        if (ys.length === 0) {
+          return undefined;
+        }
+        return [Math.min(...ys), Math.max(...ys)];
+      }
+
+      return undefined;
+    },
+    [brushes]
+  );
+
   const previousDispatchedIdsRef = useRef<number[] | undefined>(undefined);
 
   useEffect(() => {
@@ -227,6 +255,7 @@ export function useBrushing(data: DataItem[]) {
     handleBrush,
     handleBrushClear,
     handleNanBrush,
-    filteredData
+    filteredData,
+    getBrushSelection
   };
 }

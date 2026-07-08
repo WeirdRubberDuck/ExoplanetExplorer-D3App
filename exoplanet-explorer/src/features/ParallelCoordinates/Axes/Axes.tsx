@@ -17,6 +17,7 @@ interface Props {
   nanAxisYPos: number;
   handleBrush: (dimension: Dimension, y0: number, y1: number) => void;
   handleBrushClear: (dimension: Dimension) => void;
+  getBrushSelection: (dimension: Dimension) => [number, number] | undefined;
   handleNanBrush: (dimension: Dimension, mode: NanBrushMode | undefined) => void;
   onUncertaintyToggle: (dimensionKey: string, enabled: boolean) => void;
   onAxisMove: (dimensionKey: string, direction: 'previous' | 'next') => void;
@@ -29,6 +30,7 @@ export function Axes({
   nanAxisYPos,
   handleBrush,
   handleBrushClear,
+  getBrushSelection,
   handleNanBrush,
   onUncertaintyToggle,
   onAxisMove
@@ -47,6 +49,7 @@ export function Axes({
             dimension={dim}
             handleBrush={handleBrush}
             handleBrushClear={handleBrushClear}
+            brushSelection={getBrushSelection(dim)}
             onMovePrevious={() => onAxisMove(dim.key, 'previous')}
             onMoveNext={() => onAxisMove(dim.key, 'next')}
           />

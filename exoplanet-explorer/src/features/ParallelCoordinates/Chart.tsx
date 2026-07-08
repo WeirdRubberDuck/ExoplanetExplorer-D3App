@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { Box, Button, Group, Loader, Text } from '@mantine/core';
 import { useDebouncedValue, useResizeObserver } from '@mantine/hooks';
 
@@ -111,6 +111,16 @@ export function ParallelCoordinatesChart({
     dispatch(setParallelCoordinatesColumnOrder(newColumns));
   }
 
+  const onUncertaintyToggle = useCallback((dimensionKey: string, enabled: boolean) => {
+    setEnabledUncertaintyColumns((prev) => {
+      const alreadyEnabled = prev.includes(dimensionKey);
+      if (enabled) {
+        return alreadyEnabled ? prev : [...prev, dimensionKey];
+      }
+      return alreadyEnabled ? prev.filter((col) => col !== dimensionKey) : prev;
+    });
+  }, []);
+
   const linesProps = useMemo(
     () => ({
       dimensions,
@@ -169,7 +179,7 @@ export function ParallelCoordinatesChart({
               data={filteredData.rows}
               strokeColor={'steelblue'}
             />
-            <HighlightedLine {...linesProps} />
+            <HighlightedLine {...linesProps} sourceData={data} />
 
             {/* Axes */}
             <svg
@@ -188,15 +198,7 @@ export function ParallelCoordinatesChart({
                   handleBrushClear={handleBrushClear}
                   handleNanBrush={handleNanBrush}
                   onAxisMove={onAxisMove}
-                  onUncertaintyToggle={(dimensionKey, enabled) => {
-                    if (enabled) {
-                      setEnabledUncertaintyColumns((prev) => [...prev, dimensionKey]);
-                    } else {
-                      setEnabledUncertaintyColumns((prev) =>
-                        prev.filter((col) => col !== dimensionKey)
-                      );
-                    }
-                  }}
+                  onUncertaintyToggle={onUncertaintyToggle}
                 />
               </g>
             </svg>

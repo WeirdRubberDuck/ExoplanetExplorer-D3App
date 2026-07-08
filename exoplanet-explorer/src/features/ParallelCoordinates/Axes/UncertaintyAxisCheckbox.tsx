@@ -1,23 +1,20 @@
-import { useState } from 'react';
 import * as d3 from 'd3';
 
 interface Props {
-  defaultChecked: boolean;
+  checked: boolean;
   y: number;
   size: number;
   strokeWidth?: number;
-  onClick?: (value: boolean) => void;
+  onChange?: (value: boolean) => void;
 }
 
 export function UncertaintyAxisCheckbox({
-  defaultChecked,
+  checked,
   y,
   size: size,
   strokeWidth,
-  onClick
+  onChange
 }: Props) {
-  const [checked, setChecked] = useState(defaultChecked);
-
   const halfSize = size / 2;
   const checkmark = d3.line()([
     [0.2 * size, 0.5 * size],
@@ -26,9 +23,8 @@ export function UncertaintyAxisCheckbox({
   ]);
 
   function handleClick() {
-    setChecked(!checked);
-    if (onClick) {
-      onClick(!checked);
+    if (onChange) {
+      onChange(!checked);
     }
   }
 

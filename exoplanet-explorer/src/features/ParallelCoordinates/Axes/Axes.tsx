@@ -53,11 +53,11 @@ export function Axes({
           <MissingValueAxis dimension={dim} y={missingValueY} onBrush={handleNanBrush} />
           {hasUncertaintyColumn(dim.key) && (
             <UncertaintyAxisCheckbox
-              defaultChecked={enabledUncertaintyColumns.includes(dim.key)}
+              checked={enabledUncertaintyColumns.includes(dim.key)}
               y={uncertaintyCheckboxY}
               size={14}
               strokeWidth={3}
-              onClick={(checked) => onUncertaintyToggle(dim.key, checked)}
+              onChange={(checked) => onUncertaintyToggle(dim.key, checked)}
             />
           )}
         </g>

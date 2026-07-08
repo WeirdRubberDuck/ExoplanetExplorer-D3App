@@ -1,13 +1,19 @@
+import { useMemo } from 'react';
+
 import { useAppSelector } from '@/redux/hooks.ts';
+import type { DataItem } from '@/types/types.ts';
 
 import { CanvasLines, type CanvasLinesProps } from './CanvasLines.tsx';
 
-type Props = Omit<CanvasLinesProps, 'data'>;
+type Props = Omit<CanvasLinesProps, 'data'> & {
+  sourceData: DataItem[];
+};
 
-export function HighlightedLine(props: Props) {
+export function HighlightedLine({ sourceData, ...props }: Props) {
   const itemId = useAppSelector((state) => state.local.hoveredId);
-  const itemData = useAppSelector((state) =>
-    itemId !== undefined ? state.data.full[itemId] : undefined
+  const itemData = useMemo(
+    () => sourceData.find((row) => row.id === itemId),
+    [sourceData, itemId]
   );
 
   if (itemId === undefined || itemData === undefined) {

@@ -92,6 +92,10 @@ export function useBrushing(data: DataItem[]) {
   const [brushes, setBrushes] = useState<Record<Column, BrushFilter>>({});
   const [nanBrushes, setNanBrushes] = useState<Record<Column, NanBrushMode>>({});
 
+  function isSameStringArray(a: string[], b: string[]): boolean {
+    return a.length === b.length && a.every((value, index) => value === b[index]);
+  }
+
   function clearBrushes() {
     setBrushes({});
     setNanBrushes({});
@@ -110,20 +114,46 @@ export function useBrushing(data: DataItem[]) {
           extent: [min, max]
         })
       );
-    } else {
-      // Cateorical brushing
-      const selectedCategories = dimension.scale.domain().filter((cat) => {
-        const y = dimension.scale(cat);
-        return y != null && y >= y0 && y <= y1;
-      });
-
-      setBrushes((prev) =>
-        addToMap(prev, dimension.key, {
-          type: 'string',
-          selected: selectedCategories
-        })
-      );
+      return;
     }
+
+    const rawMinY = Math.min(y0, y1);
+    const rawMaxY = Math.max(y0, y1);
+    const range = dimension.scale.range();
+    const rangeMin = Math.min(...range);
+    const rangeMax = Math.max(...range);
+    const rangeSpan = Math.max(1e-9, rangeMax - rangeMin);
+
+    const normalizedExtent: [number, number] = [
+      (rawMinY - rangeMin) / rangeSpan,
+      (rawMaxY - rangeMin) / rangeSpan
+    ];
+
+    const selectedCategories = dimension.scale.domain().filter((cat) => {
+      const y = dimension.scale(cat);
+      return y != null && y >= rawMinY && y <= rawMaxY;
+    });
+
+    setBrushes((prev) => {
+      const current = prev[dimension.key];
+      if (current?.type === 'string') {
+        const sameSelection = isSameStringArray(current.selected, selectedCategories);
+        if (sameSelection) {
+          const sameExtent =
+            Math.abs(current.normalizedExtent[0] - normalizedExtent[0]) < 1e-6 &&
+            Math.abs(current.normalizedExtent[1] - normalizedExtent[1]) < 1e-6;
+          if (sameExtent) {
+            return prev;
+          }
+        }
+      }
+
+      return addToMap(prev, dimension.key, {
+        type: 'string',
+        selected: selectedCategories,
+        normalizedExtent
+      });
+    });
   }
 
   function handleBrushClear(dimension: Dimension) {
@@ -209,13 +239,18 @@ export function useBrushing(data: DataItem[]) {
       }
 
       if (dimension.type === 'string' && filter.type === 'string') {
-        const ys = filter.selected
-          .map((value) => dimension.scale(value))
-          .filter((value): value is number => value != null);
-        if (ys.length === 0) {
+        const range = dimension.scale.range();
+        const rangeMin = Math.min(...range);
+        const rangeMax = Math.max(...range);
+        const rangeSpan = rangeMax - rangeMin;
+
+        if (!isFinite(rangeSpan) || rangeSpan <= 0) {
           return undefined;
         }
-        return [Math.min(...ys), Math.max(...ys)];
+
+        const y0 = rangeMin + filter.normalizedExtent[0] * rangeSpan;
+        const y1 = rangeMin + filter.normalizedExtent[1] * rangeSpan;
+        return [Math.min(y0, y1), Math.max(y0, y1)];
       }
 
       return undefined;

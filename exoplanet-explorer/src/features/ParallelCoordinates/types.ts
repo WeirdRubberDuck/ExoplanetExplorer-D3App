@@ -22,6 +22,7 @@ export type BrushFilter =
   | {
       type: 'string';
       selected: string[];
+      normalizedExtent: [number, number];
     };
 
 export enum NanBrushMode {

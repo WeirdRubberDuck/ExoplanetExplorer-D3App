@@ -24,7 +24,15 @@ export function Axis({
   const [isHovered, setIsHovered] = useState(false);
 
   const brushRef = useRef<SVGGElement>(null);
+  const brushBehaviorRef = useRef<d3.BrushBehavior<unknown> | null>(null);
+  const handleBrushRef = useRef(handleBrush);
+  const handleBrushClearRef = useRef(handleBrushClear);
   const brushWidth = 7;
+
+  useEffect(() => {
+    handleBrushRef.current = handleBrush;
+    handleBrushClearRef.current = handleBrushClear;
+  }, [handleBrush, handleBrushClear]);
 
   // Axis setup
   useEffect(() => {
@@ -37,9 +45,10 @@ export function Axis({
     d3.select(ref.current).call(axis);
   }, [dimension]);
 
-  // Brush setup
+  // Create brush behavior once per axis scale/key changes.
   useEffect(() => {
     if (!brushRef.current) return;
+
     const brush = d3
       .brushY()
       .extent([
@@ -54,18 +63,42 @@ export function Axis({
         const { selection } = event;
 
         if (!selection) {
-          handleBrushClear?.(dimension);
+          handleBrushClearRef.current?.(dimension);
           return;
         }
 
         const [y0, y1] = selection;
-        handleBrush(dimension, y0, y1);
+        handleBrushRef.current(dimension, y0, y1);
       });
 
+    brushBehaviorRef.current = brush;
     const brushSelectionGroup = d3.select(brushRef.current);
     brushSelectionGroup.call(brush);
-    brushSelectionGroup.call(brush.move, brushSelection ?? null);
-  }, [dimension, handleBrush, handleBrushClear, brushSelection]);
+  }, [dimension]);
+
+  // Keep visual brush in sync without re-creating behavior on each render.
+  useEffect(() => {
+    if (!brushRef.current || !brushBehaviorRef.current) return;
+
+    const group = d3.select(brushRef.current);
+    const currentSelection = d3.brushSelection(brushRef.current) as
+      | [number, number]
+      | null;
+    const nextSelection = brushSelection ?? null;
+
+    const areEqual =
+      (currentSelection === null && nextSelection === null) ||
+      (currentSelection !== null &&
+        nextSelection !== null &&
+        Math.abs(currentSelection[0] - nextSelection[0]) < 0.5 &&
+        Math.abs(currentSelection[1] - nextSelection[1]) < 0.5);
+
+    if (areEqual) {
+      return;
+    }
+
+    group.call(brushBehaviorRef.current.move, nextSelection);
+  }, [brushSelection]);
 
   return (
     <g>

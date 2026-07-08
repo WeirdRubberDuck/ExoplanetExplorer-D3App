@@ -87,6 +87,17 @@ export function SettingsBar() {
               )
             }
           />
+          <Checkbox
+            label={'Show text on highlighted line'}
+            checked={settings.showTextOnHighlightedLine}
+            onChange={(e) =>
+              dispatch(
+                setParallelCoordinatesSettings({
+                  showTextOnHighlightedLine: e.target.checked
+                })
+              )
+            }
+          />
 
           <Title order={3} size={'md'}>
             Axes

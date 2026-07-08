@@ -190,7 +190,6 @@ export function ParallelCoordinatesChart({
               data={filteredData.rows}
               strokeColor={'steelblue'}
             />
-            <HighlightedLine {...linesProps} sourceData={data} />
 
             {/* Axes */}
             <svg
@@ -216,6 +215,9 @@ export function ParallelCoordinatesChart({
                 />
               </g>
             </svg>
+
+            {/* Highlighted item */}
+            <HighlightedLine {...linesProps} sourceData={data} />
           </div>
         )}
       </Box>

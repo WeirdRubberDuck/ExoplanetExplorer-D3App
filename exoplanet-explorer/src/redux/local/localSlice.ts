@@ -42,6 +42,7 @@ interface LocalState {
       selectedColumns: Column[];
       lineOpacity: number;
       showGhostLines: boolean;
+      showTextOnHighlightedLine: boolean;
       axisViolinPlots: {
         show: boolean;
         showMissingValueLobe: boolean;
@@ -72,6 +73,7 @@ const initialState: LocalState = {
       selectedColumns: pcDefaultColumns,
       lineOpacity: 0.7,
       showGhostLines: true,
+      showTextOnHighlightedLine: true,
       axisViolinPlots: {
         show: true,
         showMissingValueLobe: true
@@ -158,6 +160,11 @@ export const localSlice = createSlice({
 
       if (patch.showGhostLines !== undefined) {
         state.parallelCoordinates.settings.showGhostLines = patch.showGhostLines;
+      }
+
+      if (patch.showTextOnHighlightedLine !== undefined) {
+        state.parallelCoordinates.settings.showTextOnHighlightedLine =
+          patch.showTextOnHighlightedLine;
       }
 
       if (patch.axisViolinPlots !== undefined) {

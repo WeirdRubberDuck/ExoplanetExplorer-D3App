@@ -15,6 +15,7 @@ export function DataFileInput() {
       const csvData = e.target?.result as string;
       // Parse CSV data
       const { data } = Papa.parse(csvData, {
+        comments: '#', // Ignore lines starting with '#'
         header: true, // Assuming the first row contains headers
         skipEmptyLines: true, // Skip empty lines
         dynamicTyping: true // Automatically convert data types (string/number)

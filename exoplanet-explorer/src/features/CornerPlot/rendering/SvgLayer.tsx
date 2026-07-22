@@ -94,6 +94,8 @@ export function SvgLayer({
               ? rowIndex < colIndex
               : rowIndex > colIndex;
 
+            const isDiagonalCell = rowIndex === colIndex;
+
             return (
               <g
                 key={`cell-${cellKey}`}
@@ -102,11 +104,11 @@ export function SvgLayer({
                 <rect
                   width={cellSize}
                   height={cellSize}
-                  fill={isScatterCell ? 'transparent' : 'white'}
+                  fill={isDiagonalCell ? 'white' : 'transparent'}
                   stroke={'var(--mantine-color-gray-3)'}
                 />
 
-                {rowIndex === colIndex && (
+                {isDiagonalCell && (
                   <DiagonalHistogram
                     points={points}
                     xScaleMeta={xScaleMeta}
@@ -172,7 +174,7 @@ export function SvgLayer({
                     y={cellSize + 16}
                     textAnchor={'middle'}
                     fontSize={10}
-                    fill={'var(--mantine-color-gray-7)'}
+                    fill={'var(--mantine-color-default-color)'}
                   >
                     {xColumn}
                     {xScaleMeta.isLogScale ? ' (log)' : ''}
@@ -186,7 +188,7 @@ export function SvgLayer({
                     textAnchor={'middle'}
                     dominantBaseline={'auto'}
                     fontSize={10}
-                    fill={'var(--mantine-color-gray-7)'}
+                    fill={'var(--mantine-color-default-color)'}
                   >
                     {xColumn}
                     {xScaleMeta.isLogScale ? ' (log)' : ''}
@@ -200,7 +202,7 @@ export function SvgLayer({
                     textAnchor={'end'}
                     dominantBaseline={'middle'}
                     fontSize={10}
-                    fill={'var(--mantine-color-gray-7)'}
+                    fill={'var(--mantine-color-default-color)'}
                   >
                     {yColumn}
                     {yScaleMeta.isLogScale ? ' (log)' : ''}
@@ -214,7 +216,7 @@ export function SvgLayer({
                     textAnchor={'start'}
                     dominantBaseline={'middle'}
                     fontSize={10}
-                    fill={'var(--mantine-color-gray-7)'}
+                    fill={'var(--mantine-color-default-color)'}
                   >
                     {yColumn}
                     {yScaleMeta.isLogScale ? ' (log)' : ''}

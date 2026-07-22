@@ -79,6 +79,7 @@ interface LocalState {
       selectedColumns: Column[];
       logScaleColumns: Column[];
       renderMode: 'scatter' | 'density';
+      invertLayout: boolean;
     };
     filteredIds: number[] | undefined;
   };
@@ -122,7 +123,8 @@ const initialState: LocalState = {
     settings: {
       selectedColumns: cornerDefaultColumns,
       logScaleColumns: [],
-      renderMode: 'scatter'
+      renderMode: 'scatter',
+      invertLayout: true
     },
     defaultColumns: cornerDefaultColumns,
     filteredIds: undefined
@@ -248,13 +250,9 @@ export const localSlice = createSlice({
     },
     resetCornerPlot: (state) => {
       state.cornerPlot.settings.selectedColumns = state.cornerPlot.defaultColumns;
-      state.cornerPlot.settings.logScaleColumns = [
-        'pl_bmasse',
-        'pl_rade',
-        'pl_orbper',
-        'pl_orbsmax'
-      ];
+      state.cornerPlot.settings.logScaleColumns = [];
       state.cornerPlot.settings.renderMode = 'scatter';
+      state.cornerPlot.settings.invertLayout = false;
       state.cornerPlot.columnSelectionIsDefault = true;
       state.cornerPlot.filteredIds = undefined;
     },
@@ -293,6 +291,10 @@ export const localSlice = createSlice({
 
       if (patch.renderMode !== undefined) {
         state.cornerPlot.settings.renderMode = patch.renderMode;
+      }
+
+      if (patch.invertLayout !== undefined) {
+        state.cornerPlot.settings.invertLayout = patch.invertLayout;
       }
     },
 

@@ -25,6 +25,7 @@ interface Props {
   cellSize: number;
   cellPointsByKey: Map<string, CornerPoint[]>;
   renderMode: 'scatter' | 'density';
+  invertLayout: boolean;
   hasActiveCornerFilter: boolean;
   visiblePointIdSet: Set<number> | undefined;
 }
@@ -37,6 +38,7 @@ export function CanvasLayer({
   cellSize,
   cellPointsByKey,
   renderMode,
+  invertLayout,
   hasActiveCornerFilter,
   visiblePointIdSet
 }: Props) {
@@ -67,7 +69,9 @@ export function CanvasLayer({
     const scatterCells = selectedNumericColumns.flatMap((yColumn, rowIndex) => {
       return selectedNumericColumns
         .map((xColumn, colIndex) => {
-          if (rowIndex <= colIndex) {
+          const isScatterCell = invertLayout ? rowIndex < colIndex : rowIndex > colIndex;
+
+          if (!isScatterCell) {
             return undefined;
           }
           return {
@@ -214,6 +218,7 @@ export function CanvasLayer({
     margin.left,
     margin.top,
     renderMode,
+    invertLayout,
     selectedNumericColumns,
     visiblePointIdSet
   ]);

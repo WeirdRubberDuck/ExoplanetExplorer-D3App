@@ -67,6 +67,18 @@ export function CornerPlotSettings() {
             </Group>
           </Radio.Group>
 
+          <Checkbox
+            label={'Invert layout (show scatter matrix in upper-right triangle)'}
+            checked={settings.invertLayout}
+            onChange={(event) =>
+              dispatch(
+                setCornerPlotSettings({
+                  invertLayout: event.currentTarget.checked
+                })
+              )
+            }
+          />
+
           <Text size={'xs'} c={'dimmed'}>
             The corner plot matrix grows quadratically with selected columns, so 4-8
             columns usually gives the clearest scientific view.

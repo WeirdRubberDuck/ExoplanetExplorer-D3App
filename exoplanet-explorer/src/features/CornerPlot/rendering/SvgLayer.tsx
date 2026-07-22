@@ -29,6 +29,7 @@ interface Props {
   scales: Map<Column, NumericScale>;
   cellSize: number;
   cellPointsByKey: Map<string, CornerPoint[]>;
+  invertLayout: boolean;
   brushDraft: BrushDraft | undefined;
   activeBrushes: ActiveBrush[];
   movingBrushDraft: MovingBrushDraft | undefined;
@@ -53,6 +54,7 @@ export function SvgLayer({
   scales,
   cellSize,
   cellPointsByKey,
+  invertLayout,
   brushDraft,
   activeBrushes,
   movingBrushDraft,
@@ -88,6 +90,9 @@ export function SvgLayer({
             const yCellOffset = rowIndex * cellSize;
             const cellKey = getCellKey(xColumn, yColumn);
             const points = cellPointsByKey.get(cellKey) ?? [];
+            const isScatterCell = invertLayout
+              ? rowIndex < colIndex
+              : rowIndex > colIndex;
 
             return (
               <g
@@ -97,7 +102,7 @@ export function SvgLayer({
                 <rect
                   width={cellSize}
                   height={cellSize}
-                  fill={rowIndex > colIndex ? 'transparent' : 'white'}
+                  fill={isScatterCell ? 'transparent' : 'white'}
                   stroke={'var(--mantine-color-gray-3)'}
                 />
 
@@ -109,7 +114,7 @@ export function SvgLayer({
                   />
                 )}
 
-                {rowIndex > colIndex && (
+                {isScatterCell && (
                   <rect
                     width={cellSize}
                     height={cellSize}
@@ -174,11 +179,39 @@ export function SvgLayer({
                   </text>
                 )}
 
+                {rowIndex === 0 && (
+                  <text
+                    x={cellSize / 2}
+                    y={-8}
+                    textAnchor={'middle'}
+                    dominantBaseline={'auto'}
+                    fontSize={10}
+                    fill={'var(--mantine-color-gray-7)'}
+                  >
+                    {xColumn}
+                    {xScaleMeta.isLogScale ? ' (log)' : ''}
+                  </text>
+                )}
+
                 {colIndex === 0 && (
                   <text
                     x={-8}
                     y={cellSize / 2}
                     textAnchor={'end'}
+                    dominantBaseline={'middle'}
+                    fontSize={10}
+                    fill={'var(--mantine-color-gray-7)'}
+                  >
+                    {yColumn}
+                    {yScaleMeta.isLogScale ? ' (log)' : ''}
+                  </text>
+                )}
+
+                {colIndex === selectedNumericColumns.length - 1 && (
+                  <text
+                    x={cellSize + 8}
+                    y={cellSize / 2}
+                    textAnchor={'start'}
                     dominantBaseline={'middle'}
                     fontSize={10}
                     fill={'var(--mantine-color-gray-7)'}

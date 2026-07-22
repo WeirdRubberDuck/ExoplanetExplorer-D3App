@@ -20,7 +20,7 @@ interface Props {
   defaultHeight?: number;
 }
 
-const margin = { top: 0, right: 0, bottom: 32, left: 72 };
+const margin = { top: 20, right: 0, bottom: 20, left: 72 };
 
 export function CornerPlotChart({
   data,
@@ -140,7 +140,11 @@ export function CornerPlotChart({
 
     selectedNumericColumns.forEach((yColumn, rowIndex) => {
       selectedNumericColumns.forEach((xColumn, colIndex) => {
-        if (rowIndex < colIndex) {
+        const shouldIncludeCell = settings.invertLayout
+          ? rowIndex <= colIndex
+          : rowIndex >= colIndex;
+
+        if (!shouldIncludeCell) {
           return;
         }
         const key = getCellKey(xColumn, yColumn);
@@ -149,7 +153,7 @@ export function CornerPlotChart({
     });
 
     return new Map(entries);
-  }, [data, selectedNumericColumns, scales]);
+  }, [data, selectedNumericColumns, scales, settings.invertLayout]);
 
   useEffect(() => {
     const selectedColumnsKey = selectedNumericColumns.join('|');
@@ -215,6 +219,7 @@ export function CornerPlotChart({
               cellSize={cellSize}
               cellPointsByKey={cellPointsByKey}
               renderMode={settings.renderMode}
+              invertLayout={settings.invertLayout}
               hasActiveCornerFilter={hasActiveCornerFilter}
               visiblePointIdSet={visiblePointIdSet}
             />
@@ -226,6 +231,7 @@ export function CornerPlotChart({
               scales={scales}
               cellSize={cellSize}
               cellPointsByKey={cellPointsByKey}
+              invertLayout={settings.invertLayout}
               brushDraft={brushDraft}
               activeBrushes={activeBrushes}
               movingBrushDraft={movingBrushDraft}

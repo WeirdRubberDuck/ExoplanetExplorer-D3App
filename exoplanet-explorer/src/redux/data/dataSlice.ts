@@ -1,6 +1,6 @@
 import { createSlice } from '@reduxjs/toolkit';
 
-import type { Column, DataItem, UncertaintyDataItem } from '@/types/types';
+import type { Column, ColumnData, DataItem, UncertaintyDataItem } from '@/types/types';
 import { hasValue } from '@/utils/util';
 
 interface DataState {
@@ -8,6 +8,7 @@ interface DataState {
   // Note that the ID of each planet corresponds to the index in these lists
   full: DataItem[];
   columns: Column[];
+  columnData: Record<Column, ColumnData>;
 
   // Just the uncertainty columns
   uncertainty: UncertaintyDataItem[];
@@ -21,6 +22,7 @@ interface DataState {
 const initialState: DataState = {
   full: [],
   columns: [],
+  columnData: {},
   uncertainty: [],
   uncertaintyDomains: {},
   filteredPlanetsFromOpenSpace: undefined
@@ -91,6 +93,43 @@ export const dataSlice = createSlice({
       state.uncertainty = uncertaintyData;
 
       state.columns = Object.keys(fullData[0] || {}).filter((col) => col !== 'id');
+      state.columnData = {};
+
+      for (const key of state.columns) {
+        const values = fullData
+          .map((d) => d[key])
+          .filter((v): v is string | number => {
+            if (v == null) {
+              return false;
+            }
+
+            if (typeof v === 'string') {
+              return v.trim() !== '';
+            }
+
+            return true;
+          });
+
+        const numericValues = values
+          .map((v) => Number(v))
+          .filter((v): v is number => Number.isFinite(v));
+
+        const MIN_NUMERIC_SAMPLE_SIZE = 5;
+        const numericRatio =
+          values.length === 0 ? 0 : numericValues.length / values.length;
+        const isNumeric = values.length >= MIN_NUMERIC_SAMPLE_SIZE && numericRatio > 0.8;
+
+        if (isNumeric) {
+          state.columnData[key] = {
+            type: 'number',
+            min: Math.min(...numericValues),
+            max: Math.max(...numericValues)
+          };
+        } else {
+          const categories = Array.from(new Set(values.map((v) => String(v))));
+          state.columnData[key] = { type: 'string', categories };
+        }
+      }
     },
     setFilteredPlanetsFromOpenSpace: (state, action) => {
       state.filteredPlanetsFromOpenSpace = action.payload;

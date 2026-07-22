@@ -4,6 +4,10 @@ export type DataItem = WithId & Record<string, Value>;
 
 export type Column = string;
 
+export type ColumnData =
+  | { type: 'number'; min: number; max: number }
+  | { type: 'string'; categories: string[] };
+
 export type Uncertainty = {
   lower: number | null;
   upper: number | null;

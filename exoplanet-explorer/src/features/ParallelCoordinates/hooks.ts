@@ -25,17 +25,18 @@ export function useHasUncertaintyColumn() {
 
 export function useChartScales(
   data: DataItem[],
-  columns: Column[],
+  orderedColumns: Column[],
   enabledUncertaintyColumns: Column[],
   width: number,
   height: number,
   nanAxisYPos: number
 ) {
   const uncertaintyDomains = useAppSelector((state) => state.data.uncertaintyDomains);
+  const columnData = useAppSelector((state) => state.data.columnData);
 
   const dimensions: Dimension[] = useMemo(
-    () => inferDimensions(data, columns, height),
-    [data, columns, height]
+    () => inferDimensions(data, orderedColumns, columnData, height),
+    [data, orderedColumns, columnData, height]
   );
 
   const combinedDimensions = useMemo(() => {

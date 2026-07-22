@@ -1,57 +1,36 @@
 import * as d3 from 'd3';
 
-import type { Column, DataItem } from '@/types/types';
+import type { Column, ColumnData, DataItem } from '@/types/types';
 
 import type { Dimension } from './types';
 
 export function inferDimensions(
   data: DataItem[],
-  columns: string[],
+  orderedColumns: Column[],
+  columnData: Record<Column, ColumnData>,
   height: number
 ): Dimension[] {
   if (!data.length) return [];
 
-  return columns.map((key) => {
-    // Filter out null, undefined, and empty string values (missing values)
-    const values = data
-      .map((d) => d[key])
-      .filter((v): v is string | number => {
-        if (v == null) {
-          return false;
-        }
-
-        if (typeof v === 'string') {
-          return v.trim() !== '';
-        }
-
-        return true;
-      });
-
-    const numericValues = values
-      .map((v) => Number(v))
-      .filter((v): v is number => Number.isFinite(v));
-
-    // Try to determine if the column is numeric based on the ratio of numeric values to
-    // total values
-    const MIN_NUMERIC_SAMPLE_SIZE = 5;
-    const numericRatio = values.length === 0 ? 0 : numericValues.length / values.length;
-    const isNumeric = values.length >= MIN_NUMERIC_SAMPLE_SIZE && numericRatio > 0.8;
+  return orderedColumns.map((key) => {
+    const col = columnData[key];
+    const isNumeric = col.type === 'number';
 
     if (isNumeric) {
-      const cleanValues = numericValues;
       const scale = d3
         .scaleLinear()
-        .domain(d3.extent(cleanValues) as [number, number])
+        .domain([col.min ?? 0, col.max ?? 1])
         .nice()
         .range([height, 0]);
 
       return {
         key,
-        type: 'number',
+        type: 'number' as const,
         scale
       };
     } else {
-      const categories = Array.from(new Set(values.map((v) => String(v))));
+      const categories =
+        col.categories ?? Array.from(new Set(data.map((d) => String(d[key]))));
       const scale = d3
         .scalePoint<string>()
         .domain(categories)
@@ -60,7 +39,7 @@ export function inferDimensions(
 
       return {
         key,
-        type: 'string',
+        type: 'string' as const,
         scale
       };
     }

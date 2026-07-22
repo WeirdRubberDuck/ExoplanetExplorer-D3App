@@ -1,10 +1,9 @@
 import { IoMdSettings } from 'react-icons/io';
 import {
-  Button,
+  ActionIcon,
   Checkbox,
   Drawer,
   Group,
-  Select,
   Slider,
   Stack,
   Text,
@@ -13,22 +12,15 @@ import {
 import { useDisclosure } from '@mantine/hooks';
 
 import { useAppDispatch, useAppSelector } from '@/redux/hooks.ts';
-import {
-  setObjectNameColumn,
-  setParallelCoordinatesSettings
-} from '@/redux/local/localSlice.ts';
+import { setParallelCoordinatesSettings } from '@/redux/local/localSlice.ts';
 
-import { ColumnSelection } from './paralellcoordinates/ColumnSelection';
+import { ColumnSelection } from './ColumnSelection';
 
-export function SettingsBar() {
-  const { columns } = useAppSelector((state) => state.data);
-
-  // Paralell coordinates settings from the Redux store
+export function SettingsParallelCoordinates() {
+  // Parallel coordinates settings from the Redux store
   const { defaultColumns, settings } = useAppSelector(
     (state) => state.local.parallelCoordinates
   );
-
-  const objectNameColumn = useAppSelector((state) => state.local.objectNameColumn);
 
   const [settingsOpened, { open, close }] = useDisclosure(false);
 
@@ -36,30 +28,22 @@ export function SettingsBar() {
 
   return (
     <>
-      <Group mb={'xs'}>
-        <Button leftSection={<IoMdSettings />} variant={'default'} onClick={open}>
-          Settings
-        </Button>
-      </Group>
+      <ActionIcon
+        variant={'default'}
+        size={'lg'}
+        onClick={open}
+        aria-label={'Open parallel coordinates settings'}
+      >
+        <IoMdSettings />
+      </ActionIcon>
 
       <Drawer
         opened={settingsOpened}
         onClose={close}
-        title={'Settings'}
+        title={'Parallel Coordinates Settings'}
         padding={'md'}
         size={400}
       >
-        <Select
-          label={'Object name column'}
-          value={objectNameColumn}
-          onChange={(value) => dispatch(setObjectNameColumn(value))}
-          data={columns.map((col) => ({ value: col, label: col }))}
-          searchable
-        />
-        <Title order={2} mb={'xs'}>
-          Parallel coordinates
-        </Title>
-
         <Stack gap={'xs'}>
           <ColumnSelection primaryColumns={defaultColumns} />
 

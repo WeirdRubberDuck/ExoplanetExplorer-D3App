@@ -1,34 +1,25 @@
-import { MdOutlineDarkMode, MdOutlineLightMode } from "react-icons/md";
+import { MdOutlineDarkMode, MdOutlineLightMode } from 'react-icons/md';
 import {
   ActionIcon,
   Tooltip,
   useComputedColorScheme,
-  useMantineColorScheme,
-} from "@mantine/core";
+  useMantineColorScheme
+} from '@mantine/core';
 
 export function ColorSchemeToggle() {
   const { setColorScheme } = useMantineColorScheme();
-  const computedColorScheme = useComputedColorScheme("light", {
-    getInitialValueInEffect: true,
+  const computedColorScheme = useComputedColorScheme('light', {
+    getInitialValueInEffect: true
   });
 
   return (
-    <Tooltip
-      label={`${computedColorScheme === "light" ? "Dark" : "Light"} mode`}
-    >
+    <Tooltip label={`${computedColorScheme === 'light' ? 'Dark' : 'Light'} mode`}>
       <ActionIcon
-        onClick={() =>
-          setColorScheme(computedColorScheme === "light" ? "dark" : "light")
-        }
-        variant={"default"}
-        size={"lg"}
-        aria-label={"Toggle color scheme"}
+        onClick={() => setColorScheme(computedColorScheme === 'light' ? 'dark' : 'light')}
+        variant={'default'}
+        aria-label={'Toggle color scheme'}
       >
-        {computedColorScheme === "dark" ? (
-          <MdOutlineLightMode />
-        ) : (
-          <MdOutlineDarkMode />
-        )}
+        {computedColorScheme === 'dark' ? <MdOutlineLightMode /> : <MdOutlineDarkMode />}
       </ActionIcon>
     </Tooltip>
   );

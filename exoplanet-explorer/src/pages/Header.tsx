@@ -5,6 +5,7 @@ import { useOpenSpaceApi } from '@/api/hooks';
 import { ColorSchemeToggle } from '@/components/ColorSchemeToggle';
 import { ConnectionStatusHint } from '@/components/ConnectionStatusHint';
 import { DataFileInput } from '@/components/DataFileInput';
+import { Settings } from '@/features/Settings/Settings';
 import { useFilteredIds } from '@/hooks/data';
 import { ConnectionStatus } from '@/redux/connection/connectionSlice';
 import { useAppDispatch, useAppSelector } from '@/redux/hooks';
@@ -71,6 +72,7 @@ export function Header() {
       </Group>
       <Group>
         <DataFileInput />
+        <Settings />
         <ColorSchemeToggle />
       </Group>
     </Flex>

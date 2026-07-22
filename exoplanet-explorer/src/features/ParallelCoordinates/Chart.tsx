@@ -10,6 +10,7 @@ import { Axes } from './Axes/Axes.tsx';
 import { CanvasLines } from './Lines/CanvasLines.tsx';
 import { GhostLines } from './Lines/GhostLines.tsx';
 import { HighlightedLine } from './Lines/HighlightedLine.tsx';
+import { SettingsParallelCoordinates } from './Settings/Settings.tsx';
 import { useBrushing, useChartScales } from './hooks.ts';
 
 interface Props {
@@ -158,6 +159,7 @@ export function ParallelCoordinatesChart({
   return (
     <>
       <Group>
+        <SettingsParallelCoordinates />
         <Button onClick={handleResetFilter}>Reset filter</Button>
         <Group gap={5}>
           <Text size={'md'} fw={500}>

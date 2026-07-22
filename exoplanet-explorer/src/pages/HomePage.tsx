@@ -3,7 +3,6 @@ import { Box, Group } from '@mantine/core';
 
 import { ParallelCoordinates } from '@/features/ParallelCoordinates/ParallelCoordinates';
 import { SelectionList } from '@/features/SelectionList/SelectionList';
-import { SettingsBar } from '@/features/SettingsBar/SettingsBar';
 import { initializeData } from '@/redux/data/dataSlice';
 import { useAppDispatch } from '@/redux/hooks';
 
@@ -25,8 +24,6 @@ export function HomePage() {
 
   return (
     <>
-      <SettingsBar />
-
       <Group align={'flex-start'} wrap={'nowrap'}>
         <Box>
           <ParallelCoordinates />

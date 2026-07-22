@@ -49,14 +49,28 @@ export function Axis({
   useEffect(() => {
     if (!headerRef.current) return;
 
+    const headerSelection = d3.select(headerRef.current);
+
     const dragBehavior = d3
       .drag<SVGGElement, unknown>()
       .on('start', (event) => {
         dragStartXRef.current = event.x;
+        headerSelection.style('cursor', 'grabbing');
+      })
+      .on('drag', (event) => {
+        const startX = dragStartXRef.current;
+        if (startX === null) return;
+
+        const deltaX = event.x - startX;
+        const maxOffset = 20;
+        const visualOffset = Math.max(-maxOffset, Math.min(maxOffset, deltaX * 0.35));
+        headerSelection.attr('transform', `translate(${visualOffset}, 0)`);
       })
       .on('end', (event) => {
         const startX = dragStartXRef.current;
         dragStartXRef.current = null;
+        headerSelection.attr('transform', null);
+        headerSelection.style('cursor', 'grab');
 
         if (startX === null) return;
 
@@ -75,7 +89,9 @@ export function Axis({
     );
 
     return () => {
-      d3.select(headerRef.current).on('.drag', null);
+      headerSelection.attr('transform', null);
+      headerSelection.style('cursor', 'grab');
+      headerSelection.on('.drag', null);
     };
   }, [onMovePrevious, onMoveNext]);
 

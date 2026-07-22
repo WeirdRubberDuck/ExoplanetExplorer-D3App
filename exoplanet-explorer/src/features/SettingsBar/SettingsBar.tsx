@@ -14,7 +14,6 @@ import { useDisclosure } from '@mantine/hooks';
 
 import { useAppDispatch, useAppSelector } from '@/redux/hooks.ts';
 import {
-  resetParallelCoordinates,
   setObjectNameColumn,
   setParallelCoordinatesSettings
 } from '@/redux/local/localSlice.ts';
@@ -25,7 +24,7 @@ export function SettingsBar() {
   const { columns } = useAppSelector((state) => state.data);
 
   // Paralell coordinates settings from the Redux store
-  const { columnSelectionIsDefault, defaultColumns, settings } = useAppSelector(
+  const { defaultColumns, settings } = useAppSelector(
     (state) => state.local.parallelCoordinates
   );
 
@@ -40,13 +39,6 @@ export function SettingsBar() {
       <Group mb={'xs'}>
         <Button leftSection={<IoMdSettings />} variant={'default'} onClick={open}>
           Settings
-        </Button>
-        <Button
-          variant={'default'}
-          onClick={() => dispatch(resetParallelCoordinates())}
-          disabled={columnSelectionIsDefault}
-        >
-          Reset columns
         </Button>
       </Group>
 

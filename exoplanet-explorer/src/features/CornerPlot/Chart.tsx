@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef } from 'react';
-import { Box, Button, Group, Loader, Text } from '@mantine/core';
+import { Box, Button, Group, Loader, Stack, Text } from '@mantine/core';
 import { useResizeObserver, useThrottledValue } from '@mantine/hooks';
 
 import { useAppDispatch, useAppSelector } from '@/redux/hooks';
@@ -180,21 +180,23 @@ export function CornerPlotChart({
   }
 
   return (
-    <>
-      <Group>
+    <Stack gap={'xs'}>
+      <Group gap={'xs'}>
         <CornerPlotSettings />
-        <Button variant={'default'} onClick={clearCornerFilter}>
+        <Button variant={'default'} size={'sm'} onClick={clearCornerFilter}>
           Clear filter
         </Button>
         <Text size={'xs'} c={'dimmed'}>
           {visiblePointIds ? `${visiblePointIds.length} selected` : 'No corner filter'}
         </Text>
         <Text size={'xs'} c={'dimmed'}>
-          {activeBrushes.length} brush{activeBrushes.length === 1 ? '' : 'es'} • Hold Alt
-          while dragging to replace previous brushes
+          {activeBrushes.length} brush{activeBrushes.length === 1 ? '' : 'es'}
         </Text>
       </Group>
-
+      <Text size={'xs'} c={'dimmed'}>
+        • Hold Alt while dragging to replace previous brushes • Double-click cell to clear
+        brushes for that cell
+      </Text>
       <Box
         style={{
           resize: 'both',
@@ -246,6 +248,6 @@ export function CornerPlotChart({
           </div>
         )}
       </Box>
-    </>
+    </Stack>
   );
 }

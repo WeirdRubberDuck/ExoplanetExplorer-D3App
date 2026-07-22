@@ -15,8 +15,9 @@ export function SelectionList() {
 
   const [ref, rect] = useResizeObserver();
 
+  const defaultHeight = 800; // Default height if rect is not available
   const rowHeight = 30;
-  const listHeight = rect?.height ?? 300;
+  const listHeight = rect?.height ?? defaultHeight;
   const overscan = 6;
 
   const idsToRender = useMemo(() => {
@@ -38,7 +39,7 @@ export function SelectionList() {
   const totalHeight = idsToRender.length * rowHeight;
 
   return (
-    <Paper withBorder p={'md'} mt={'md'}>
+    <Paper p={'xs'}>
       <Title order={4}>{`Planets (${idsToRender.length})`}</Title>
 
       {idsToRender.length === 0 ? (
@@ -48,7 +49,7 @@ export function SelectionList() {
       ) : (
         <Box
           mt={'xs'}
-          h={400} // Default height
+          h={defaultHeight}
           style={{
             height: listHeight,
             overflowY: 'auto',

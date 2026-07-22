@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { Box, Group, Stack } from '@mantine/core';
+import { Box, Group } from '@mantine/core';
 
 import { CornerPlot } from '@/features/CornerPlot/CornerPlot';
 import { ParallelCoordinates } from '@/features/ParallelCoordinates/ParallelCoordinates';
@@ -27,10 +27,10 @@ export function HomePage() {
     <>
       <Group align={'flex-start'} wrap={'nowrap'}>
         <Box flex={1}>
-          <Stack gap={'md'}>
+          <Group align={'flex-start'}>
             <ParallelCoordinates />
             <CornerPlot />
-          </Stack>
+          </Group>
         </Box>
         <Box w={300}>
           <SelectionList />

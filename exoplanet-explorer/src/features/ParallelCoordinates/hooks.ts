@@ -318,6 +318,7 @@ export function useBrushing(data: DataItem[]) {
   }, [dispatch, localFilteredIds]);
 
   return {
+    nActiveBrushes: Object.keys(brushes).length + Object.keys(nanBrushes).length,
     clearBrushes,
     handleBrush,
     handleBrushClear,

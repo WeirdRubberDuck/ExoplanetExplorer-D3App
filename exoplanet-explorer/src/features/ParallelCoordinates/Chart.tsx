@@ -1,5 +1,5 @@
 import { useCallback, useMemo, useState } from 'react';
-import { Box, Button, Group, Loader, Text } from '@mantine/core';
+import { Box, Button, Group, Loader, Stack, Text } from '@mantine/core';
 import { useResizeObserver, useThrottledValue } from '@mantine/hooks';
 
 import { useAppDispatch, useAppSelector } from '@/redux/hooks.ts';
@@ -68,6 +68,7 @@ export function ParallelCoordinatesChart({
   const dispatch = useAppDispatch();
 
   const {
+    nActiveBrushes,
     clearBrushes,
     handleBrush,
     handleBrushClear,
@@ -157,16 +158,21 @@ export function ParallelCoordinatesChart({
   );
 
   return (
-    <>
-      <Group>
+    <Stack gap={'xs'}>
+      <Group gap={'xs'} align={'center'}>
         <SettingsParallelCoordinates />
-        <Button onClick={handleResetFilter}>Reset filter</Button>
+        <Button variant={'default'} size={'sm'} onClick={handleResetFilter}>
+          Clear filter
+        </Button>
         <Group gap={5}>
           <Text size={'md'} fw={500}>
             {filteredData.rows.length}{' '}
           </Text>
           <Text size={'xs'} c={'dimmed'}>
             / {data.length} planets shown
+          </Text>
+          <Text size={'xs'} c={'dimmed'} ml={'xs'}>
+            {nActiveBrushes} brush{nActiveBrushes === 1 ? '' : 'es'}
           </Text>
         </Group>
       </Group>
@@ -223,6 +229,6 @@ export function ParallelCoordinatesChart({
           </div>
         )}
       </Box>
-    </>
+    </Stack>
   );
 }

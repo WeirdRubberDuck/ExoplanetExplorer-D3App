@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef } from 'react';
 import * as d3 from 'd3';
 
 import type { Dimension } from '../types';
@@ -21,7 +21,8 @@ export function Axis({
   onMoveNext
 }: Props) {
   const ref = useRef<SVGGElement>(null);
-  const [isHovered, setIsHovered] = useState(false);
+  const headerRef = useRef<SVGGElement>(null);
+  const dragStartXRef = useRef<number | null>(null);
 
   const brushRef = useRef<SVGGElement>(null);
   const brushBehaviorRef = useRef<d3.BrushBehavior<unknown> | null>(null);
@@ -44,6 +45,39 @@ export function Axis({
 
     d3.select(ref.current).call(axis);
   }, [dimension]);
+
+  useEffect(() => {
+    if (!headerRef.current) return;
+
+    const dragBehavior = d3
+      .drag<SVGGElement, unknown>()
+      .on('start', (event) => {
+        dragStartXRef.current = event.x;
+      })
+      .on('end', (event) => {
+        const startX = dragStartXRef.current;
+        dragStartXRef.current = null;
+
+        if (startX === null) return;
+
+        const deltaX = event.x - startX;
+        if (Math.abs(deltaX) < 10) return;
+
+        if (deltaX < 0) {
+          onMovePrevious?.();
+        } else {
+          onMoveNext?.();
+        }
+      });
+
+    d3.select(headerRef.current).call(
+      dragBehavior as d3.DragBehavior<SVGGElement, unknown, unknown>
+    );
+
+    return () => {
+      d3.select(headerRef.current).on('.drag', null);
+    };
+  }, [onMovePrevious, onMoveNext]);
 
   // Create brush behavior once per axis scale/key changes.
   useEffect(() => {
@@ -102,7 +136,7 @@ export function Axis({
 
   return (
     <g>
-      <g onMouseEnter={() => setIsHovered(true)} onMouseLeave={() => setIsHovered(false)}>
+      <g ref={headerRef} style={{ cursor: 'grab' }}>
         <text
           className={'legend'}
           y={-9}
@@ -114,34 +148,6 @@ export function Axis({
         >
           {dimension.key}
         </text>
-        {!dimension.isUncertainty && (
-          <>
-            <text
-              x={-2}
-              y={-25}
-              fontSize={'14px'}
-              fill={'var(--mantine-color-default-color)'}
-              textAnchor={'end'}
-              opacity={isHovered ? 0.5 : 0}
-              style={{ cursor: 'pointer' }}
-              onClick={onMovePrevious}
-            >
-              {'<'}
-            </text>
-            <text
-              x={2}
-              y={-25}
-              fontSize={'14px'}
-              fill={'var(--mantine-color-default-color)'}
-              textAnchor={'start'}
-              opacity={isHovered ? 0.5 : 0}
-              style={{ cursor: 'pointer' }}
-              onClick={onMoveNext}
-            >
-              {'>'}
-            </text>
-          </>
-        )}
       </g>
       <g ref={ref} opacity={dimension.isUncertainty ? 0.5 : 1.0} />
       <g ref={brushRef} />

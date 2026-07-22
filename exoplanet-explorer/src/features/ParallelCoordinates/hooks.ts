@@ -94,6 +94,12 @@ export function useChartScales(
 
 export function useBrushing(data: DataItem[]) {
   const dispatch = useAppDispatch();
+  const cornerAffectsParallel = useAppSelector(
+    (state) => state.local.crossFiltering.cornerAffectsParallel
+  );
+  const cornerPlotFilteredIds = useAppSelector(
+    (state) => state.local.cornerPlot.filteredIds
+  );
   const [brushes, setBrushes] = useState<Record<Column, BrushFilter>>({});
   const [nanBrushes, setNanBrushes] = useState<Record<Column, NanBrushMode>>({});
 
@@ -214,12 +220,35 @@ export function useBrushing(data: DataItem[]) {
     [brushes, nanBrushes]
   );
 
-  const filteredRows = useMemo(() => {
+  const cornerFilterIdSet = useMemo(() => {
+    if (!cornerAffectsParallel || cornerPlotFilteredIds === undefined) {
+      return undefined;
+    }
+    return new Set(cornerPlotFilteredIds);
+  }, [cornerAffectsParallel, cornerPlotFilteredIds]);
+
+  const localFilteredRows = useMemo(() => {
     if (!hasActiveFilters) {
       return data;
     }
+
     return data.filter((row) => passesNanBrushes(row) && passesAxisBrushes(row));
-  }, [data, hasActiveFilters, passesNanBrushes, passesAxisBrushes]);
+  }, [data, hasActiveFilters, passesAxisBrushes, passesNanBrushes]);
+
+  const localFilteredIds = useMemo(() => {
+    if (!hasActiveFilters) {
+      return undefined;
+    }
+    return localFilteredRows.map((row) => row.id);
+  }, [hasActiveFilters, localFilteredRows]);
+
+  const filteredRows = useMemo(() => {
+    if (cornerFilterIdSet === undefined) {
+      return localFilteredRows;
+    }
+
+    return localFilteredRows.filter((row) => cornerFilterIdSet.has(row.id));
+  }, [cornerFilterIdSet, localFilteredRows]);
 
   const filteredData = useMemo<FilteredDataView>(() => {
     const ids = filteredRows.map((row) => row.id);
@@ -266,7 +295,7 @@ export function useBrushing(data: DataItem[]) {
   const previousDispatchedIdsRef = useRef<number[] | undefined>(undefined);
 
   useEffect(() => {
-    const nextIds = hasActiveFilters ? filteredData.ids : undefined;
+    const nextIds = localFilteredIds;
     const prevIds = previousDispatchedIdsRef.current;
 
     if (nextIds === undefined && prevIds === undefined) {
@@ -288,7 +317,7 @@ export function useBrushing(data: DataItem[]) {
 
     previousDispatchedIdsRef.current = nextIds;
     dispatch(setParallelCoordinatesFilteredIds(nextIds));
-  }, [dispatch, hasActiveFilters, filteredData.ids]);
+  }, [dispatch, localFilteredIds]);
 
   return {
     clearBrushes,

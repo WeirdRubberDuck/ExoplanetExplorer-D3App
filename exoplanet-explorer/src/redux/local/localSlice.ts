@@ -19,7 +19,22 @@ const pcDefaultColumns: Column[] = [
   'st_age'
 ];
 
+const cornerDefaultColumns: Column[] = [
+  'pl_bmasse',
+  'pl_rade',
+  'pl_orbper',
+  'pl_orbeccen',
+  'pl_orbsmax',
+  'pl_eqt',
+  'st_met',
+  'st_age'
+];
+
 interface LocalState {
+  crossFiltering: {
+    cornerAffectsParallel: boolean;
+    parallelAffectsCorner: boolean;
+  };
   parallelCoordinates: {
     /**
      * Whether the column selection is currently the default selection. This is used to
@@ -57,6 +72,16 @@ interface LocalState {
      */
     filteredIds: number[] | undefined;
   };
+  cornerPlot: {
+    columnSelectionIsDefault: boolean;
+    defaultColumns: Column[];
+    settings: {
+      selectedColumns: Column[];
+      logScaleColumns: Column[];
+      renderMode: 'scatter' | 'density';
+    };
+    filteredIds: number[] | undefined;
+  };
   hoveredId: number | undefined;
   autoSyncOpenSpaceSelection: boolean;
   objectNameColumn: Column;
@@ -67,8 +92,14 @@ type ParallelCoordinatesVisualSettings = Omit<
   ParallelCoordinatesSettings,
   'selectedColumns'
 >;
+type CornerPlotSettings = LocalState['cornerPlot']['settings'];
+type CornerPlotVisualSettings = Omit<CornerPlotSettings, 'selectedColumns'>;
 
 const initialState: LocalState = {
+  crossFiltering: {
+    cornerAffectsParallel: true,
+    parallelAffectsCorner: true
+  },
   parallelCoordinates: {
     columnSelectionIsDefault: true,
     settings: {
@@ -86,6 +117,16 @@ const initialState: LocalState = {
     defaultColumns: pcDefaultColumns,
     filteredIds: undefined
   },
+  cornerPlot: {
+    columnSelectionIsDefault: true,
+    settings: {
+      selectedColumns: cornerDefaultColumns,
+      logScaleColumns: [],
+      renderMode: 'scatter'
+    },
+    defaultColumns: cornerDefaultColumns,
+    filteredIds: undefined
+  },
   hoveredId: undefined,
   autoSyncOpenSpaceSelection: false,
   objectNameColumn: 'pl_name'
@@ -95,6 +136,15 @@ export const localSlice = createSlice({
   name: 'local',
   initialState,
   reducers: {
+    setCrossFilteringSettings: (
+      state,
+      action: PayloadAction<Partial<LocalState['crossFiltering']>>
+    ) => {
+      state.crossFiltering = {
+        ...state.crossFiltering,
+        ...action.payload
+      };
+    },
     setParallelCoordinatesSelectedColumns: (state, action) => {
       const newColumns: Column[] = action.payload;
       state.parallelCoordinates.settings.selectedColumns = newColumns;
@@ -183,6 +233,69 @@ export const localSlice = createSlice({
       }
     },
 
+    setCornerPlotSelectedColumns: (state, action: PayloadAction<Column[]>) => {
+      const newColumns = action.payload;
+      state.cornerPlot.settings.selectedColumns = newColumns;
+      state.cornerPlot.columnSelectionIsDefault = isSameColumnArray(
+        newColumns,
+        state.cornerPlot.defaultColumns
+      );
+
+      state.cornerPlot.settings.logScaleColumns =
+        state.cornerPlot.settings.logScaleColumns.filter((col) =>
+          newColumns.includes(col)
+        );
+    },
+    resetCornerPlot: (state) => {
+      state.cornerPlot.settings.selectedColumns = state.cornerPlot.defaultColumns;
+      state.cornerPlot.settings.logScaleColumns = [
+        'pl_bmasse',
+        'pl_rade',
+        'pl_orbper',
+        'pl_orbsmax'
+      ];
+      state.cornerPlot.settings.renderMode = 'scatter';
+      state.cornerPlot.columnSelectionIsDefault = true;
+      state.cornerPlot.filteredIds = undefined;
+    },
+    setCornerPlotFilteredIds: (state, action: PayloadAction<number[] | undefined>) => {
+      const incoming = action.payload;
+      const current = state.cornerPlot.filteredIds;
+
+      if (incoming === undefined && current === undefined) {
+        return;
+      }
+
+      if (incoming === undefined || current === undefined) {
+        state.cornerPlot.filteredIds = incoming;
+        return;
+      }
+
+      const isSame =
+        current.length === incoming.length &&
+        current.every((id, index) => id === incoming[index]);
+
+      if (isSame) {
+        return;
+      }
+
+      state.cornerPlot.filteredIds = incoming;
+    },
+    setCornerPlotSettings: (
+      state,
+      action: PayloadAction<Partial<CornerPlotVisualSettings>>
+    ) => {
+      const patch = action.payload;
+
+      if (patch.logScaleColumns !== undefined) {
+        state.cornerPlot.settings.logScaleColumns = patch.logScaleColumns;
+      }
+
+      if (patch.renderMode !== undefined) {
+        state.cornerPlot.settings.renderMode = patch.renderMode;
+      }
+    },
+
     setHoveredItemId: (state, action) => {
       state.hoveredId = action.payload;
     },
@@ -196,11 +309,16 @@ export const localSlice = createSlice({
 });
 
 export const {
+  setCrossFilteringSettings,
   setParallelCoordinatesSelectedColumns,
   setParallelCoordinatesColumnOrder,
   setParallelCoordinatesFilteredIds,
   resetParallelCoordinates,
   setParallelCoordinatesSettings,
+  setCornerPlotSelectedColumns,
+  resetCornerPlot,
+  setCornerPlotFilteredIds,
+  setCornerPlotSettings,
 
   setHoveredItemId,
   setAutoSyncOpenSpaceSelection,

@@ -2,8 +2,7 @@ import { useMemo, useState } from 'react';
 import { Box, Paper, Text, Title } from '@mantine/core';
 import { useResizeObserver } from '@mantine/hooks';
 
-import { useBaseDataset } from '@/hooks/data';
-import { useAppSelector } from '@/redux/hooks';
+import { useBaseDataset, useFilteredIds } from '@/hooks/data';
 import type { DataItem } from '@/types/types';
 
 import { PlanetListItem } from './PlanetListItem';
@@ -11,9 +10,7 @@ import { PlanetListItem } from './PlanetListItem';
 export function SelectionList() {
   const [scrollTop, setScrollTop] = useState(0);
 
-  const filteredIds = useAppSelector(
-    (state) => state.local.parallelCoordinates.filteredIds
-  );
+  const { filteredIds } = useFilteredIds();
   const data = useBaseDataset();
 
   const [ref, rect] = useResizeObserver();

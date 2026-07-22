@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
-import { Box, Group } from '@mantine/core';
+import { Box, Group, Stack } from '@mantine/core';
 
+import { CornerPlot } from '@/features/CornerPlot/CornerPlot';
 import { ParallelCoordinates } from '@/features/ParallelCoordinates/ParallelCoordinates';
 import { SelectionList } from '@/features/SelectionList/SelectionList';
 import { initializeData } from '@/redux/data/dataSlice';
@@ -25,8 +26,11 @@ export function HomePage() {
   return (
     <>
       <Group align={'flex-start'} wrap={'nowrap'}>
-        <Box>
-          <ParallelCoordinates />
+        <Box flex={1}>
+          <Stack gap={'md'}>
+            <ParallelCoordinates />
+            <CornerPlot />
+          </Stack>
         </Box>
         <Box w={300}>
           <SelectionList />

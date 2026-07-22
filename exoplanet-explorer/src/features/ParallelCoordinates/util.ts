@@ -7,6 +7,7 @@ import type { Dimension } from './types';
 export function inferDimensions(
   data: DataItem[],
   orderedColumns: Column[],
+  logScaleColumns: Column[],
   columnData: Record<Column, ColumnData>,
   height: number
 ): Dimension[] {
@@ -14,32 +15,32 @@ export function inferDimensions(
 
   return orderedColumns.map((key) => {
     const col = columnData[key];
+
+    if (!col) {
+      throw new Error(`Column data for key "${key}" not found.`);
+    }
+
     const isNumeric = col.type === 'number';
+    const isLogScale = isNumeric && logScaleColumns.includes(key);
 
     if (isNumeric) {
-      const scale = d3
-        .scaleLinear()
-        .domain([col.min ?? 0, col.max ?? 1])
-        .nice()
-        .range([height, 0]);
-
+      const d3Scale = isLogScale ? d3.scaleLog() : d3.scaleLinear().nice();
+      const scale = d3Scale.domain([col.min, col.max]).range([height, 0]);
       return {
         key,
-        type: 'number' as const,
+        type: 'number',
         scale
       };
     } else {
-      const categories =
-        col.categories ?? Array.from(new Set(data.map((d) => String(d[key]))));
       const scale = d3
         .scalePoint<string>()
-        .domain(categories)
+        .domain(col.categories)
         .range([height, 0])
         .padding(0.5);
 
       return {
         key,
-        type: 'string' as const,
+        type: 'string',
         scale
       };
     }

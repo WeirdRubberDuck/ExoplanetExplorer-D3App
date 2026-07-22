@@ -61,7 +61,7 @@ export function SettingsBar() {
         </Title>
 
         <Stack gap={'xs'}>
-          <ColumnSelection columns={columns} primaryColumns={defaultColumns} />
+          <ColumnSelection primaryColumns={defaultColumns} />
 
           <Title order={3} size={'md'}>
             Lines

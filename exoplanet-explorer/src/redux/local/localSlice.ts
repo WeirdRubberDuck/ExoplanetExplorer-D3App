@@ -40,6 +40,7 @@ interface LocalState {
 
     settings: {
       selectedColumns: Column[];
+      logScaleColumns: Column[];
       lineOpacity: number;
       showGhostLines: boolean;
       showTextOnHighlightedLine: boolean;
@@ -72,6 +73,7 @@ const initialState: LocalState = {
     columnSelectionIsDefault: true,
     settings: {
       selectedColumns: pcDefaultColumns,
+      logScaleColumns: [],
       lineOpacity: 0.7,
       showGhostLines: true,
       showTextOnHighlightedLine: true,
@@ -155,6 +157,10 @@ export const localSlice = createSlice({
       action: PayloadAction<Partial<ParallelCoordinatesVisualSettings>>
     ) => {
       const patch = action.payload;
+
+      if (patch.logScaleColumns !== undefined) {
+        state.parallelCoordinates.settings.logScaleColumns = patch.logScaleColumns;
+      }
 
       if (patch.lineOpacity !== undefined) {
         state.parallelCoordinates.settings.lineOpacity = patch.lineOpacity;

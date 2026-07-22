@@ -123,7 +123,8 @@ export const dataSlice = createSlice({
           state.columnData[key] = {
             type: 'number',
             min: Math.min(...numericValues),
-            max: Math.max(...numericValues)
+            max: Math.max(...numericValues),
+            isUncertainty: key.endsWith('err1') || key.endsWith('err2')
           };
         } else {
           const categories = Array.from(new Set(values.map((v) => String(v))));

@@ -15,7 +15,6 @@ const pcDefaultColumns: Column[] = [
   'pl_orbincl',
   'pl_Teq',
   'sy_dist',
-  'st_spectype',
   'st_age'
 ];
 
@@ -55,7 +54,6 @@ interface LocalState {
 
     settings: {
       selectedColumns: Column[];
-      logScaleColumns: Column[];
       lineOpacity: number;
       showGhostLines: boolean;
       showTextOnHighlightedLine: boolean;
@@ -77,7 +75,6 @@ interface LocalState {
     defaultColumns: Column[];
     settings: {
       selectedColumns: Column[];
-      logScaleColumns: Column[];
       renderMode: 'scatter' | 'density';
       invertLayout: boolean;
     };
@@ -86,6 +83,7 @@ interface LocalState {
   hoveredId: number | undefined;
   autoSyncOpenSpaceSelection: boolean;
   objectNameColumn: Column;
+  logScaleColumns: Column[];
 }
 
 type ParallelCoordinatesSettings = LocalState['parallelCoordinates']['settings'];
@@ -105,7 +103,6 @@ const initialState: LocalState = {
     columnSelectionIsDefault: true,
     settings: {
       selectedColumns: pcDefaultColumns,
-      logScaleColumns: [],
       lineOpacity: 0.7,
       showGhostLines: true,
       showTextOnHighlightedLine: true,
@@ -122,7 +119,6 @@ const initialState: LocalState = {
     columnSelectionIsDefault: true,
     settings: {
       selectedColumns: cornerDefaultColumns,
-      logScaleColumns: [],
       renderMode: 'scatter',
       invertLayout: true
     },
@@ -131,7 +127,8 @@ const initialState: LocalState = {
   },
   hoveredId: undefined,
   autoSyncOpenSpaceSelection: false,
-  objectNameColumn: 'pl_name'
+  objectNameColumn: 'pl_name',
+  logScaleColumns: []
 };
 
 export const localSlice = createSlice({
@@ -210,10 +207,6 @@ export const localSlice = createSlice({
     ) => {
       const patch = action.payload;
 
-      if (patch.logScaleColumns !== undefined) {
-        state.parallelCoordinates.settings.logScaleColumns = patch.logScaleColumns;
-      }
-
       if (patch.lineOpacity !== undefined) {
         state.parallelCoordinates.settings.lineOpacity = patch.lineOpacity;
       }
@@ -242,17 +235,9 @@ export const localSlice = createSlice({
         newColumns,
         state.cornerPlot.defaultColumns
       );
-
-      state.cornerPlot.settings.logScaleColumns =
-        state.cornerPlot.settings.logScaleColumns.filter((col) =>
-          newColumns.includes(col)
-        );
     },
-    resetCornerPlot: (state) => {
+    resetCornerPlotColumns: (state) => {
       state.cornerPlot.settings.selectedColumns = state.cornerPlot.defaultColumns;
-      state.cornerPlot.settings.logScaleColumns = [];
-      state.cornerPlot.settings.renderMode = 'scatter';
-      state.cornerPlot.settings.invertLayout = false;
       state.cornerPlot.columnSelectionIsDefault = true;
       state.cornerPlot.filteredIds = undefined;
     },
@@ -285,10 +270,6 @@ export const localSlice = createSlice({
     ) => {
       const patch = action.payload;
 
-      if (patch.logScaleColumns !== undefined) {
-        state.cornerPlot.settings.logScaleColumns = patch.logScaleColumns;
-      }
-
       if (patch.renderMode !== undefined) {
         state.cornerPlot.settings.renderMode = patch.renderMode;
       }
@@ -306,25 +287,31 @@ export const localSlice = createSlice({
     },
     setObjectNameColumn: (state, action) => {
       state.objectNameColumn = action.payload;
+    },
+    setLogScaleColumns: (state, action) => {
+      state.logScaleColumns = action.payload;
     }
   }
 });
 
 export const {
   setCrossFilteringSettings,
+
   setParallelCoordinatesSelectedColumns,
   setParallelCoordinatesColumnOrder,
   setParallelCoordinatesFilteredIds,
   resetParallelCoordinates,
   setParallelCoordinatesSettings,
+
   setCornerPlotSelectedColumns,
-  resetCornerPlot,
+  resetCornerPlotColumns,
   setCornerPlotFilteredIds,
   setCornerPlotSettings,
 
   setHoveredItemId,
   setAutoSyncOpenSpaceSelection,
-  setObjectNameColumn
+  setObjectNameColumn,
+  setLogScaleColumns
 } = localSlice.actions;
 
 export default localSlice.reducer;

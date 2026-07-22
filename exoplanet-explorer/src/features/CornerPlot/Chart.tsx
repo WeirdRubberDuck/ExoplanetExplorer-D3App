@@ -40,6 +40,8 @@ export function CornerPlotChart({
     (state) => state.local.parallelCoordinates.filteredIds
   );
 
+  const logScaleColumns = useAppSelector((state) => state.local.logScaleColumns);
+
   const selectedNumericColumns = useMemo(() => {
     return settings.selectedColumns.filter((col) => {
       return columns.includes(col) && columnData[col]?.type === 'number';
@@ -86,7 +88,7 @@ export function CornerPlotChart({
     const next = new Map<Column, NumericScale>();
 
     selectedNumericColumns.forEach((column) => {
-      const isLogScale = settings.logScaleColumns.includes(column);
+      const isLogScale = logScaleColumns.includes(column);
       const domain = getScaleDomain(data, column, isLogScale, true);
 
       if (!domain) {
@@ -102,7 +104,7 @@ export function CornerPlotChart({
     });
 
     return next;
-  }, [selectedNumericColumns, settings.logScaleColumns, data, cellSize]);
+  }, [selectedNumericColumns, logScaleColumns, data, cellSize]);
 
   useCornerPlotFilterSync({ activeBrushes, data, scales });
 

@@ -1,11 +1,9 @@
-import { useMemo } from 'react';
 import { Button, Checkbox, Group, MultiSelect } from '@mantine/core';
 
 import { useAppDispatch, useAppSelector } from '@/redux/hooks';
 import {
   resetParallelCoordinates,
-  setParallelCoordinatesSelectedColumns,
-  setParallelCoordinatesSettings
+  setParallelCoordinatesSelectedColumns
 } from '@/redux/local/localSlice';
 import type { Column } from '@/types/types';
 
@@ -16,25 +14,15 @@ interface Props {
 export function ColumnSelection({ primaryColumns }: Props) {
   const {
     columnSelectionIsDefault,
-    settings: { selectedColumns, logScaleColumns }
+    settings: { selectedColumns }
   } = useAppSelector((state) => state.local.parallelCoordinates);
 
-  const { columns, columnData } = useAppSelector((state) => state.data);
-
-  const numericColumns = useMemo(() => {
-    return columns.filter(
-      (col) => columnData[col].type === 'number' && !columnData[col].isUncertainty
-    );
-  }, [columns, columnData]);
+  const { columns } = useAppSelector((state) => state.data);
 
   const dispatch = useAppDispatch();
 
   function setSelected(newSelected: Column[]) {
     dispatch(setParallelCoordinatesSelectedColumns(newSelected));
-  }
-
-  function setLogScaleColumns(newLogScaleColumns: Column[]) {
-    dispatch(setParallelCoordinatesSettings({ logScaleColumns: newLogScaleColumns }));
   }
 
   function onTogglePrimary(column: Column, checked: boolean) {
@@ -83,14 +71,6 @@ export function ColumnSelection({ primaryColumns }: Props) {
       >
         Reset columns
       </Button>
-      <MultiSelect
-        label={'Log scale columns'}
-        data={numericColumns}
-        searchable
-        value={logScaleColumns}
-        onChange={setLogScaleColumns}
-        hidePickedOptions
-      />
     </>
   );
 }

@@ -12,10 +12,7 @@ import {
 import { useDisclosure } from '@mantine/hooks';
 
 import { useAppDispatch, useAppSelector } from '@/redux/hooks.ts';
-import {
-  setCrossFilteringSettings,
-  setParallelCoordinatesSettings
-} from '@/redux/local/localSlice.ts';
+import { setParallelCoordinatesSettings } from '@/redux/local/localSlice.ts';
 
 import { ColumnSelection } from './ColumnSelection';
 
@@ -24,7 +21,6 @@ export function SettingsParallelCoordinates() {
   const { defaultColumns, settings } = useAppSelector(
     (state) => state.local.parallelCoordinates
   );
-  const crossFiltering = useAppSelector((state) => state.local.crossFiltering);
 
   const [settingsOpened, { open, close }] = useDisclosure(false);
 
@@ -120,32 +116,6 @@ export function SettingsParallelCoordinates() {
               )
             }
             disabled={!settings.axisViolinPlots.show}
-          />
-
-          <Title order={3} size={'md'}>
-            Cross-filtering
-          </Title>
-          <Checkbox
-            label={'Apply corner plot filtering in parallel coordinates'}
-            checked={crossFiltering.cornerAffectsParallel}
-            onChange={(event) =>
-              dispatch(
-                setCrossFilteringSettings({
-                  cornerAffectsParallel: event.currentTarget.checked
-                })
-              )
-            }
-          />
-          <Checkbox
-            label={'Apply parallel coordinates filtering in corner plot'}
-            checked={crossFiltering.parallelAffectsCorner}
-            onChange={(event) =>
-              dispatch(
-                setCrossFilteringSettings({
-                  parallelAffectsCorner: event.currentTarget.checked
-                })
-              )
-            }
           />
         </Stack>
       </Drawer>

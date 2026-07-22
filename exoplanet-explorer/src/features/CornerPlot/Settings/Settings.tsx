@@ -12,10 +12,7 @@ import {
 import { useDisclosure } from '@mantine/hooks';
 
 import { useAppDispatch, useAppSelector } from '@/redux/hooks';
-import {
-  setCornerPlotSettings,
-  setCrossFilteringSettings
-} from '@/redux/local/localSlice';
+import { setCornerPlotSettings } from '@/redux/local/localSlice';
 
 import { CornerPlotColumnSelection } from './ColumnSelection';
 
@@ -23,7 +20,6 @@ export function CornerPlotSettings() {
   const [settingsOpened, { open, close }] = useDisclosure(false);
 
   const { defaultColumns, settings } = useAppSelector((state) => state.local.cornerPlot);
-  const crossFiltering = useAppSelector((state) => state.local.crossFiltering);
   const dispatch = useAppDispatch();
 
   return (
@@ -83,32 +79,6 @@ export function CornerPlotSettings() {
             The corner plot matrix grows quadratically with selected columns, so 4-8
             columns usually gives the clearest scientific view.
           </Text>
-
-          <Title order={3} size={'md'}>
-            Cross-filtering
-          </Title>
-          <Checkbox
-            label={'Apply parallel coordinates filtering in corner plot'}
-            checked={crossFiltering.parallelAffectsCorner}
-            onChange={(event) =>
-              dispatch(
-                setCrossFilteringSettings({
-                  parallelAffectsCorner: event.currentTarget.checked
-                })
-              )
-            }
-          />
-          <Checkbox
-            label={'Apply corner plot filtering in parallel coordinates'}
-            checked={crossFiltering.cornerAffectsParallel}
-            onChange={(event) =>
-              dispatch(
-                setCrossFilteringSettings({
-                  cornerAffectsParallel: event.currentTarget.checked
-                })
-              )
-            }
-          />
         </Stack>
       </Drawer>
     </>

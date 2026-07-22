@@ -3,9 +3,8 @@ import { Button, Checkbox, Group, MultiSelect } from '@mantine/core';
 
 import { useAppDispatch, useAppSelector } from '@/redux/hooks';
 import {
-  resetCornerPlot,
-  setCornerPlotSelectedColumns,
-  setCornerPlotSettings
+  resetCornerPlotColumns,
+  setCornerPlotSelectedColumns
 } from '@/redux/local/localSlice';
 import type { Column } from '@/types/types';
 
@@ -13,17 +12,10 @@ interface Props {
   primaryColumns: Column[];
 }
 
-const astronomyLogDefaults: Column[] = [
-  'pl_bmasse',
-  'pl_rade',
-  'pl_orbper',
-  'pl_orbsmax'
-];
-
 export function CornerPlotColumnSelection({ primaryColumns }: Props) {
   const {
     columnSelectionIsDefault,
-    settings: { selectedColumns, logScaleColumns }
+    settings: { selectedColumns }
   } = useAppSelector((state) => state.local.cornerPlot);
 
   const { columns, columnData } = useAppSelector((state) => state.data);
@@ -37,10 +29,6 @@ export function CornerPlotColumnSelection({ primaryColumns }: Props) {
   function setSelected(newSelected: Column[]) {
     const numericOnly = newSelected.filter((col) => numericColumns.includes(col));
     dispatch(setCornerPlotSelectedColumns(numericOnly));
-  }
-
-  function setLogScaleColumns(newLogScaleColumns: Column[]) {
-    dispatch(setCornerPlotSettings({ logScaleColumns: newLogScaleColumns }));
   }
 
   function onTogglePrimary(column: Column, checked: boolean) {
@@ -62,7 +50,7 @@ export function CornerPlotColumnSelection({ primaryColumns }: Props) {
   return (
     <>
       <Checkbox.Group
-        label={'Primary exoplanet columns'}
+        label={'Default columns'}
         value={selectedColumns.filter((col) => sortedPrimaryColumns.includes(col))}
       >
         <Group gap={5}>
@@ -94,30 +82,11 @@ export function CornerPlotColumnSelection({ primaryColumns }: Props) {
         <Button
           variant={'default'}
           disabled={columnSelectionIsDefault}
-          onClick={() => dispatch(resetCornerPlot())}
+          onClick={() => dispatch(resetCornerPlotColumns())}
         >
           Reset columns
         </Button>
-        <Button
-          variant={'light'}
-          onClick={() =>
-            setLogScaleColumns(
-              astronomyLogDefaults.filter((column) => selectedColumns.includes(column))
-            )
-          }
-        >
-          Use astronomy log defaults
-        </Button>
       </Group>
-
-      <MultiSelect
-        label={'Log scale columns'}
-        data={selectedColumns}
-        searchable
-        value={logScaleColumns}
-        onChange={setLogScaleColumns}
-        hidePickedOptions
-      />
     </>
   );
 }

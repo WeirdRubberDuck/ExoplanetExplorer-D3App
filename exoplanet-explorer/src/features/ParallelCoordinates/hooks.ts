@@ -34,9 +34,7 @@ export function useChartScales(
   const uncertaintyDomains = useAppSelector((state) => state.data.uncertaintyDomains);
   const columnData = useAppSelector((state) => state.data.columnData);
 
-  const logScaleColumns = useAppSelector(
-    (state) => state.local.parallelCoordinates.settings.logScaleColumns
-  );
+  const logScaleColumns = useAppSelector((state) => state.local.logScaleColumns);
 
   const dimensions: Dimension[] = useMemo(
     () => inferDimensions(data, orderedColumns, logScaleColumns, columnData, height),

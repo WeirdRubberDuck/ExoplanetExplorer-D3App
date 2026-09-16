@@ -1,4 +1,5 @@
 import { type PropsWithChildren, useEffect, useState } from 'react';
+import type { OpenSpaceLibrary } from 'openspace-api-js/types';
 
 import { api } from '@/api/api';
 import { closeConnection } from '@/redux/connection/connectionMiddleware';
@@ -8,7 +9,7 @@ import { useAppDispatch, useAppSelector } from '@/redux/hooks';
 import { LuaApiContext } from './LuaApiContext';
 
 export function LuaApiProvider({ children }: PropsWithChildren) {
-  const [luaApi, setLuaApi] = useState<OpenSpace.openspace | null>(null);
+  const [luaApi, setLuaApi] = useState<OpenSpaceLibrary | null>(null);
   const isConnected = useAppSelector(
     (state) => state.connection.connectionStatus === ConnectionStatus.Connected
   );

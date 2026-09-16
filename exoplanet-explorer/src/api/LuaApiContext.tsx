@@ -1,3 +1,4 @@
-import { createContext } from "react";
+import { createContext } from 'react';
+import type { OpenSpaceLibrary } from 'openspace-api-js/types';
 
-export const LuaApiContext = createContext<OpenSpace.openspace | null>(null);
+export const LuaApiContext = createContext<OpenSpaceLibrary | null>(null);

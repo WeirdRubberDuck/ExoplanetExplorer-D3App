@@ -54,7 +54,7 @@ export function Header() {
           <Button
             leftSection={<MdUpload size={IconSize.md} />}
             onClick={() => {
-              luaApi.setPropertyValueSingle(
+              luaApi?.setPropertyValueSingle(
                 'Modules.ExoplanetsExpertTool.ExoplanetsToolGui.DataViewer.ExternalSelection',
                 filteredIds ?? []
               );

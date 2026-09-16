@@ -56,12 +56,10 @@ export function Header() {
             onClick={() => {
               luaApi.setPropertyValueSingle(
                 'Modules.ExoplanetsExpertTool.ExoplanetsToolGui.DataViewer.ExternalSelection',
-                filteredIds
+                filteredIds ?? []
               );
             }}
-            disabled={
-              filteredIds === undefined || filteredIds.length === 0 || !isConnected
-            }
+            disabled={!isConnected}
           >
             Send to OpenSpace
           </Button>

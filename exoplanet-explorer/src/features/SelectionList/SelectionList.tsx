@@ -1,17 +1,22 @@
 import { useMemo, useState } from 'react';
-import { Box, Paper, Text, Title } from '@mantine/core';
+import { MdSearch } from 'react-icons/md';
+import { Box, CloseButton, Paper, Text, TextInput, Title } from '@mantine/core';
 import { useResizeObserver } from '@mantine/hooks';
 
 import { useBaseDataset, useFilteredIds } from '@/hooks/data';
+import { useAppSelector } from '@/redux/hooks';
 import type { DataItem } from '@/types/types';
 
 import { PlanetListItem } from './PlanetListItem';
 
 export function SelectionList() {
   const [scrollTop, setScrollTop] = useState(0);
+  const [searchQuery, setSearchQuery] = useState('');
 
   const { filteredIds } = useFilteredIds();
   const data = useBaseDataset();
+  const fullData = useAppSelector((state) => state.data.full);
+  const objectNameColumn = useAppSelector((state) => state.local.objectNameColumn);
 
   const [ref, rect] = useResizeObserver();
 
@@ -21,12 +26,24 @@ export function SelectionList() {
   const overscan = 6;
 
   const idsToRender = useMemo(() => {
-    if (filteredIds === undefined) {
-      return data.map((row) => row.id);
+    const baseIds = filteredIds === undefined ? data.map((row) => row.id) : filteredIds;
+
+    const query = searchQuery.trim().toLowerCase();
+    if (query === '') {
+      return baseIds;
     }
 
-    return filteredIds;
-  }, [filteredIds, data]);
+    return baseIds.filter((id) => {
+      const name = fullData[id]?.[objectNameColumn];
+      return typeof name === 'string' && name.toLowerCase().includes(query);
+    });
+  }, [filteredIds, data, searchQuery, fullData, objectNameColumn]);
+
+  function handleSearchChange(query: string) {
+    setSearchQuery(query);
+    // Avoid being scrolled past the end of a newly-shortened, filtered list
+    setScrollTop(0);
+  }
 
   const visibleRowCount = Math.ceil(listHeight / rowHeight);
   const startIndex = Math.max(0, Math.floor(scrollTop / rowHeight) - overscan);
@@ -41,6 +58,20 @@ export function SelectionList() {
   return (
     <Paper p={'xs'}>
       <Title order={4}>{`Planets (${idsToRender.length})`}</Title>
+
+      <TextInput
+        mt={'xs'}
+        size={'sm'}
+        placeholder={'Search by name'}
+        leftSection={<MdSearch />}
+        value={searchQuery}
+        onChange={(event) => handleSearchChange(event.currentTarget.value)}
+        rightSection={
+          searchQuery ? (
+            <CloseButton size={'sm'} onClick={() => handleSearchChange('')} />
+          ) : undefined
+        }
+      />
 
       {idsToRender.length === 0 ? (
         <Text size={'sm'} c={'dimmed'} mt={'xs'}>

@@ -1,6 +1,7 @@
 import type { MouseEvent } from 'react';
 
 import type { Column } from '@/types/types';
+import { HIGHLIGHT_COLOR } from '@/utils/constants';
 
 import {
   type ActiveBrush,
@@ -29,6 +30,7 @@ interface Props {
   scales: Map<Column, NumericScale>;
   cellSize: number;
   cellPointsByKey: Map<string, CornerPoint[]>;
+  hoveredId: number | undefined;
   invertLayout: boolean;
   brushDraft: BrushDraft | undefined;
   activeBrushes: ActiveBrush[];
@@ -54,6 +56,7 @@ export function SvgLayer({
   scales,
   cellSize,
   cellPointsByKey,
+  hoveredId,
   invertLayout,
   brushDraft,
   activeBrushes,
@@ -90,6 +93,7 @@ export function SvgLayer({
             const yCellOffset = rowIndex * cellSize;
             const cellKey = getCellKey(xColumn, yColumn);
             const points = cellPointsByKey.get(cellKey) ?? [];
+            const hoveredPoint = points.find((point) => point.id === hoveredId);
             const isScatterCell = invertLayout
               ? rowIndex < colIndex
               : rowIndex > colIndex;
@@ -167,6 +171,18 @@ export function SvgLayer({
                     />
                   );
                 })}
+
+                {isScatterCell && hoveredPoint && (
+                  <circle
+                    cx={hoveredPoint.x}
+                    cy={hoveredPoint.y}
+                    r={5}
+                    fill={HIGHLIGHT_COLOR}
+                    stroke={'var(--mantine-color-dark-9)'}
+                    strokeWidth={1.5}
+                    pointerEvents={'none'}
+                  />
+                )}
 
                 {rowIndex === selectedNumericColumns.length - 1 && (
                   <text

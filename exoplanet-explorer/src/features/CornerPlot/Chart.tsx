@@ -30,6 +30,7 @@ export function CornerPlotChart({
   const dispatch = useAppDispatch();
   const { columns, columnData } = useAppSelector((state) => state.data);
   const settings = useAppSelector((state) => state.local.cornerPlot.settings);
+  const hoveredId = useAppSelector((state) => state.local.hoveredId);
   const parallelAffectsCorner = useAppSelector(
     (state) => state.local.crossFiltering.parallelAffectsCorner
   );
@@ -235,6 +236,7 @@ export function CornerPlotChart({
               scales={scales}
               cellSize={cellSize}
               cellPointsByKey={cellPointsByKey}
+              hoveredId={hoveredId}
               invertLayout={settings.invertLayout}
               brushDraft={brushDraft}
               activeBrushes={activeBrushes}

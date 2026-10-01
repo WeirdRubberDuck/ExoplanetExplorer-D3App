@@ -2,6 +2,7 @@ import { useMemo } from 'react';
 
 import { useAppSelector } from '@/redux/hooks.ts';
 import type { DataItem } from '@/types/types.ts';
+import { HIGHLIGHT_COLOR } from '@/utils/constants.ts';
 
 import { CanvasLines, type CanvasLinesProps } from './CanvasLines.tsx';
 
@@ -49,7 +50,7 @@ export function HighlightedLine({ sourceData, ...props }: Props) {
       <CanvasLines
         {...props}
         data={[itemData]}
-        strokeColor={'lime'}
+        strokeColor={HIGHLIGHT_COLOR}
         strokeWidth={strokeWidth}
       />
       {/* Add text per axis value */}

@@ -5,6 +5,7 @@ import { defineConfig } from 'vite';
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [react()],
+  base: '/exoplanetexplorer/1/', // This is where the page is hosted on the server
   resolve: {
     alias: {
       '@/api': path.resolve(__dirname, './src/api'),

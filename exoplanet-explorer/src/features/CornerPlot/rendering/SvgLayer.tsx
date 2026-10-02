@@ -1,6 +1,6 @@
 import type { MouseEvent } from 'react';
 
-import type { Column } from '@/types/types';
+import type { Column, UncertaintyDataItem } from '@/types/types';
 import { HIGHLIGHT_COLOR } from '@/utils/constants';
 
 import {
@@ -14,6 +14,7 @@ import {
 import type { NumericScale } from '../util';
 
 import { DiagonalHistogram } from './DiagonalHistogram';
+import { ErrorBars } from './ErrorBars';
 
 interface Margin {
   top: number;
@@ -31,6 +32,7 @@ interface Props {
   cellSize: number;
   cellPointsByKey: Map<string, CornerPoint[]>;
   hoveredId: number | undefined;
+  hoveredUncertainty: UncertaintyDataItem | undefined;
   invertLayout: boolean;
   brushDraft: BrushDraft | undefined;
   activeBrushes: ActiveBrush[];
@@ -57,6 +59,7 @@ export function SvgLayer({
   cellSize,
   cellPointsByKey,
   hoveredId,
+  hoveredUncertainty,
   invertLayout,
   brushDraft,
   activeBrushes,
@@ -173,15 +176,43 @@ export function SvgLayer({
                 })}
 
                 {isScatterCell && hoveredPoint && (
-                  <circle
-                    cx={hoveredPoint.x}
-                    cy={hoveredPoint.y}
-                    r={5}
-                    fill={HIGHLIGHT_COLOR}
-                    stroke={'var(--mantine-color-dark-9)'}
-                    strokeWidth={1.5}
-                    pointerEvents={'none'}
+                  <ErrorBars
+                    point={hoveredPoint}
+                    xUncertainty={hoveredUncertainty?.[xColumn]}
+                    yUncertainty={hoveredUncertainty?.[yColumn]}
+                    xScaleMeta={xScaleMeta}
+                    yScaleMeta={yScaleMeta}
+                    cellSize={cellSize}
                   />
+                )}
+
+                {isScatterCell && hoveredPoint && (
+                  <>
+                    <circle
+                      cx={hoveredPoint.x}
+                      cy={hoveredPoint.y}
+                      r={4}
+                      fill={HIGHLIGHT_COLOR}
+                      stroke={'var(--mantine-color-dark-9)'}
+                      strokeWidth={1.5}
+                      pointerEvents={'none'}
+                    />
+                    <text
+                      x={hoveredPoint.x + 8}
+                      y={hoveredPoint.y + 10}
+                      fontSize={9}
+                      fontWeight={700}
+                      fill={'var(--mantine-color-text)'}
+                      style={{
+                        filter: 'drop-shadow(0 0 5px var(--mantine-color-body))'
+                      }}
+                      textAnchor={'start'}
+                      pointerEvents={'none'}
+                    >
+                      <tspan>{Number(hoveredPoint.xValue).toFixed(2)}</tspan>
+                      <tspan>, {Number(hoveredPoint.yValue).toFixed(2)}</tspan>
+                    </text>
+                  </>
                 )}
 
                 {rowIndex === selectedNumericColumns.length - 1 && (

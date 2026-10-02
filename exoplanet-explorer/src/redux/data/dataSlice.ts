@@ -52,15 +52,16 @@ export const dataSlice = createSlice({
             const value = hasValue(item[key]) ? Number(item[key]) : null;
 
             // TODO: Compute the absolute uncertainty range (in percentage) not just the upper and lower bounds
+            // err1 is the positive (upper) and err2 the negative (lower) uncertainty
             if (key.endsWith('err1')) {
               uncertaintyEntry[baseKey] = {
                 ...uncertaintyEntry[baseKey],
-                lower: value
+                upper: value
               };
             } else {
               uncertaintyEntry[baseKey] = {
                 ...uncertaintyEntry[baseKey],
-                upper: value
+                lower: value
               };
             }
           }

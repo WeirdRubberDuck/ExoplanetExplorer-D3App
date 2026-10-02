@@ -1,4 +1,4 @@
-import type { MouseEvent } from 'react';
+import { type MouseEvent, useId } from 'react';
 
 import type { Column, UncertaintyDataItem } from '@/types/types';
 import { HIGHLIGHT_COLOR } from '@/utils/constants';
@@ -70,6 +70,8 @@ export function SvgLayer({
   onBrushDragStart,
   onClearBrushesForCell
 }: Props) {
+  const clipPathPrefix = useId().replace(/:/g, '');
+
   return (
     <svg
       width={chartWidth}
@@ -114,6 +116,12 @@ export function SvgLayer({
                   fill={isDiagonalCell ? 'white' : 'transparent'}
                   stroke={'var(--mantine-color-gray-3)'}
                 />
+
+                <defs>
+                  <clipPath id={`${clipPathPrefix}-${rowIndex}-${colIndex}`}>
+                    <rect width={cellSize} height={cellSize} />
+                  </clipPath>
+                </defs>
 
                 {isDiagonalCell && (
                   <DiagonalHistogram
@@ -176,27 +184,27 @@ export function SvgLayer({
                 })}
 
                 {isScatterCell && hoveredPoint && (
-                  <ErrorBars
-                    point={hoveredPoint}
-                    xUncertainty={hoveredUncertainty?.[xColumn]}
-                    yUncertainty={hoveredUncertainty?.[yColumn]}
-                    xScaleMeta={xScaleMeta}
-                    yScaleMeta={yScaleMeta}
-                    cellSize={cellSize}
-                  />
-                )}
-
-                {isScatterCell && hoveredPoint && (
                   <>
-                    <circle
-                      cx={hoveredPoint.x}
-                      cy={hoveredPoint.y}
-                      r={4}
-                      fill={HIGHLIGHT_COLOR}
-                      stroke={'var(--mantine-color-dark-9)'}
-                      strokeWidth={1.5}
-                      pointerEvents={'none'}
-                    />
+                    <g clipPath={`url(#${clipPathPrefix}-${rowIndex}-${colIndex})`}>
+                      <ErrorBars
+                        point={hoveredPoint}
+                        xUncertainty={hoveredUncertainty?.[xColumn]}
+                        yUncertainty={hoveredUncertainty?.[yColumn]}
+                        xScaleMeta={xScaleMeta}
+                        yScaleMeta={yScaleMeta}
+                        cellSize={cellSize}
+                      />
+                      <circle
+                        cx={hoveredPoint.x}
+                        cy={hoveredPoint.y}
+                        r={4}
+                        fill={HIGHLIGHT_COLOR}
+                        stroke={'var(--mantine-color-dark-9)'}
+                        strokeWidth={1.5}
+                        pointerEvents={'none'}
+                      />
+                    </g>
+
                     <text
                       x={hoveredPoint.x + 8}
                       y={hoveredPoint.y + 10}

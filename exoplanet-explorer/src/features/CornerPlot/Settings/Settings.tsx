@@ -74,6 +74,17 @@ export function CornerPlotSettings() {
               )
             }
           />
+          <Checkbox
+            label={'Clip extreme values (show 1st-99th percentile)'}
+            checked={settings.clipExtremes}
+            onChange={(event) =>
+              dispatch(
+                setCornerPlotSettings({
+                  clipExtremes: event.currentTarget.checked
+                })
+              )
+            }
+          />
 
           <Text size={'xs'} c={'dimmed'}>
             The corner plot matrix grows quadratically with selected columns, so 4-8

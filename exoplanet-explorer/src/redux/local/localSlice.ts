@@ -57,6 +57,7 @@ interface LocalState {
       lineOpacity: number;
       showGhostLines: boolean;
       showTextOnHighlightedLine: boolean;
+      clipExtremes: boolean;
       axisViolinPlots: {
         show: boolean;
         showMissingValueLobe: boolean;
@@ -77,6 +78,7 @@ interface LocalState {
       selectedColumns: Column[];
       renderMode: 'scatter' | 'density';
       invertLayout: boolean;
+      clipExtremes: boolean;
     };
     filteredIds: number[] | undefined;
   };
@@ -106,6 +108,7 @@ const initialState: LocalState = {
       lineOpacity: 0.7,
       showGhostLines: true,
       showTextOnHighlightedLine: true,
+      clipExtremes: false,
       axisViolinPlots: {
         show: true,
         showMissingValueLobe: true
@@ -120,7 +123,8 @@ const initialState: LocalState = {
     settings: {
       selectedColumns: cornerDefaultColumns,
       renderMode: 'scatter',
-      invertLayout: true
+      invertLayout: true,
+      clipExtremes: true
     },
     defaultColumns: cornerDefaultColumns,
     filteredIds: undefined
@@ -220,6 +224,10 @@ export const localSlice = createSlice({
           patch.showTextOnHighlightedLine;
       }
 
+      if (patch.clipExtremes !== undefined) {
+        state.parallelCoordinates.settings.clipExtremes = patch.clipExtremes;
+      }
+
       if (patch.axisViolinPlots !== undefined) {
         state.parallelCoordinates.settings.axisViolinPlots = {
           ...state.parallelCoordinates.settings.axisViolinPlots,
@@ -276,6 +284,10 @@ export const localSlice = createSlice({
 
       if (patch.invertLayout !== undefined) {
         state.cornerPlot.settings.invertLayout = patch.invertLayout;
+      }
+
+      if (patch.clipExtremes !== undefined) {
+        state.cornerPlot.settings.clipExtremes = patch.clipExtremes;
       }
     },
 

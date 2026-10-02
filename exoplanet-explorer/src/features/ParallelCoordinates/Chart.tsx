@@ -97,7 +97,8 @@ export function ParallelCoordinatesChart({
     enabledUncertaintyColumns,
     internalWidth,
     internalHeight,
-    nanAxisYPos
+    nanAxisYPos,
+    settings.clipExtremes
   );
 
   function handleResetFilter() {

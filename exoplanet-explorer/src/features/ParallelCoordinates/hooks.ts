@@ -7,7 +7,7 @@ import type { Column, DataItem } from '@/types/types';
 import { hasValue } from '@/utils/util';
 
 import { type BrushFilter, type Dimension, NanBrushMode } from './types';
-import { addToMap, inferDimensions, removeFromMap } from './util';
+import { addToMap, getClippedDomain, inferDimensions, removeFromMap } from './util';
 
 export interface FilteredDataView {
   rows: DataItem[];
@@ -29,7 +29,8 @@ export function useChartScales(
   enabledUncertaintyColumns: Column[],
   width: number,
   height: number,
-  nanAxisYPos: number
+  nanAxisYPos: number,
+  clipExtremes: boolean
 ) {
   const uncertaintyDomains = useAppSelector((state) => state.data.uncertaintyDomains);
   const columnData = useAppSelector((state) => state.data.columnData);
@@ -37,8 +38,16 @@ export function useChartScales(
   const logScaleColumns = useAppSelector((state) => state.local.logScaleColumns);
 
   const dimensions: Dimension[] = useMemo(
-    () => inferDimensions(data, orderedColumns, logScaleColumns, columnData, height),
-    [data, orderedColumns, logScaleColumns, columnData, height]
+    () =>
+      inferDimensions(
+        data,
+        orderedColumns,
+        logScaleColumns,
+        columnData,
+        height,
+        clipExtremes
+      ),
+    [data, orderedColumns, logScaleColumns, columnData, height, clipExtremes]
   );
 
   const combinedDimensions = useMemo(() => {
@@ -52,7 +61,21 @@ export function useChartScales(
         uncertaintyDomains[dim.key]
       ) {
         const { min, max } = uncertaintyDomains[dim.key];
-        const scale = d3.scaleLinear().domain([min, max]).nice().range([height, 0]);
+        const uncertaintyDomain = clipExtremes
+          ? getClippedDomain(
+              data
+                .map((row) => row[`${dim.key}_err`])
+                .filter(hasValue)
+                .map(Number)
+                .filter(Number.isFinite),
+              [min, max]
+            )
+          : [min, max];
+        const scale = d3
+          .scaleLinear()
+          .domain(uncertaintyDomain)
+          .nice()
+          .range([height, 0]);
 
         finalDimensions.push({
           key: `${dim.key}_err`,
@@ -63,7 +86,14 @@ export function useChartScales(
       }
     });
     return finalDimensions;
-  }, [dimensions, enabledUncertaintyColumns, uncertaintyDomains, height]);
+  }, [
+    data,
+    dimensions,
+    enabledUncertaintyColumns,
+    uncertaintyDomains,
+    height,
+    clipExtremes
+  ]);
 
   const xScale = useMemo(
     () =>

@@ -89,6 +89,17 @@ export function SettingsParallelCoordinates() {
             Axes
           </Title>
           <Checkbox
+            label={'Clip extreme values (show 1st-99th percentile)'}
+            checked={settings.clipExtremes}
+            onChange={(event) =>
+              dispatch(
+                setParallelCoordinatesSettings({
+                  clipExtremes: event.currentTarget.checked
+                })
+              )
+            }
+          />
+          <Checkbox
             label={'Show violin plots'}
             checked={settings.axisViolinPlots.show}
             onChange={(e) =>

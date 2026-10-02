@@ -93,7 +93,7 @@ export function CornerPlotChart({
 
     selectedNumericColumns.forEach((column) => {
       const isLogScale = logScaleColumns.includes(column);
-      const domain = getScaleDomain(data, column, isLogScale, true);
+      const domain = getScaleDomain(data, column, isLogScale, settings.clipExtremes);
 
       if (!domain) {
         return;
@@ -108,7 +108,7 @@ export function CornerPlotChart({
     });
 
     return next;
-  }, [selectedNumericColumns, logScaleColumns, data, cellSize]);
+  }, [selectedNumericColumns, logScaleColumns, data, cellSize, settings.clipExtremes]);
 
   useCornerPlotFilterSync({ activeBrushes, data, scales });
 

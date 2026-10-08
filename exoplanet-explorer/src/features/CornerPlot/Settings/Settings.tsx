@@ -4,6 +4,7 @@ import {
   Checkbox,
   Drawer,
   Group,
+  InputLabel,
   Radio,
   Stack,
   Text,
@@ -11,6 +12,7 @@ import {
 } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 
+import { OpenChartWindow } from '@/components/OpenChartWindow';
 import { useAppDispatch, useAppSelector } from '@/redux/hooks';
 import { setCornerPlotSettings } from '@/redux/local/localSlice';
 
@@ -40,6 +42,11 @@ export function CornerPlotSettings() {
         size={420}
       >
         <Stack gap={'xs'}>
+          <Group>
+            <InputLabel>Open in separate window</InputLabel>
+            <OpenChartWindow chart={'scatterplotmatrix'} />
+          </Group>
+
           <CornerPlotColumnSelection primaryColumns={defaultColumns} />
 
           <Title order={3} size={'md'}>

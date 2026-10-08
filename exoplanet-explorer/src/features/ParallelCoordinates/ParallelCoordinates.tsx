@@ -6,7 +6,29 @@ import type { DataItem } from '@/types/types.ts';
 
 import { ParallelCoordinatesChart } from './Chart.tsx';
 
-export function ParallelCoordinates() {
+interface Props {
+  /**
+   * Whether the parallel coordinates chart is displayed in standalone mode.
+   */
+  standalone?: boolean;
+
+  /**
+   * Whether to hide the top bar of the chart, with settings and reset filter controls.
+   */
+  hideTopBar?: boolean;
+
+  /**
+   * Initially expanded uncertainty column, if any.
+   * Needs to match the column IDs in the dataset.
+   */
+  initialUncertaintyColumns?: string[];
+}
+
+export function ParallelCoordinates({
+  standalone = false,
+  hideTopBar = false,
+  initialUncertaintyColumns = []
+}: Props) {
   const { uncertainty } = useAppSelector((state) => state.data);
   const { selectedColumns, lineOpacity, showGhostLines } = useAppSelector(
     (state) => state.local.parallelCoordinates.settings
@@ -32,6 +54,9 @@ export function ParallelCoordinates() {
   return (
     <ParallelCoordinatesChart
       data={pcData}
+      hideTopBar={hideTopBar}
+      standalone={standalone}
+      initialUncertaintyColumns={initialUncertaintyColumns}
       defaultWidth={1200}
       defaultHeight={400}
       maxHeight={1000}

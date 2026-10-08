@@ -15,6 +15,9 @@ import { useBrushing, useChartScales } from './hooks.ts';
 
 interface Props {
   data: DataItem[];
+  hideTopBar?: boolean;
+  standalone?: boolean;
+  initialUncertaintyColumns?: Column[];
   uncertaintyData?: Record<Column, UncertaintyDataItem>[];
   defaultWidth?: number;
   defaultHeight?: number;
@@ -44,6 +47,9 @@ function useChartLayout(containerWidth: number, containerHeight: number) {
 
 export function ParallelCoordinatesChart({
   data,
+  standalone = false,
+  hideTopBar = false,
+  initialUncertaintyColumns = [],
   defaultWidth = 800,
   defaultHeight = 400,
   maxHeight = 1000,
@@ -56,7 +62,7 @@ export function ParallelCoordinatesChart({
 }: Props) {
   const [axisRenderKey, setAxisRenderKey] = useState(0);
   const [enabledUncertaintyColumns, setEnabledUncertaintyColumns] = useState<Column[]>(
-    []
+    () => [...initialUncertaintyColumns]
   );
 
   const orderedColumns = useAppSelector(
@@ -159,31 +165,35 @@ export function ParallelCoordinatesChart({
   );
 
   return (
-    <Stack gap={'xs'}>
-      <Group gap={'xs'} align={'center'}>
-        <SettingsParallelCoordinates />
-        <Button variant={'default'} size={'sm'} onClick={handleResetFilter}>
-          Clear filter
-        </Button>
-        <Group gap={5}>
-          <Text size={'md'} fw={500}>
-            {filteredData.rows.length}{' '}
-          </Text>
-          <Text size={'xs'} c={'dimmed'}>
-            / {data.length} planets shown
-          </Text>
-          <Text size={'xs'} c={'dimmed'} ml={'xs'}>
-            {nActiveBrushes} brush{nActiveBrushes === 1 ? '' : 'es'}
-          </Text>
+    <Stack gap={'xs'} style={standalone ? { height: '100%', minHeight: 450 } : undefined}>
+      {!hideTopBar && (
+        <Group gap={'xs'} align={'center'}>
+          <SettingsParallelCoordinates />
+          <Button variant={'default'} size={'sm'} onClick={handleResetFilter}>
+            Clear filter
+          </Button>
+          <Group gap={5}>
+            <Text size={'md'} fw={500}>
+              {filteredData.rows.length}{' '}
+            </Text>
+            <Text size={'xs'} c={'dimmed'}>
+              / {data.length} planets shown
+            </Text>
+            <Text size={'xs'} c={'dimmed'} ml={'xs'}>
+              {nActiveBrushes} brush{nActiveBrushes === 1 ? '' : 'es'}
+            </Text>
+          </Group>
         </Group>
-      </Group>
+      )}
       <Box
         style={{
-          resize: 'both',
-          height: defaultHeight,
-          maxHeight: maxHeight,
+          resize: standalone ? 'none' : 'both',
+          flex: standalone ? 1 : undefined,
+          height: standalone ? undefined : defaultHeight,
+          maxHeight: standalone ? undefined : maxHeight,
           minHeight: 200,
-          width: defaultWidth,
+          width: standalone ? '100%' : defaultWidth,
+          minWidth: standalone ? Math.max(600, dimensions.length * 90 + 250) : undefined,
           overflow: 'hidden'
         }}
         ref={containerRef}

@@ -1,8 +1,10 @@
 import { configureStore } from '@reduxjs/toolkit';
 
+import { startupConfig } from '@/utils/urlConfig';
+
 import { connectionReducer } from './connection/connectionSlice';
 import { dataSlice } from './data/dataSlice';
-import { localSlice } from './local/localSlice';
+import { localSlice, setAutoSyncOpenSpaceSelection } from './local/localSlice';
 import { listenerMiddleware } from './listenerMiddleware';
 
 export const store = configureStore({
@@ -14,6 +16,10 @@ export const store = configureStore({
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware().concat([listenerMiddleware.middleware])
 });
+
+if (startupConfig.autoSync !== undefined) {
+  store.dispatch(setAutoSyncOpenSpaceSelection(startupConfig.autoSync));
+}
 
 // Infer the `RootState` and `AppDispatch` types from the store itself
 export type RootState = ReturnType<typeof store.getState>;

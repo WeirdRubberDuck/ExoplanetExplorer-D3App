@@ -1,16 +1,26 @@
-import { Badge } from "@mantine/core";
+import { Badge } from '@mantine/core';
 
-import { ConnectionStatus } from "@/redux/connection/connectionSlice";
-import { useAppSelector } from "@/redux/hooks";
+import { ConnectionStatus } from '@/redux/connection/connectionSlice';
+import { useAppSelector } from '@/redux/hooks';
 
-export function ConnectionStatusHint() {
+interface Props {
+  short?: boolean;
+}
+
+export function ConnectionStatusHint({ short }: Props) {
   const isConnected = useAppSelector(
-    (state) => state.connection.connectionStatus === ConnectionStatus.Connected,
+    (state) => state.connection.connectionStatus === ConnectionStatus.Connected
   );
 
   return (
-    <Badge color={isConnected ? "green" : "red"}>
-      {isConnected ? "Connected to OpenSpace" : "Disconnected from OpenSpace"}
+    <Badge color={isConnected ? 'green' : 'red'}>
+      {isConnected
+        ? short
+          ? 'Connected'
+          : 'Connected to OpenSpace'
+        : short
+          ? 'Disconnected'
+          : 'Disconnected from OpenSpace'}
     </Badge>
   );
 }

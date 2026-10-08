@@ -6,7 +6,19 @@ import type { DataItem } from '@/types/types';
 
 import { CornerPlotChart } from './Chart';
 
-export function CornerPlot() {
+interface Props {
+  /**
+   * Whether the corner plot chart is displayed in standalone mode.
+   */
+  standalone?: boolean;
+
+  /**
+   * Whether to hide the top bar of the chart, with settings and reset filter controls.
+   */
+  hideTopBar?: boolean;
+}
+
+export function CornerPlot({ standalone = false, hideTopBar = false }: Props) {
   const { uncertainty } = useAppSelector((state) => state.data);
   const { selectedColumns } = useAppSelector((state) => state.local.cornerPlot.settings);
 
@@ -28,5 +40,13 @@ export function CornerPlot() {
     });
   }, [data, selectedColumns, uncertainty]);
 
-  return <CornerPlotChart data={cornerData} defaultWidth={900} defaultHeight={780} />;
+  return (
+    <CornerPlotChart
+      data={cornerData}
+      standalone={standalone}
+      hideTopBar={hideTopBar}
+      defaultWidth={900}
+      defaultHeight={780}
+    />
+  );
 }

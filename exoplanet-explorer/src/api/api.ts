@@ -2,7 +2,9 @@
 // In production mode, this allows OpenSpace to serve a custom address and port through
 // the backend nodejs application.
 
-import OpenSpaceApi from "openspace-api-js";
+import OpenSpaceApi from 'openspace-api-js';
+
+import { resolveApiEndpoint, startupConfig } from '@/utils/urlConfig';
 
 declare global {
   interface Window {
@@ -13,7 +15,6 @@ declare global {
   }
 }
 
-const address = window?.OpenSpaceEnvironment?.wsAddress || "localhost";
-const port = window?.OpenSpaceEnvironment?.wsPort || 4682;
+export const apiEndpoint = resolveApiEndpoint(startupConfig, window.OpenSpaceEnvironment);
 
-export const api = OpenSpaceApi(address, port);
+export const api = OpenSpaceApi(apiEndpoint.host, apiEndpoint.port);

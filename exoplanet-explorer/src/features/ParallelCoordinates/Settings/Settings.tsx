@@ -4,6 +4,7 @@ import {
   Checkbox,
   Drawer,
   Group,
+  InputLabel,
   Slider,
   Stack,
   Text,
@@ -11,6 +12,7 @@ import {
 } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 
+import { OpenChartWindow } from '@/components/OpenChartWindow';
 import { useAppDispatch, useAppSelector } from '@/redux/hooks.ts';
 import { setParallelCoordinatesSettings } from '@/redux/local/localSlice.ts';
 
@@ -44,6 +46,11 @@ export function SettingsParallelCoordinates() {
         size={400}
       >
         <Stack gap={'xs'}>
+          <Group>
+            <InputLabel>Open in separate window</InputLabel>
+            <OpenChartWindow chart={'parallelcoordinates'} />
+          </Group>
+
           <ColumnSelection primaryColumns={defaultColumns} />
 
           <Title order={3} size={'md'}>

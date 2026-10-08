@@ -16,6 +16,8 @@ import { buildNumericScale, getScaleDomain, type NumericScale } from './util';
 
 interface Props {
   data: DataItem[];
+  standalone?: boolean;
+  hideTopBar?: boolean;
   defaultWidth?: number;
   defaultHeight?: number;
 }
@@ -24,6 +26,8 @@ const margin = { top: 20, right: 0, bottom: 20, left: 72 };
 
 export function CornerPlotChart({
   data,
+  standalone = false,
+  hideTopBar = false,
   defaultWidth = 820,
   defaultHeight = 760
 }: Props) {
@@ -184,29 +188,39 @@ export function CornerPlotChart({
   }
 
   return (
-    <Stack gap={'xs'}>
-      <Group gap={'xs'}>
-        <CornerPlotSettings />
-        <Button variant={'default'} size={'sm'} onClick={clearCornerFilter}>
-          Clear filter
-        </Button>
-        <Text size={'xs'} c={'dimmed'}>
-          {visiblePointIds ? `${visiblePointIds.length} selected` : 'No corner filter'}
-        </Text>
-        <Text size={'xs'} c={'dimmed'}>
-          {activeBrushes.length} brush{activeBrushes.length === 1 ? '' : 'es'}
-        </Text>
-      </Group>
-      <Text size={'xs'} c={'dimmed'}>
-        • Hold Alt while dragging to replace previous brushes • Double-click cell to clear
-        brushes for that cell
-      </Text>
+    <Stack gap={'xs'} style={standalone ? { height: '100%', minHeight: 520 } : undefined}>
+      {!hideTopBar && (
+        <>
+          <Group gap={'xs'}>
+            <CornerPlotSettings />
+            <Button variant={'default'} size={'sm'} onClick={clearCornerFilter}>
+              Clear filter
+            </Button>
+            <Text size={'xs'} c={'dimmed'}>
+              {visiblePointIds
+                ? `${visiblePointIds.length} selected`
+                : 'No corner filter'}
+            </Text>
+            <Text size={'xs'} c={'dimmed'}>
+              {activeBrushes.length} brush{activeBrushes.length === 1 ? '' : 'es'}
+            </Text>
+          </Group>
+          <Text size={'xs'} c={'dimmed'}>
+            • Hold Alt while dragging to replace previous brushes • Double-click cell to
+            clear brushes for that cell
+          </Text>
+        </>
+      )}
       <Box
         style={{
-          resize: 'both',
-          height: defaultHeight,
+          resize: standalone ? 'none' : 'both',
+          flex: standalone ? 1 : undefined,
+          height: standalone ? undefined : defaultHeight,
           minHeight: 420,
-          width: defaultWidth,
+          width: standalone ? '100%' : defaultWidth,
+          minWidth: standalone
+            ? Math.max(420, selectedNumericColumns.length * 90 + 72)
+            : undefined,
           overflow: 'hidden'
         }}
         ref={containerRef}

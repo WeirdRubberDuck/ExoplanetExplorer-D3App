@@ -27,7 +27,7 @@ export function StandaloneChartHeader({ chart }: { chart: ChartMode }) {
               ? 'Parallel Coordinates'
               : 'Scatterplot Matrix'}
           </Text>
-          <ConnectionStatusHint short />
+          <ConnectionStatusHint />
         </Group>
         <Group gap={'sm'}>
           {autoSync && (

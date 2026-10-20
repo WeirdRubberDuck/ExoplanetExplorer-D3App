@@ -28,12 +28,12 @@ export function DataFileInput() {
 
   return (
     <Group gap={'xs'}>
-      <Text>Load CSV:</Text>
+      <Text size={'sm'}>Load CSV:</Text>
       <FileInput
         aria-label={'Upload CSV'}
         onChange={(file) => file && loadCsvData(file)}
         accept={'.csv'}
-        w={200}
+        w={100}
       />
     </Group>
   );

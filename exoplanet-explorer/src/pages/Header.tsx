@@ -1,5 +1,5 @@
 import { MdUpload } from 'react-icons/md';
-import { Button, Checkbox, Divider, Flex, Group, Text, Tooltip } from '@mantine/core';
+import { Button, Divider, Flex, Group, Switch, Text, Tooltip } from '@mantine/core';
 
 import { useOpenSpaceApi } from '@/api/hooks';
 import { ColorSchemeToggle } from '@/components/ColorSchemeToggle';
@@ -36,39 +36,52 @@ export function Header() {
   return (
     <Flex justify={'space-between'} align={'center'} h={'100%'}>
       <Group flex={1} wrap={'nowrap'}>
-        <Text>Exoplanet Explorer</Text>
-        <ConnectionStatusHint />
-        <Checkbox
-          label={'Auto-sync filtered planets from OpenSpace'}
-          checked={autoSyncOpenSpaceSelection}
-          onChange={(event) => {
-            dispatch(setAutoSyncOpenSpaceSelection(event.currentTarget.checked));
-          }}
-          disabled={!isConnected}
-        />
-        <Text size={'xs'} c={'dimmed'}>
-          {`(${filteringFromOpenSpace?.length ?? 0} planets)`}
-        </Text>
+        <Text fw={'bold'}>ExoplanetExplorer</Text>
         <Divider orientation={'vertical'} />
-        <Tooltip label={'Send the currently filtered planets to OpenSpace'}>
-          <Button
-            leftSection={<MdUpload size={IconSize.md} />}
-            onClick={() => {
-              luaApi?.setPropertyValueSingle(
-                'Modules.ExoplanetsExpertTool.ExoplanetsToolGui.DataViewer.ExternalSelection',
-                filteredIds ?? []
-              );
-            }}
-            disabled={!isConnected}
+        <ConnectionStatusHint />
+        <Group gap={'xs'}>
+          <Tooltip
+            label={
+              'Automatically sync filtering from OpenSpace so this page correctly reflects the current OpenSpace filter'
+            }
+            w={300}
           >
-            Send to OpenSpace
-          </Button>
-        </Tooltip>
-        <Text size={'xs'} c={'dimmed'}>
-          {`(${count !== undefined ? count : 'All'} planets)`}
-        </Text>
+            <Switch
+              label={'Auto-sync OpenSpace filter'}
+              checked={autoSyncOpenSpaceSelection}
+              onChange={(event) =>
+                dispatch(setAutoSyncOpenSpaceSelection(event.currentTarget.checked))
+              }
+              disabled={!isConnected}
+            />
+          </Tooltip>
+          <Text size={'xs'} c={'dimmed'}>
+            {`(${filteringFromOpenSpace?.length ?? 0} planets)`}
+          </Text>
+        </Group>
+        <Divider orientation={'vertical'} />
+        <Group gap={'xs'}>
+          <Tooltip label={'Send the currently filtered planets to OpenSpace'}>
+            <Button
+              leftSection={<MdUpload size={IconSize.md} />}
+              size={'sm'}
+              onClick={() => {
+                luaApi?.setPropertyValueSingle(
+                  'Modules.ExoplanetsExpertTool.ExoplanetsToolGui.DataViewer.ExternalSelection',
+                  filteredIds ?? []
+                );
+              }}
+              disabled={!isConnected}
+            >
+              Send to OpenSpace
+            </Button>
+          </Tooltip>
+          <Text size={'xs'} c={'dimmed'}>
+            {`(${count !== undefined ? count : 'All'} planets)`}
+          </Text>
+        </Group>
       </Group>
-      <Group>
+      <Group gap={'xs'}>
         <DataFileInput />
         <Settings />
         <ColorSchemeToggle />

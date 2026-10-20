@@ -16,7 +16,8 @@ const theme = createTheme({
     Tooltip: {
       defaultProps: {
         withArrow: true,
-        openDelay: 500
+        openDelay: 500,
+        multiline: true
       }
     }
   }

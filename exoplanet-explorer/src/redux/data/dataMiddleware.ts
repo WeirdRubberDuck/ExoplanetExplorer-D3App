@@ -8,6 +8,7 @@ import {
   resetCornerPlotColumns,
   resetParallelCoordinates,
   setCornerPlotSelectedColumns,
+  setHoveredItemId,
   setObjectNameColumn,
   setParallelCoordinatesColumnOrder,
   setParallelCoordinatesSelectedColumns
@@ -30,6 +31,20 @@ export const setupPropertySubscriptions = createAsyncThunk(
       for await (const data of subscription) {
         if (data && data.type === 'value') {
           thunkApi.dispatch(setFilteredPlanetsFromOpenSpace(data.value));
+        }
+      }
+    })();
+
+    const hoverSubscription = api.subscribeToProperty(
+      'Modules.ExoplanetsExpertTool.HoveredIndex'
+    );
+    (async () => {
+      for await (const data of hoverSubscription) {
+        if (data && data.type === 'value') {
+          const { value } = data;
+          if (typeof value === 'number' && Number.isInteger(value) && value >= -1) {
+            thunkApi.dispatch(setHoveredItemId(value === -1 ? undefined : value));
+          }
         }
       }
     })();

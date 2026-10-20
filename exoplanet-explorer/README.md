@@ -21,7 +21,8 @@ You can also open a chart directly using URL query parameters:
 | `columns` | Ordered, comma-separated dataset field IDs. Repeated parameters are combined; duplicates and whitespace are removed. Applies only to standalone charts. |
 | `uncertaintycolumns` | Parallel coordinates only: comma-separated base field IDs whose uncertainty axes should start expanded, for example `pl_bmasse,sy_dist` (not `pl_bmasse_err`). Repeated parameters are combined; duplicates and whitespace are removed. Omit it or use an empty value to leave all collapsed. |
 | `host` | IPv4 address or hostname of the OpenSpace API, not a URL. |
-| `port` | Integer from 1 to 65535. |
+| `apiport` | Integer from 1 to 65535. Corresponds to the `port` URL parameter for the API endpoint. |
+| `wsport` | Integer from 1 to 65535. Corresponds to the WebSocket endpoint port, used by the application the get data content hosted from OpenSpace. |
 | `autosync` | Exactly `true` or `false`; automatically applies filtering **from OpenSpace**. Default: `false`. Works in both standalone and dashboard views. |
 | `hidetopbar` | Exactly `true` or `false`; hides the top bar containing chart settings and controls. Default: `false`. |
 

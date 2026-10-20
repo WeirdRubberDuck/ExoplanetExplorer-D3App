@@ -5,7 +5,8 @@ export interface UrlConfig {
   columns?: string[];
   uncertaintyColumns?: string[];
   host?: string;
-  port?: number;
+  apiPort?: number;
+  wsPort?: number;
   autoSync?: boolean;
   hideTopBar?: boolean;
   warnings: string[];
@@ -58,13 +59,23 @@ export function parseUrlConfig(search: string): UrlConfig {
     }
   }
 
-  if (params.has('port')) {
-    const value = params.get('port')!;
+  if (params.has('apiport')) {
+    const value = params.get('apiport')!;
     const port = Number(value);
     if (/^\d+$/.test(value) && port >= 1 && port <= 65535) {
-      config.port = port;
+      config.apiPort = port;
     } else {
       config.warnings.push('Invalid API port; using the default port.');
+    }
+  }
+
+  if (params.has('wsport')) {
+    const value = params.get('wsport')!;
+    const port = Number(value);
+    if (/^\d+$/.test(value) && port >= 1 && port <= 65535) {
+      config.wsPort = port;
+    } else {
+      config.warnings.push('Invalid WebSocket port; using the default port.');
     }
   }
 
@@ -108,7 +119,17 @@ export function resolveApiEndpoint(
 ) {
   return {
     host: config.host ?? (environment?.wsAddress || 'localhost'),
-    port: config.port ?? (environment?.wsPort || 4682)
+    port: config.apiPort ?? (environment?.wsPort || 4682)
+  };
+}
+
+export function resolveWebSocketEndpoint(
+  config: UrlConfig,
+  environment?: { wsAddress?: string; wsPort?: number }
+) {
+  return {
+    host: config.host ?? (environment?.wsAddress || 'localhost'),
+    port: config.wsPort ?? (environment?.wsPort || 4680)
   };
 }
 

@@ -13,8 +13,16 @@ import {
 import { store } from '@/redux/store';
 import { getEligibleUncertaintyColumns, startupConfig } from '@/utils/urlConfig';
 
-// TODO: Load real data from a server or local file
-const dataUrl = new URL('../data/aggregated_data.json', import.meta.url).href;
+// OpenSpace serves the data on its websocket port.
+const openSpaceDataPath = 'exoplanetexplorer/data/aggregated_data.json';
+
+const dataUrl = import.meta.env.DEV
+  ? `/openspace/${openSpaceDataPath}`
+  : `http://localhost:4680/${openSpaceDataPath}`;
+
+// If we can't access the data from the OpenSpace server, use the local fallback URL.
+// This dataset will not be up to date compared to the OpenSpace server.
+const fallbackDataUrl = new URL('../data/aggregated_data.json', import.meta.url).href;
 
 interface PageInitialization {
   warnings: string[];
@@ -23,15 +31,36 @@ interface PageInitialization {
 
 let initialization: Promise<PageInitialization> | undefined;
 
+async function fetchPlanetData(url: string) {
+  const response = await fetch(url);
+  if (!response.ok) throw new Error(`Could not load planet data (${response.status}).`);
+  try {
+    return await response.json();
+  } catch {
+    throw new Error(
+      `Could not load planet data: response from ${url} is not valid JSON.`
+    );
+  }
+}
+
 function initializePage() {
   initialization ??= (async () => {
-    const response = await fetch(dataUrl);
-    if (!response.ok) {
-      throw new Error(`Could not load planet data (${response.status}).`);
+    let planetData;
+    let usedFallback = false;
+    try {
+      planetData = await fetchPlanetData(dataUrl);
+    } catch {
+      planetData = await fetchPlanetData(fallbackDataUrl);
+      usedFallback = true;
     }
-    store.dispatch(initializeData(await response.json()));
+    store.dispatch(initializeData(planetData));
 
     const warnings = [...startupConfig.warnings];
+    if (usedFallback) {
+      warnings.unshift(
+        'OpenSpace data could not be loaded; using the bundled dataset, which may be outdated.'
+      );
+    }
     const { chart, columns: requestedColumns } = startupConfig;
 
     if (chart && requestedColumns) {
@@ -80,6 +109,7 @@ function initializePage() {
 export function HomePage() {
   const [pageInitialization, setPageInitialization] = useState<PageInitialization>();
   const [error, setError] = useState<string>();
+  const [warningsDismissed, setWarningsDismissed] = useState(false);
 
   useEffect(() => {
     let active = true;
@@ -109,17 +139,31 @@ export function HomePage() {
 
   if (error)
     return (
-      <Alert color={'red'} title={'Data loading failed'}>
+      <Alert
+        color={'red'}
+        title={'Data loading failed'}
+        withCloseButton
+        onClose={() => setError(undefined)}
+      >
         {error}
       </Alert>
     );
-  if (!pageInitialization) return <Loader aria-label={'Loading planet data'} />;
+
+  if (!pageInitialization) {
+    return <Loader aria-label={'Loading planet data'} />;
+  }
 
   const { warnings, uncertaintyColumns } = pageInitialization;
 
   const warning =
-    warnings.length > 0 ? (
-      <Alert color={'yellow'} mb={'sm'} title={'URL configuration'}>
+    warnings.length > 0 && !warningsDismissed ? (
+      <Alert
+        color={'yellow'}
+        mb={'sm'}
+        title={'Startup warnings'}
+        withCloseButton
+        onClose={() => setWarningsDismissed(true)}
+      >
         {warnings.join(' ')}
       </Alert>
     ) : null;

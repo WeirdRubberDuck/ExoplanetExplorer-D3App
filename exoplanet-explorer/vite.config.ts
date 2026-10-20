@@ -5,7 +5,17 @@ import { defineConfig } from 'vite';
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [react()],
-  base: '/exoplanetexplorer/1/', // This is where the page is hosted on the server
+  base: './',
+  // base: '/exoplanetexplorer/1/', // This is where the page is hosted on the server
+  server: {
+    proxy: {
+      '/openspace': {
+        target: 'http://localhost:4680',
+        changeOrigin: true,
+        rewrite: (requestPath) => requestPath.replace(/^\/openspace/, '')
+      }
+    }
+  },
   resolve: {
     alias: {
       '@/api': path.resolve(__dirname, './src/api'),

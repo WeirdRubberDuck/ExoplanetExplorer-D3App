@@ -65,8 +65,16 @@ npm test
 npm run build
 ```
 
-The development URL is typically `http://localhost:5173/exoplanetexplorer/1/`.
-Tests use Node's built-in test runner and the existing TypeScript compiler.
+### Accessing the Data
+
+During development, Vite proxies `/openspace/*` requests to `http://localhost:4680`.
+This keeps the browser request same-origin and avoids CORS blocking when OpenSpace
+serves the planet data. If OpenSpace is not running or its data request fails, the
+app loads `src/data/aggregated_data.json` instead; this bundled copy may be stale.
+
+In production, ensure that the OpenSpace server is accessible and that the data path
+is correctly configured (it should be hosted by the local OpenSpace instance at
+`/exoplanetexplorer/data/aggregated_data.json`).
 
 ## Vite Template Notes
 

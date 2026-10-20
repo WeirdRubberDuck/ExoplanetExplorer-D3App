@@ -1,5 +1,23 @@
 # Exoplanet Explorer
 
+## Dataset Column Preferences
+
+Uploading a CSV file automatically updates the charts to use the columns in the uploaded dataset.
+
+- **Default settings:** Existing exoplanet settings are kept if the required columns are available.
+- **Fallback settings:** If those columns are missing, each chart uses up to eight columns from the file as default.
+- **Parallel Coordinates:** Supports both numeric and categorical columns.
+- **Scatterplot Matrix:** Uses only numeric columns.
+
+Chart selections, parallel-axis order and the name column are saved in browser local
+storage, separately for each filename and set of column names. The built-in dataset
+(based on the exoplanet archive data) has its own profile.
+
+Dataset contents are not stored. After a page refresh, choose the CSV again to
+restore its selections.
+
+Note that OpenSpace synchronization requires matching datasets and row order.
+
 ## Chart Windows
 
 Each chart toolbar has an **Open in New Window** control. It opens an independent
@@ -30,12 +48,12 @@ Endpoint precedence is per field: valid URL parameter, then the corresponding
 `window.OpenSpaceEnvironment` value, then `localhost` / `4682`. Invalid parameters
 show a warning and retain the fallback. Columns are validated against the loaded
 dataset; scatterplot matrices accept only numeric columns. Invalid columns are
-ignored, or chart defaults are retained if no valid columns remain. A matrix needs
+ignored, or saved/default columns are retained if no valid columns remain. A matrix needs
 at least two numeric columns to render.
 
 Uncertainty expansions must refer to selected numeric columns with uncertainty
 data. Unavailable or unselected entries are ignored with a warning; they do not
-add main columns implicitly. When `columns` is omitted, validation uses the default
+add main columns implicitly. When `columns` is omitted, validation uses the saved/default
 column selection. The existing uncertainty checkboxes remain editable after startup.
 
 Parameters configure initial state. Changing controls does not rewrite the URL;
@@ -61,7 +79,6 @@ Run commands from this directory:
 
 ```sh
 npm run dev
-npm test
 npm run build
 ```
 

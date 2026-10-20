@@ -18,6 +18,15 @@ export function SelectionList() {
   const fullData = useAppSelector((state) => state.data.full);
   const objectNameColumn = useAppSelector((state) => state.local.objectNameColumn);
 
+  const hasNames = useMemo(
+    () =>
+      fullData.some((row) => {
+        const name = row[objectNameColumn];
+        return name != null && String(name).trim() !== '';
+      }),
+    [fullData, objectNameColumn]
+  );
+
   const [ref, rect] = useResizeObserver();
 
   const defaultHeight = 800; // Default height if rect is not available
@@ -63,6 +72,7 @@ export function SelectionList() {
         mt={'xs'}
         size={'sm'}
         placeholder={'Search by name'}
+        disabled={!hasNames}
         leftSection={<MdSearch />}
         value={searchQuery}
         onChange={(event) => handleSearchChange(event.currentTarget.value)}
@@ -73,7 +83,11 @@ export function SelectionList() {
         }
       />
 
-      {idsToRender.length === 0 ? (
+      {!hasNames && fullData.length > 0 ? (
+        <Text size={'sm'} c={'dimmed'} mt={'xs'} role={'status'}>
+          No names loaded. Set the Object name column in page settings.
+        </Text>
+      ) : idsToRender.length === 0 ? (
         <Text size={'sm'} c={'dimmed'} mt={'xs'}>
           No rows matched the current filter.
         </Text>

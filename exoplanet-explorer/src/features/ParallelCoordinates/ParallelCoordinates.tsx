@@ -29,7 +29,7 @@ export function ParallelCoordinates({
   hideTopBar = false,
   initialUncertaintyColumns = []
 }: Props) {
-  const { uncertainty } = useAppSelector((state) => state.data);
+  const { uncertainty, datasetRevision } = useAppSelector((state) => state.data);
   const { selectedColumns, lineOpacity, showGhostLines } = useAppSelector(
     (state) => state.local.parallelCoordinates.settings
   );
@@ -53,10 +53,11 @@ export function ParallelCoordinates({
 
   return (
     <ParallelCoordinatesChart
+      key={datasetRevision}
       data={pcData}
       hideTopBar={hideTopBar}
       standalone={standalone}
-      initialUncertaintyColumns={initialUncertaintyColumns}
+      initialUncertaintyColumns={datasetRevision === 1 ? initialUncertaintyColumns : []}
       defaultWidth={1200}
       defaultHeight={400}
       maxHeight={1000}

@@ -53,7 +53,12 @@ function initializePage() {
       planetData = await fetchPlanetData(fallbackDataUrl);
       usedFallback = true;
     }
-    store.dispatch(initializeData(planetData));
+    store.dispatch(
+      initializeData({
+        rows: planetData,
+        source: { kind: 'builtin', name: 'exoplanets' }
+      })
+    );
 
     const warnings = [...startupConfig.warnings];
     if (usedFallback) {
@@ -71,7 +76,7 @@ function initializePage() {
           (chart === 'parallelcoordinates' || columnData[column]?.type === 'number')
       );
       if (selectedColumns.length === 0) {
-        warnings.push('No valid URL columns; using the default columns.');
+        warnings.push('No valid URL columns; keeping the saved or default columns.');
       } else {
         if (selectedColumns.length !== requestedColumns.length) {
           warnings.push('Unavailable or nonnumeric URL columns were ignored.');

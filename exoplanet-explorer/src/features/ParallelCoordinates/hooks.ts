@@ -41,7 +41,7 @@ export function useChartScales(
     () =>
       inferDimensions(
         data,
-        orderedColumns,
+        orderedColumns.filter((column) => Object.hasOwn(columnData, column)),
         logScaleColumns,
         columnData,
         height,

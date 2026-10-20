@@ -19,7 +19,7 @@ interface Props {
 }
 
 export function CornerPlot({ standalone = false, hideTopBar = false }: Props) {
-  const { uncertainty } = useAppSelector((state) => state.data);
+  const { uncertainty, datasetRevision } = useAppSelector((state) => state.data);
   const { selectedColumns } = useAppSelector((state) => state.local.cornerPlot.settings);
 
   const data = useBaseDataset();
@@ -42,6 +42,7 @@ export function CornerPlot({ standalone = false, hideTopBar = false }: Props) {
 
   return (
     <CornerPlotChart
+      key={datasetRevision}
       data={cornerData}
       standalone={standalone}
       hideTopBar={hideTopBar}

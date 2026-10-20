@@ -1,8 +1,19 @@
-import { createAsyncThunk } from '@reduxjs/toolkit';
+import { createAsyncThunk, isAnyOf } from '@reduxjs/toolkit';
 
 import { api } from '@/api/api';
 import { onOpenConnection } from '@/redux/connection/connectionSlice';
 import type { AppStartListening } from '@/redux/listenerMiddleware';
+import {
+  initializeDatasetColumns,
+  resetCornerPlotColumns,
+  resetParallelCoordinates,
+  setCornerPlotSelectedColumns,
+  setObjectNameColumn,
+  setParallelCoordinatesColumnOrder,
+  setParallelCoordinatesSelectedColumns
+} from '@/redux/local/localSlice';
+import { readColumnPreferences, writeColumnPreferences } from '@/utils/columnPreferences';
+import { resolveDatasetColumns } from '@/utils/datasetColumns';
 
 import { initializeData, setFilteredPlanetsFromOpenSpace } from './dataSlice';
 
@@ -28,15 +39,39 @@ export const setupPropertySubscriptions = createAsyncThunk(
 export const addDataListener = (startListening: AppStartListening) => {
   startListening({
     actionCreator: initializeData,
-    effect: async (_, listenerApi) => {
-      // For now just log the data to confirm it's being stored correctly. In the future,
-      // we can use this listener to trigger any additional processing we want to do on
-      // the data after it's loaded
-      console.log(
-        'Data initialized in Redux store:',
-        listenerApi.getState().data.full,
-        listenerApi.getState().data.uncertainty
+    effect: (_, listenerApi) => {
+      const { columns, columnData, datasetKey } = listenerApi.getState().data;
+      listenerApi.dispatch(
+        initializeDatasetColumns(
+          resolveDatasetColumns(columns, columnData, readColumnPreferences(datasetKey))
+        )
       );
+    }
+  });
+
+  // Listen for changes to local column preferences and persist them to local storage
+  startListening({
+    matcher: isAnyOf(
+      setParallelCoordinatesSelectedColumns,
+      setParallelCoordinatesColumnOrder,
+      setCornerPlotSelectedColumns,
+      setObjectNameColumn,
+      resetParallelCoordinates,
+      resetCornerPlotColumns
+    ),
+    effect: (_, listenerApi) => {
+      const { data, local } = listenerApi.getState();
+      if (!data.datasetKey) {
+        return;
+      }
+      writeColumnPreferences(data.datasetKey, {
+        objectNameColumn: local.objectNameColumn,
+        parallelCoordinates: {
+          selectedColumns: local.parallelCoordinates.settings.selectedColumns,
+          columnOrder: local.parallelCoordinates.columnOrder
+        },
+        cornerPlot: { selectedColumns: local.cornerPlot.settings.selectedColumns }
+      });
     }
   });
 

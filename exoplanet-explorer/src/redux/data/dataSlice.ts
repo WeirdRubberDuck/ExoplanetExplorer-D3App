@@ -1,25 +1,49 @@
-import { createSlice } from '@reduxjs/toolkit';
+import { createSlice, type PayloadAction } from '@reduxjs/toolkit';
 
 import type { Column, ColumnData, DataItem, UncertaintyDataItem } from '@/types/types';
+import { type DatasetSource, getDatasetKey } from '@/utils/datasetColumns';
 import { hasValue } from '@/utils/util';
 
 interface DataState {
-  // Data structures for full dataset, but with uncertainty data
-  // Note that the ID of each planet corresponds to the index in these lists
+  /**
+   * Identifies saved column preferences by source kind, source name and sorted column
+   * names. Unchanged filenames and columns reuse preferences even if values change.
+   */
+  datasetKey: string;
+  /**
+   * Session-local load counter, incremented on every initialization, even for the
+   * same dataset. Used as a React key to reset chart-local brushes and uncertainty
+   * axes without changing the dataset's saved preferences.
+   */
+  datasetRevision: number;
+  /**
+   * Full dataset including uncertainty data for each planet.
+   * The ID of each planet corresponds to the index in these lists.
+   */
   full: DataItem[];
   columns: Column[];
   columnData: Record<Column, ColumnData>;
 
-  // Just the uncertainty columns
+  /**
+   * Just the uncertainty columns corresponding to each planet in the full dataset.
+   */
   uncertainty: UncertaintyDataItem[];
-  // Uncertainty domains for each column (in percentage)
+
+  /**
+   * Uncertainty domains for each column (in percentage).
+   */
   uncertaintyDomains: Record<Column, { min: number; max: number }>;
 
-  // Number of planets currently included in OpenSpace's filtered rows property
+  /**
+   * Number of planets currently included in OpenSpace's filtered rows property.
+   */
+
   filteredPlanetsFromOpenSpace: number[] | undefined;
 }
 
 const initialState: DataState = {
+  datasetKey: '',
+  datasetRevision: 0,
   full: [],
   columns: [],
   columnData: {},
@@ -32,13 +56,21 @@ export const dataSlice = createSlice({
   name: 'data',
   initialState,
   reducers: {
-    initializeData: (state, action) => {
+    initializeData: (
+      state,
+      action: PayloadAction<{
+        rows: Record<string, DataItem[string]>[];
+        source: DatasetSource;
+      }>
+    ) => {
+      state.uncertaintyDomains = {};
+      state.filteredPlanetsFromOpenSpace = undefined;
       // Split the data into one part with the data values, and one with uncertainty
       // columns
       const fullData: DataItem[] = [];
       const uncertaintyData: UncertaintyDataItem[] = [];
 
-      action.payload.forEach((item: DataItem, index: number) => {
+      action.payload.rows.forEach((item, index: number) => {
         const newEntry: DataItem = { id: index };
         const uncertaintyEntry: UncertaintyDataItem = {};
         for (const key in item) {
@@ -94,6 +126,8 @@ export const dataSlice = createSlice({
       state.uncertainty = uncertaintyData;
 
       state.columns = Object.keys(fullData[0] || {}).filter((col) => col !== 'id');
+      state.datasetKey = getDatasetKey(action.payload.source, state.columns);
+      state.datasetRevision += 1;
       state.columnData = {};
 
       for (const key of state.columns) {

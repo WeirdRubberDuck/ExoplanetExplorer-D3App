@@ -6,28 +6,11 @@ import { createSlice, type PayloadAction } from '@reduxjs/toolkit';
 
 import { isSameColumnArray } from '@/features/ParallelCoordinates/util';
 import type { Column } from '@/types/types';
-
-const pcDefaultColumns: Column[] = [
-  'discoverymethod',
-  'sy_pnum',
-  'pl_bmasse',
-  'pl_rade',
-  'pl_orbincl',
-  'pl_Teq',
-  'sy_dist',
-  'st_age'
-];
-
-const cornerDefaultColumns: Column[] = [
-  'pl_bmasse',
-  'pl_rade',
-  'pl_orbper',
-  'pl_orbeccen',
-  'pl_orbsmax',
-  'pl_eqt',
-  'st_met',
-  'st_age'
-];
+import {
+  cornerDefaultColumns,
+  pcDefaultColumns,
+  resolveDatasetColumns
+} from '@/utils/datasetColumns';
 
 interface LocalState {
   crossFiltering: {
@@ -139,6 +122,41 @@ export const localSlice = createSlice({
   name: 'local',
   initialState,
   reducers: {
+    initializeDatasetColumns: (
+      state,
+      action: PayloadAction<ReturnType<typeof resolveDatasetColumns>>
+    ) => {
+      const { parallelCoordinates, cornerPlot, numericColumns } = action.payload;
+
+      state.objectNameColumn = action.payload.objectNameColumn;
+      state.parallelCoordinates.defaultColumns = parallelCoordinates.defaultColumns;
+
+      state.parallelCoordinates.settings.selectedColumns =
+        parallelCoordinates.selectedColumns;
+
+      state.parallelCoordinates.columnOrder = parallelCoordinates.columnOrder;
+
+      state.parallelCoordinates.columnSelectionIsDefault = isSameColumnArray(
+        parallelCoordinates.selectedColumns,
+        parallelCoordinates.defaultColumns
+      );
+
+      state.cornerPlot.defaultColumns = cornerPlot.defaultColumns;
+      state.cornerPlot.settings.selectedColumns = cornerPlot.selectedColumns;
+
+      state.cornerPlot.columnSelectionIsDefault = isSameColumnArray(
+        cornerPlot.selectedColumns,
+        cornerPlot.defaultColumns
+      );
+
+      state.parallelCoordinates.filteredIds = undefined;
+      state.cornerPlot.filteredIds = undefined;
+      state.hoveredId = undefined;
+
+      state.logScaleColumns = state.logScaleColumns.filter((column) =>
+        numericColumns.includes(column)
+      );
+    },
     setCrossFilteringSettings: (
       state,
       action: PayloadAction<Partial<LocalState['crossFiltering']>>
@@ -307,6 +325,7 @@ export const localSlice = createSlice({
 });
 
 export const {
+  initializeDatasetColumns,
   setCrossFilteringSettings,
 
   setParallelCoordinatesSelectedColumns,

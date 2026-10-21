@@ -105,7 +105,7 @@ export function getCellPointsFromRows(
         id: item.id,
         xValue: x,
         yValue: y,
-        x: xScaleMeta.scale(x),
+        x: xScaleMeta.xScale(x),
         y: yScaleMeta.scale(y)
       };
     })
@@ -141,7 +141,7 @@ export function getBrushSelectedIds(
       continue;
     }
 
-    const x = xScaleMeta.scale(xValue);
+    const x = xScaleMeta.xScale(xValue);
     const y = yScaleMeta.scale(yValue);
 
     if (x >= brush.minX && x <= brush.maxX && y >= brush.minY && y <= brush.maxY) {

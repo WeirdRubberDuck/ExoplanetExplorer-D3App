@@ -32,8 +32,8 @@ export function DiagonalHistogram({ points, xScaleMeta, cellSize }: Props) {
         const x0 = Math.max(domainMin, Math.min(domainMax, bin.x0 ?? domainMin));
         const x1 = Math.max(domainMin, Math.min(domainMax, bin.x1 ?? domainMax));
 
-        const leftPx = xScaleMeta.scale(x0);
-        const rightPx = xScaleMeta.scale(x1);
+        const leftPx = xScaleMeta.xScale(x0);
+        const rightPx = xScaleMeta.xScale(x1);
         const barX = Math.min(leftPx, rightPx);
         const barWidth = Math.max(1, Math.abs(rightPx - leftPx));
         const barY = yScale(bin.length);

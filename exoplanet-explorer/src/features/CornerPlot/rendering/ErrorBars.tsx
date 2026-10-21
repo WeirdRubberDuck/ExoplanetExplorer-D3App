@@ -11,20 +11,22 @@ function getErrorBarExtent(
   value: number,
   uncertainty: Uncertainty | undefined,
   scaleMeta: NumericScale,
-  cellSize: number
+  cellSize: number,
+  axis: 'x' | 'y'
 ) {
   if (!uncertainty || uncertainty.lower == null || uncertainty.upper == null) {
     return undefined;
   }
 
+  const scale = axis === 'x' ? scaleMeta.xScale : scaleMeta.scale;
   let low = value - Math.abs(uncertainty.lower);
   const high = value + Math.abs(uncertainty.upper);
   if (scaleMeta.isLogScale && low <= 0) {
-    [low] = scaleMeta.scale.domain();
+    [low] = scale.domain();
   }
 
-  const rawLow = scaleMeta.scale(low);
-  const rawHigh = scaleMeta.scale(high);
+  const rawLow = scale(low);
+  const rawHigh = scale(high);
   const pLow = clampToCell(rawLow, cellSize);
   const pHigh = clampToCell(rawHigh, cellSize);
   return { pLow, pHigh, lowClipped: pLow !== rawLow, highClipped: pHigh !== rawHigh };
@@ -47,8 +49,8 @@ export function ErrorBars({
   yScaleMeta,
   cellSize
 }: Props) {
-  const xBar = getErrorBarExtent(point.xValue, xUncertainty, xScaleMeta, cellSize);
-  const yBar = getErrorBarExtent(point.yValue, yUncertainty, yScaleMeta, cellSize);
+  const xBar = getErrorBarExtent(point.xValue, xUncertainty, xScaleMeta, cellSize, 'x');
+  const yBar = getErrorBarExtent(point.yValue, yUncertainty, yScaleMeta, cellSize, 'y');
 
   return (
     <g stroke={HIGHLIGHT_COLOR} strokeWidth={1.5} pointerEvents={'none'}>

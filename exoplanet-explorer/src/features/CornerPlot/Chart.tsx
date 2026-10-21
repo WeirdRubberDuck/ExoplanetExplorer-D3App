@@ -107,7 +107,8 @@ export function CornerPlotChart({
         column,
         isLogScale,
         domain,
-        scale: buildNumericScale(domain, [cellSize - 8, 8], isLogScale)
+        scale: buildNumericScale(domain, [cellSize - 8, 8], isLogScale),
+        xScale: buildNumericScale(domain, [8, cellSize - 8], isLogScale)
       });
     });
 

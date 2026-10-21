@@ -6,6 +6,7 @@ import { hasValue } from '@/utils/util';
 export interface NumericScale {
   column: Column;
   scale: d3.ScaleLinear<number, number> | d3.ScaleLogarithmic<number, number>;
+  xScale: d3.ScaleLinear<number, number> | d3.ScaleLogarithmic<number, number>;
   domain: [number, number];
   isLogScale: boolean;
 }

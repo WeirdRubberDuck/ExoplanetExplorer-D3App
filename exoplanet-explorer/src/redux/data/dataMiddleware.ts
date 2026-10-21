@@ -8,11 +8,14 @@ import {
   resetCornerPlotColumns,
   resetParallelCoordinates,
   setCornerPlotSelectedColumns,
+  setCornerPlotSettings,
+  setCrossFilteringSettings,
   setHoveredItemId,
   setLogScaleColumns,
   setObjectNameColumn,
   setParallelCoordinatesColumnOrder,
-  setParallelCoordinatesSelectedColumns
+  setParallelCoordinatesSelectedColumns,
+  setParallelCoordinatesSettings
 } from '@/redux/local/localSlice';
 import { readColumnPreferences, writeColumnPreferences } from '@/utils/columnPreferences';
 import { resolveDatasetColumns } from '@/utils/datasetColumns';
@@ -71,6 +74,9 @@ export const addDataListener = (startListening: AppStartListening) => {
       setParallelCoordinatesSelectedColumns,
       setParallelCoordinatesColumnOrder,
       setCornerPlotSelectedColumns,
+      setParallelCoordinatesSettings,
+      setCornerPlotSettings,
+      setCrossFilteringSettings,
       setLogScaleColumns,
       setObjectNameColumn,
       resetParallelCoordinates,
@@ -81,14 +87,23 @@ export const addDataListener = (startListening: AppStartListening) => {
       if (!data.datasetKey) {
         return;
       }
+      const { selectedColumns: parallelColumns, ...parallelSettings } =
+        local.parallelCoordinates.settings;
+      const { selectedColumns: cornerColumns, ...cornerSettings } =
+        local.cornerPlot.settings;
       writeColumnPreferences(data.datasetKey, {
+        crossFiltering: local.crossFiltering,
         logScaleColumns: local.logScaleColumns,
         objectNameColumn: local.objectNameColumn,
         parallelCoordinates: {
-          selectedColumns: local.parallelCoordinates.settings.selectedColumns,
-          columnOrder: local.parallelCoordinates.columnOrder
+          selectedColumns: parallelColumns,
+          columnOrder: local.parallelCoordinates.columnOrder,
+          settings: parallelSettings
         },
-        cornerPlot: { selectedColumns: local.cornerPlot.settings.selectedColumns }
+        cornerPlot: {
+          selectedColumns: cornerColumns,
+          settings: cornerSettings
+        }
       });
     }
   });

@@ -1,13 +1,28 @@
+import type { LocalState } from '@/redux/local/localSlice';
 import type { Column, ColumnData } from '@/types/types';
 
 export interface ColumnPreferences {
   objectNameColumn?: Column;
   logScaleColumns?: Column[];
+  crossFiltering?: Partial<LocalState['crossFiltering']>;
   parallelCoordinates: {
     selectedColumns: Column[];
     columnOrder: Column[];
+    settings?: Partial<
+      Omit<
+        LocalState['parallelCoordinates']['settings'],
+        'selectedColumns' | 'axisViolinPlots'
+      >
+    > & {
+      axisViolinPlots?: Partial<
+        LocalState['parallelCoordinates']['settings']['axisViolinPlots']
+      >;
+    };
   };
-  cornerPlot: { selectedColumns: Column[] };
+  cornerPlot: {
+    selectedColumns: Column[];
+    settings?: Partial<Omit<LocalState['cornerPlot']['settings'], 'selectedColumns'>>;
+  };
 }
 
 export const pcDefaultColumns: Column[] = [
@@ -102,6 +117,7 @@ export function resolveDatasetColumns(
   ].filter((column) => parallelSelected.includes(column));
 
   return {
+    crossFiltering: saved?.crossFiltering,
     logScaleColumns: [...new Set(saved?.logScaleColumns ?? [])].filter((column) => {
       const metadata = columnData[column];
       return (
@@ -115,11 +131,16 @@ export function resolveDatasetColumns(
         ? saved.objectNameColumn
         : 'pl_name',
     parallelCoordinates: {
+      settings: saved?.parallelCoordinates.settings,
       defaultColumns: parallelDefaults,
       selectedColumns: parallelSelected,
       columnOrder
     },
-    cornerPlot: { defaultColumns: cornerDefaults, selectedColumns: cornerSelected },
+    cornerPlot: {
+      settings: saved?.cornerPlot.settings,
+      defaultColumns: cornerDefaults,
+      selectedColumns: cornerSelected
+    },
     numericColumns
   };
 }

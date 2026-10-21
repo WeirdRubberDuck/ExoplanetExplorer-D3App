@@ -6,6 +6,10 @@ function isStringArray(value: unknown): value is string[] {
   return Array.isArray(value) && value.every((item) => typeof item === 'string');
 }
 
+function readBoolean(value: unknown): boolean | undefined {
+  return typeof value === 'boolean' ? value : undefined;
+}
+
 /**
  * Get the column preferences from local storage for the given dataset.
  *
@@ -24,7 +28,13 @@ export function readColumnPreferences(datasetKey: string): ColumnPreferences | u
       !isStringArray(parsed.cornerPlot?.selectedColumns)
     )
       return undefined;
+    const parallel = parsed.parallelCoordinates.settings;
+    const corner = parsed.cornerPlot.settings;
     return {
+      crossFiltering: {
+        cornerAffectsParallel: readBoolean(parsed.crossFiltering?.cornerAffectsParallel),
+        parallelAffectsCorner: readBoolean(parsed.crossFiltering?.parallelAffectsCorner)
+      },
       logScaleColumns: isStringArray(parsed.logScaleColumns)
         ? parsed.logScaleColumns
         : undefined,
@@ -32,9 +42,37 @@ export function readColumnPreferences(datasetKey: string): ColumnPreferences | u
         typeof parsed.objectNameColumn === 'string' ? parsed.objectNameColumn : undefined,
       parallelCoordinates: {
         selectedColumns: parsed.parallelCoordinates.selectedColumns,
-        columnOrder: parsed.parallelCoordinates.columnOrder
+        columnOrder: parsed.parallelCoordinates.columnOrder,
+        settings: {
+          lineOpacity:
+            typeof parallel?.lineOpacity === 'number' &&
+            Number.isFinite(parallel.lineOpacity) &&
+            parallel.lineOpacity >= 0 &&
+            parallel.lineOpacity <= 1
+              ? parallel.lineOpacity
+              : undefined,
+          showGhostLines: readBoolean(parallel?.showGhostLines),
+          showTextOnHighlightedLine: readBoolean(parallel?.showTextOnHighlightedLine),
+          clipExtremes: readBoolean(parallel?.clipExtremes),
+          axisViolinPlots: {
+            show: readBoolean(parallel?.axisViolinPlots?.show),
+            showMissingValueLobe: readBoolean(
+              parallel?.axisViolinPlots?.showMissingValueLobe
+            )
+          }
+        }
       },
-      cornerPlot: { selectedColumns: parsed.cornerPlot.selectedColumns }
+      cornerPlot: {
+        selectedColumns: parsed.cornerPlot.selectedColumns,
+        settings: {
+          renderMode:
+            corner?.renderMode === 'scatter' || corner?.renderMode === 'density'
+              ? corner.renderMode
+              : undefined,
+          invertLayout: readBoolean(corner?.invertLayout),
+          clipExtremes: readBoolean(corner?.clipExtremes)
+        }
+      }
     };
   } catch {
     return undefined;

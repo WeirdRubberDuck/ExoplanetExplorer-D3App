@@ -12,7 +12,7 @@ import {
   resolveDatasetColumns
 } from '@/utils/datasetColumns';
 
-interface LocalState {
+export interface LocalState {
   crossFiltering: {
     cornerAffectsParallel: boolean;
     parallelAffectsCorner: boolean;
@@ -127,12 +127,38 @@ export const localSlice = createSlice({
       action: PayloadAction<ReturnType<typeof resolveDatasetColumns>>
     ) => {
       const { parallelCoordinates, cornerPlot } = action.payload;
+      const parallel = parallelCoordinates.settings;
+      const corner = cornerPlot.settings;
+      const parallelDefaults = initialState.parallelCoordinates.settings;
+      const cornerDefaults = initialState.cornerPlot.settings;
+
+      state.crossFiltering = {
+        cornerAffectsParallel:
+          action.payload.crossFiltering?.cornerAffectsParallel ??
+          initialState.crossFiltering.cornerAffectsParallel,
+        parallelAffectsCorner:
+          action.payload.crossFiltering?.parallelAffectsCorner ??
+          initialState.crossFiltering.parallelAffectsCorner
+      };
 
       state.objectNameColumn = action.payload.objectNameColumn;
       state.parallelCoordinates.defaultColumns = parallelCoordinates.defaultColumns;
 
-      state.parallelCoordinates.settings.selectedColumns =
-        parallelCoordinates.selectedColumns;
+      state.parallelCoordinates.settings = {
+        selectedColumns: parallelCoordinates.selectedColumns,
+        lineOpacity: parallel?.lineOpacity ?? parallelDefaults.lineOpacity,
+        showGhostLines: parallel?.showGhostLines ?? parallelDefaults.showGhostLines,
+        showTextOnHighlightedLine:
+          parallel?.showTextOnHighlightedLine ??
+          parallelDefaults.showTextOnHighlightedLine,
+        clipExtremes: parallel?.clipExtremes ?? parallelDefaults.clipExtremes,
+        axisViolinPlots: {
+          show: parallel?.axisViolinPlots?.show ?? parallelDefaults.axisViolinPlots.show,
+          showMissingValueLobe:
+            parallel?.axisViolinPlots?.showMissingValueLobe ??
+            parallelDefaults.axisViolinPlots.showMissingValueLobe
+        }
+      };
 
       state.parallelCoordinates.columnOrder = parallelCoordinates.columnOrder;
 
@@ -142,7 +168,12 @@ export const localSlice = createSlice({
       );
 
       state.cornerPlot.defaultColumns = cornerPlot.defaultColumns;
-      state.cornerPlot.settings.selectedColumns = cornerPlot.selectedColumns;
+      state.cornerPlot.settings = {
+        selectedColumns: cornerPlot.selectedColumns,
+        renderMode: corner?.renderMode ?? cornerDefaults.renderMode,
+        invertLayout: corner?.invertLayout ?? cornerDefaults.invertLayout,
+        clipExtremes: corner?.clipExtremes ?? cornerDefaults.clipExtremes
+      };
 
       state.cornerPlot.columnSelectionIsDefault = isSameColumnArray(
         cornerPlot.selectedColumns,

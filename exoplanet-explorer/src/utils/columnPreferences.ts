@@ -25,6 +25,9 @@ export function readColumnPreferences(datasetKey: string): ColumnPreferences | u
     )
       return undefined;
     return {
+      logScaleColumns: isStringArray(parsed.logScaleColumns)
+        ? parsed.logScaleColumns
+        : undefined,
       objectNameColumn:
         typeof parsed.objectNameColumn === 'string' ? parsed.objectNameColumn : undefined,
       parallelCoordinates: {

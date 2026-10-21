@@ -126,7 +126,7 @@ export const localSlice = createSlice({
       state,
       action: PayloadAction<ReturnType<typeof resolveDatasetColumns>>
     ) => {
-      const { parallelCoordinates, cornerPlot, numericColumns } = action.payload;
+      const { parallelCoordinates, cornerPlot } = action.payload;
 
       state.objectNameColumn = action.payload.objectNameColumn;
       state.parallelCoordinates.defaultColumns = parallelCoordinates.defaultColumns;
@@ -153,9 +153,7 @@ export const localSlice = createSlice({
       state.cornerPlot.filteredIds = undefined;
       state.hoveredId = undefined;
 
-      state.logScaleColumns = state.logScaleColumns.filter((column) =>
-        numericColumns.includes(column)
-      );
+      state.logScaleColumns = action.payload.logScaleColumns;
     },
     setCrossFilteringSettings: (
       state,

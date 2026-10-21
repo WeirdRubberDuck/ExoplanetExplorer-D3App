@@ -9,8 +9,8 @@ Uploading a CSV file automatically updates the charts to use the columns in the 
 - **Parallel Coordinates:** Supports both numeric and categorical columns.
 - **Scatterplot Matrix:** Uses only numeric columns.
 
-Chart selections, parallel-axis order and the name column are saved in browser local
-storage, separately for each filename and set of column names. The built-in dataset
+Chart selections, parallel-axis order, the name column and log-scale columns are saved
+in browser local storage, separately for each filename and set of column names. The built-in dataset
 (based on the exoplanet archive data) has its own profile.
 
 Dataset contents are not stored. After a page refresh, choose the CSV again to

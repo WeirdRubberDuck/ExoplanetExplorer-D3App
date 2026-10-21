@@ -2,6 +2,7 @@ import type { Column, ColumnData } from '@/types/types';
 
 export interface ColumnPreferences {
   objectNameColumn?: Column;
+  logScaleColumns?: Column[];
   parallelCoordinates: {
     selectedColumns: Column[];
     columnOrder: Column[];
@@ -101,6 +102,12 @@ export function resolveDatasetColumns(
   ].filter((column) => parallelSelected.includes(column));
 
   return {
+    logScaleColumns: [...new Set(saved?.logScaleColumns ?? [])].filter((column) => {
+      const metadata = columnData[column];
+      return (
+        columns.includes(column) && metadata?.type === 'number' && !metadata.isUncertainty
+      );
+    }),
     objectNameColumn:
       saved?.objectNameColumn &&
       columns.includes(saved.objectNameColumn) &&

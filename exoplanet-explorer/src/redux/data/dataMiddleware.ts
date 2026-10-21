@@ -9,6 +9,7 @@ import {
   resetParallelCoordinates,
   setCornerPlotSelectedColumns,
   setHoveredItemId,
+  setLogScaleColumns,
   setObjectNameColumn,
   setParallelCoordinatesColumnOrder,
   setParallelCoordinatesSelectedColumns
@@ -70,6 +71,7 @@ export const addDataListener = (startListening: AppStartListening) => {
       setParallelCoordinatesSelectedColumns,
       setParallelCoordinatesColumnOrder,
       setCornerPlotSelectedColumns,
+      setLogScaleColumns,
       setObjectNameColumn,
       resetParallelCoordinates,
       resetCornerPlotColumns
@@ -80,6 +82,7 @@ export const addDataListener = (startListening: AppStartListening) => {
         return;
       }
       writeColumnPreferences(data.datasetKey, {
+        logScaleColumns: local.logScaleColumns,
         objectNameColumn: local.objectNameColumn,
         parallelCoordinates: {
           selectedColumns: local.parallelCoordinates.settings.selectedColumns,

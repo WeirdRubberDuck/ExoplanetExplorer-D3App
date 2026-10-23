@@ -22,6 +22,7 @@ export function OpenChartWindow({ chart }: Props) {
   }
 
   const label = `Open ${chart === 'parallelcoordinates' ? 'parallel coordinates' : 'scatterplot matrix'} in a new window`;
+
   return (
     <Tooltip label={label}>
       <ActionIcon
@@ -35,7 +36,7 @@ export function OpenChartWindow({ chart }: Props) {
             autoSync,
             ...apiEndpoint
           });
-          window.open(url, '_blank', 'popup,width=1200,height=900,noopener,noreferrer');
+          window.open(url, '_blank');
         }}
       >
         <MdOpenInNew size={16} />

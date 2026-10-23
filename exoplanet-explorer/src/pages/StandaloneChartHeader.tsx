@@ -4,9 +4,8 @@ import { ColorSchemeToggle } from '@/components/ColorSchemeToggle';
 import { ConnectionStatusHint } from '@/components/ConnectionStatusHint';
 import { useAppDispatch, useAppSelector } from '@/redux/hooks';
 import { setAutoSyncOpenSpaceSelection } from '@/redux/local/localSlice';
-import type { ChartMode } from '@/utils/urlConfig';
 
-export function StandaloneChartHeader({ chart }: { chart: ChartMode }) {
+export function StandaloneChartHeader() {
   const dispatch = useAppDispatch();
   const autoSync = useAppSelector((state) => state.local.autoSyncOpenSpaceSelection);
   const filteredIds = useAppSelector((state) => state.data.filteredPlanetsFromOpenSpace);
@@ -21,14 +20,7 @@ export function StandaloneChartHeader({ chart }: { chart: ChartMode }) {
       }}
     >
       <Group justify={'space-between'} gap={'sm'}>
-        <Group gap={'sm'}>
-          <Text fw={600}>
-            {chart === 'parallelcoordinates'
-              ? 'Parallel Coordinates'
-              : 'Scatterplot Matrix'}
-          </Text>
-          <ConnectionStatusHint />
-        </Group>
+        <ConnectionStatusHint />
         <Group gap={'sm'}>
           {autoSync && (
             <Text size={'xs'} c={'dimmed'} mt={4} role={'status'}>

@@ -37,7 +37,7 @@ export default function App() {
                 overflow: 'hidden'
               }}
             >
-              <StandaloneChartHeader chart={startupConfig.chart} />
+              <StandaloneChartHeader />
               <Box
                 component={'main'}
                 p={'md'}

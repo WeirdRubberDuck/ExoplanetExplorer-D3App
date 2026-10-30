@@ -1,50 +1,74 @@
 import { useState } from 'react';
-import { FileInput, Group, Text, Tooltip } from '@mantine/core';
-import Papa from 'papaparse';
+import { Alert, Box, FileInput, Group, Popover, Text, Tooltip } from '@mantine/core';
 
 import { initializeData } from '@/redux/data/dataSlice';
 import { useAppDispatch } from '@/redux/hooks';
-import type { Value } from '@/types/types';
+import { parseDataset } from '@/utils/datasetParsing';
 
-// This is a temporary component to load the CSV data into the Redux store, from a
-// local file. The data file must match the one used in OpenSpace
 export function DataFileInput() {
   const dispatch = useAppDispatch();
-  const [fileName, setFileName] = useState<string | null>(null);
+  const [loadedFile, setLoadedFile] = useState<File | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  const loadCsvData = async (file: File) => {
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      const csvData = e.target?.result as string;
-      // Parse CSV data
-      const { data } = Papa.parse<Record<string, Value>>(csvData, {
-        comments: '#', // Ignore lines starting with '#'
-        header: true, // Assuming the first row contains headers
-        skipEmptyLines: true, // Skip empty lines
-        dynamicTyping: true // Automatically convert data types (string/number)
-      });
-
-      dispatch(initializeData({ rows: data, source: { kind: 'file', name: file.name } }));
-    };
-    reader.readAsText(file);
+  const loadData = async (file: File) => {
+    setLoading(true);
+    setError(null);
+    try {
+      const rows = parseDataset(await file.text(), file.name);
+      dispatch(initializeData({ rows, source: { kind: 'file', name: file.name } }));
+      setLoadedFile(file);
+    } catch (reason) {
+      setError(reason instanceof Error ? reason.message : 'Could not read dataset file.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
     <Group gap={'xs'}>
-      <Text size={'sm'}>Load CSV:</Text>
-      <Tooltip label={fileName ?? 'Click to upload a CSV file'}>
-        <FileInput
-          aria-label={'Upload CSV'}
-          onChange={(file) => {
-            if (file) {
-              setFileName(file.name);
-              loadCsvData(file);
-            }
-          }}
-          accept={'.csv'}
-          w={100}
-        />
-      </Tooltip>
+      <Text size={'sm'}>Load data:</Text>
+      <Popover
+        opened={Boolean(error)}
+        onChange={(opened) => {
+          if (!opened) setError(null);
+        }}
+        position={'bottom-end'}
+        width={300}
+        withinPortal
+      >
+        <Popover.Target>
+          <Box>
+            <Tooltip label={loadedFile?.name ?? 'Upload a CSV or JSON file'}>
+              <FileInput
+                aria-label={'Upload CSV or JSON'}
+                aria-busy={loading}
+                value={loadedFile}
+                disabled={loading}
+                error={Boolean(error)}
+                onChange={(file) => {
+                  if (file) void loadData(file);
+                }}
+                accept={'.csv,.json'}
+                w={100}
+              />
+            </Tooltip>
+          </Box>
+        </Popover.Target>
+        <Popover.Dropdown p={0} style={{ maxWidth: 'calc(100vw - 24px)' }}>
+          <Alert
+            color={'red'}
+            title={'Dataset not loaded'}
+            withCloseButton
+            closeButtonLabel={'Dismiss dataset error'}
+            onClose={() => setError(null)}
+            role={'alert'}
+            style={{ overflowWrap: 'anywhere' }}
+          >
+            {error}
+          </Alert>
+        </Popover.Dropdown>
+      </Popover>
     </Group>
   );
 }

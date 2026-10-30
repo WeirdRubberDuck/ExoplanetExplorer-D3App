@@ -2,7 +2,7 @@
 
 ## Dataset Column Preferences
 
-Uploading a CSV file automatically updates the charts to use the columns in the uploaded dataset.
+Uploading a CSV or JSON file automatically updates the charts to use the columns in the uploaded dataset.
 
 - **Default settings:** Existing exoplanet settings are kept if the required columns are available.
 - **Fallback settings:** If those columns are missing, each chart uses up to eight columns from the file as default.
@@ -13,10 +13,27 @@ Chart selections, parallel-axis order, the name column and log-scale columns are
 in browser local storage, separately for each filename and set of column names. The built-in dataset
 (based on the exoplanet archive data) has its own profile.
 
-Dataset contents are not stored. After a page refresh, choose the CSV again to
+Dataset contents are not stored. After a page refresh, choose the file again to
 restore its selections.
 
 Note that OpenSpace synchronization requires matching datasets and row order.
+
+### Dataset Formats
+
+Both startup loading and local uploads select the parser from the file extension
+(`.csv` or `.json`, case-insensitive), not the file contents or MIME type.
+
+- **JSON:** A nonempty array of flat row objects. Values must be strings, finite
+  numbers, or `null`; nested objects, arrays and booleans are not supported.
+- **CSV:** A header row with unique, nonempty column names followed by at least
+  one data row. Each row must have the same number of fields as the header.
+  Quoted commas and multiline fields are supported. Empty lines and lines
+  starting with `#` are ignored. Empty cells become `null`, ordinary numeric
+  values become numbers, and other values remain strings.
+- Empty strings and `null` are treated as missing values by the charts. Row order
+  is preserved, including uncertainty columns ending in `err1` and `err2`.
+
+Malformed uploads show an error and leave the currently loaded dataset unchanged.
 
 ## Chart Windows
 
@@ -64,7 +81,7 @@ With sync enabled, the chart waits for OpenSpace filtering; an empty remote
 selection remains empty. Filtering is not automatically sent back to OpenSpace.
 
 Windows do not share settings or selections directly. Launching does not copy
-brushes, other visual settings, or uploaded CSV data: each window loads the bundled
+brushes, other visual settings, or uploaded dataset contents: each window loads the bundled
 dataset and connects to OpenSpace independently. OpenSpace filtering uses row
 indices, so its dataset and row order must match the browser's dataset.
 
@@ -92,6 +109,12 @@ app loads `src/data/aggregated_data.json` instead; this bundled copy may be stal
 In production, ensure that the OpenSpace server is accessible and that the data path
 is correctly configured (it should be hosted by the local OpenSpace instance at
 `/exoplanetexplorer/data/aggregated_data.json`).
+
+To load CSV at startup instead, change the `openSpaceDataPath` constant in
+`src/pages/HomePage.tsx` to the served CSV path, for example
+`exoplanetexplorer/data/aggregated_data.csv`. Its extension determines how the
+response is parsed. The default remains JSON; no alternate filename is probed.
+A fetch, parsing or validation failure still uses the bundled JSON fallback.
 
 ## Vite Template Notes
 

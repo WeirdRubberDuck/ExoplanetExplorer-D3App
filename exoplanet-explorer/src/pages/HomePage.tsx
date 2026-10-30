@@ -11,10 +11,11 @@ import {
   setParallelCoordinatesSelectedColumns
 } from '@/redux/local/localSlice';
 import { store } from '@/redux/store';
+import { parseDataset } from '@/utils/datasetParsing';
 import { getEligibleUncertaintyColumns, startupConfig } from '@/utils/urlConfig';
 
 // OpenSpace serves the data on its websocket port.
-const openSpaceDataPath = 'exoplanetexplorer/data/aggregated_data.json';
+const openSpaceDataPath = 'exoplanetexplorer/data/aggregated_data.csv';
 
 const dataUrl = import.meta.env.DEV
   ? `/openspace/${openSpaceDataPath}`
@@ -35,10 +36,10 @@ async function fetchPlanetData(url: string) {
   const response = await fetch(url);
   if (!response.ok) throw new Error(`Could not load planet data (${response.status}).`);
   try {
-    return await response.json();
-  } catch {
+    return parseDataset(await response.text(), url);
+  } catch (reason) {
     throw new Error(
-      `Could not load planet data: response from ${url} is not valid JSON.`
+      `Could not load planet data from ${url}: ${reason instanceof Error ? reason.message : 'Could not read dataset.'}`
     );
   }
 }

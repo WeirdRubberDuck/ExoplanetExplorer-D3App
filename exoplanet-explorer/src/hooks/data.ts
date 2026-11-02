@@ -12,15 +12,16 @@ export function useBaseDataset() {
 
   const fullDataset = useAppSelector((state) => state.data.full);
   const filteredIds = useAppSelector((state) => state.data.filteredPlanetsFromOpenSpace);
+  const hasActiveFilters = useAppSelector((state) => state.data.hasActiveFilters);
 
   const filteredDataset = useMemo(() => {
-    if (!filteredIds || filteredIds.length === 0) {
-      return [];
+    if (filteredIds === undefined) {
+      return fullDataset;
     }
     return fullDataset.filter((planet) => filteredIds.includes(planet.id));
   }, [fullDataset, filteredIds]);
 
-  if (!autoSyncOpenSpaceSelection) {
+  if (!autoSyncOpenSpaceSelection || hasActiveFilters !== true) {
     return fullDataset;
   }
 

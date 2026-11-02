@@ -37,8 +37,8 @@ interface DataState {
   /**
    * Number of planets currently included in OpenSpace's filtered rows property.
    */
-
   filteredPlanetsFromOpenSpace: number[] | undefined;
+  hasActiveFilters: boolean | undefined;
 }
 
 const initialState: DataState = {
@@ -49,7 +49,8 @@ const initialState: DataState = {
   columnData: {},
   uncertainty: [],
   uncertaintyDomains: {},
-  filteredPlanetsFromOpenSpace: undefined
+  filteredPlanetsFromOpenSpace: undefined,
+  hasActiveFilters: undefined
 };
 
 export const dataSlice = createSlice({
@@ -167,12 +168,16 @@ export const dataSlice = createSlice({
         }
       }
     },
-    setFilteredPlanetsFromOpenSpace: (state, action) => {
+    setFilteredPlanetsFromOpenSpace: (state, action: PayloadAction<number[]>) => {
       state.filteredPlanetsFromOpenSpace = action.payload;
+    },
+    setHasActiveFilters: (state, action: PayloadAction<boolean>) => {
+      state.hasActiveFilters = action.payload;
     }
   }
 });
 
-export const { initializeData, setFilteredPlanetsFromOpenSpace } = dataSlice.actions;
+export const { initializeData, setFilteredPlanetsFromOpenSpace, setHasActiveFilters } =
+  dataSlice.actions;
 
 export default dataSlice.reducer;

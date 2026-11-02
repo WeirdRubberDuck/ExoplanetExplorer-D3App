@@ -20,7 +20,11 @@ import {
 import { readColumnPreferences, writeColumnPreferences } from '@/utils/columnPreferences';
 import { resolveDatasetColumns } from '@/utils/datasetColumns';
 
-import { initializeData, setFilteredPlanetsFromOpenSpace } from './dataSlice';
+import {
+  initializeData,
+  setFilteredPlanetsFromOpenSpace,
+  setHasActiveFilters
+} from './dataSlice';
 
 export const setupPropertySubscriptions = createAsyncThunk(
   'data/setupPropertySubscriptions',
@@ -33,8 +37,27 @@ export const setupPropertySubscriptions = createAsyncThunk(
     );
     (async () => {
       for await (const data of subscription) {
-        if (data && data.type === 'value') {
+        if (
+          data &&
+          data.type === 'value' &&
+          Array.isArray(data.value) &&
+          data.value.every(
+            (id): id is number => typeof id === 'number' && Number.isInteger(id)
+          )
+        ) {
           thunkApi.dispatch(setFilteredPlanetsFromOpenSpace(data.value));
+        }
+      }
+    })();
+
+    const activeFiltersSubscription = api.subscribeToProperty(
+      'Modules.ExoplanetExplorer.HasActiveFilters',
+      'BoolProperty'
+    );
+    (async () => {
+      for await (const data of activeFiltersSubscription) {
+        if (data && data.type === 'value') {
+          thunkApi.dispatch(setHasActiveFilters(data.value));
         }
       }
     })();

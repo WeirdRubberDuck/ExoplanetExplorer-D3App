@@ -28,8 +28,8 @@ let parallelCoordsHandle = undefined;
 ////////////////////  Read data   ////////////////////////////
 //////////////////////////////////////////////////////////////
 function isNotNullNorUndefined(o) {
-  return (typeof (o) !== 'undefined' && o !== null);
-};
+  return typeof o !== 'undefined' && o !== null;
+}
 
 function loadData() {
   // Note that the data variable was created in the data preparation step and
@@ -37,33 +37,49 @@ function loadData() {
   var row = 0;
 
   // Create a unique id for each item
-  data.forEach((d) => { d.id = row; row++; });
+  data.forEach((d) => {
+    d.id = row;
+    row++;
+  });
 
   // Remove som non-interesting or problematic columns
   const columnsToRemove = [
-    'rastr', 'decstr', 'ed_ESM', 'sy_refname', 'pl_refname', 'st_refname',
-    'dt_obj', 'pl_rprs2', 'tran_flag', 'soltype', 'disc_facility', 'gaia_id',
-    'pl_bmassprov', 'default_flag', 'ttv_flag',
+    'rastr',
+    'decstr',
+    'ed_ESM',
+    'sy_refname',
+    'pl_refname',
+    'st_refname',
+    'dt_obj',
+    'pl_rprs2',
+    'tran_flag',
+    'soltype',
+    'disc_facility',
+    'gaia_id',
+    'pl_bmassprov',
+    'default_flag',
+    'ttv_flag'
   ];
 
   fullData = [];
   uncertaintyData = [];
 
-  data.forEach(item => {
+  data.forEach((item) => {
     let newEntry = {};
     let uncertaintyEntry = {};
     for (const key in item) {
       // Skip some columns completely
-      if (key.endsWith("lim") ||
-          // key.endsWith("apogee") || // for now, skip metallicity cols
-          // key.endsWith("galah") || // for now, skip metallicity cols
-          key.startsWith("molecule") || // and molecule columns
-          columnsToRemove.includes(key))
-      {
+      if (
+        key.endsWith('lim') ||
+        // key.endsWith("apogee") || // for now, skip metallicity cols
+        // key.endsWith("galah") || // for now, skip metallicity cols
+        key.startsWith('molecule') || // and molecule columns
+        columnsToRemove.includes(key)
+      ) {
         continue;
       }
       // Handle uncertainty columns
-      if (key.endsWith("err1") || key.endsWith("err2")) {
+      if (key.endsWith('err1') || key.endsWith('err2')) {
         uncertaintyEntry[key] = item[key];
         continue;
       }
@@ -72,7 +88,7 @@ function loadData() {
 
     // Append to global data variables
     fullData.push(newEntry);
-    uncertaintyData.push(uncertaintyEntry)
+    uncertaintyData.push(uncertaintyEntry);
   });
 
   dataToShow = fullData;
@@ -98,12 +114,19 @@ function loadData() {
 
   // Default parallel columns
   const pcDefaultColumns = [
-    "discoverymethod", "sy_snum", "sy_pnum", "ESM", "TSM", "pl_bmasse",
-    "pl_rade", "pl_orbincl", "pl_Teq"
+    'discoverymethod',
+    'sy_snum',
+    'sy_pnum',
+    'ESM',
+    'TSM',
+    'pl_bmasse',
+    'pl_rade',
+    'pl_orbincl',
+    'pl_Teq'
   ];
-  pcDefaultColumns.forEach(col => {
+  pcDefaultColumns.forEach((col) => {
     parallelColumnSelection[col] = true;
-  })
+  });
   // Special: disable pl_pubdate and pl_eqt
   parallelColumnSelection.pl_pubdate = false;
   parallelColumnSelection.pl_eqt = false;
@@ -122,7 +145,9 @@ async function updateFromOpenSpace() {
   if (!openspace) {
     return;
   }
-  let result = await openspace.propertyValue("Modules.ExoplanetsExpertTool.FilteredDataRows");
+  let result = await openspace.propertyValue(
+    'Modules.ExoplanetExplorer.FilteredDataRows'
+  );
   rowsToShow = Object.values(result);
 
   if (_lastRowsToShow && compareArrays(_lastRowsToShow, rowsToShow)) {
@@ -133,7 +158,9 @@ async function updateFromOpenSpace() {
 
   // If we have a selection from OpenSpace, use that one
   if (rowsToShow.length > 0) {
-    dataToShow = dataToShow.filter((d) => { return rowsToShow.includes(d.id); });
+    dataToShow = dataToShow.filter((d) => {
+      return rowsToShow.includes(d.id);
+    });
   }
 
   updateColorMap();
@@ -143,7 +170,7 @@ async function updateFromOpenSpace() {
 
 let updateTimer = undefined;
 function onCheckboxAlwaysGetRowsChange(element) {
-  let shouldAutoUpdate  = element.checked;
+  let shouldAutoUpdate = element.checked;
 
   // Disable the button
   document.getElementById('get-rows-button').disabled = shouldAutoUpdate;
@@ -151,9 +178,10 @@ function onCheckboxAlwaysGetRowsChange(element) {
   if (shouldAutoUpdate) {
     // Start timer for getting data, every X second
     let seconds = 1;
-    updateTimer = setInterval(() => { updateFromOpenSpace(); }, seconds * 1000);
-  }
-  else {
+    updateTimer = setInterval(() => {
+      updateFromOpenSpace();
+    }, seconds * 1000);
+  } else {
     clearInterval(updateTimer);
   }
 }
@@ -162,10 +190,10 @@ async function setSelectionInOpenSpace() {
   if (!openspace) {
     return;
   }
-  console.log("Send selection to OpenSpace");
+  console.log('Send selection to OpenSpace');
   const valueToSend = brushSelection ? brushSelection : {};
   openspace.setPropertyValueSingle(
-    "Modules.ExoplanetsExpertTool.ExoplanetsToolGui.DataViewer.ExternalSelection",
+    'Modules.ExoplanetExplorer.ExoplanetsToolGui.DataViewer.ExternalSelection',
     valueToSend
   );
 }
@@ -173,26 +201,27 @@ async function setSelectionInOpenSpace() {
 //////////////////////////////////////////////////////////////
 //////////////////// Draw the Table //////////////////////////
 //////////////////////////////////////////////////////////////
-const tableHeaders = [ "ID", "Planet", "TSM", "ESM", "R" ];
+const tableHeaders = ['ID', 'Planet', 'TSM', 'ESM', 'R'];
 const tableDataFromItem = (d) => {
   return [d.id, d.pl_name, d.TSM, d.ESM, d.pl_rade];
 };
 
 function sortDataFromTableOrder() {
-  console.log("re-sorting");
+  console.log('re-sorting');
   // Sort data based on current sort column
-  dataToShow.sort(function(d1, d2) {
+  dataToShow.sort(function (d1, d2) {
     const a = tableDataFromItem(d1);
     const b = tableDataFromItem(d2);
     const c = sortColumn;
 
-    if (isNaN(a[c]) && isNaN(b[c])) { // string
+    if (isNaN(a[c]) && isNaN(b[c])) {
+      // string
       // Note flipped order for strings
-      return sortAscending ?
-        d3.descending(a[c].toLowerCase(), b[c].toLowerCase()) :
-        d3.ascending(a[c].toLowerCase(), b[c].toLowerCase());
-    }
-    else { // number
+      return sortAscending
+        ? d3.descending(a[c].toLowerCase(), b[c].toLowerCase())
+        : d3.ascending(a[c].toLowerCase(), b[c].toLowerCase());
+    } else {
+      // number
       let l = Number.parseFloat(a[c]);
       let r = Number.parseFloat(b[c]);
 
@@ -211,93 +240,110 @@ function sortDataFromTableOrder() {
 
 // OBS! Assumes the first item is an ID
 function drawMetaDataTable() {
-  let dataRows = dataToShow.map(d => tableDataFromItem(d));
+  let dataRows = dataToShow.map((d) => tableDataFromItem(d));
 
   // Filter based on brush selection
   if (brushSelection) {
-    dataRows = dataRows.filter(d => brushSelection.includes(d[0])); // First col is the id
+    dataRows = dataRows.filter((d) => brushSelection.includes(d[0])); // First col is the id
   }
 
-  document.getElementById('metaTableInfo').innerHTML = `<p>Selection: ${dataRows.length} planets</p>`
+  document.getElementById('metaTableInfo').innerHTML =
+    `<p>Selection: ${dataRows.length} planets</p>`;
 
   // Remove whatever content was present in the div before
-  d3.select('#metaTableContainer').selectAll("*").remove();
+  d3.select('#metaTableContainer').selectAll('*').remove();
 
-  let table = d3.select('#metaTableContainer').append('table')
-    .style("border-collapse", "collapse")
-    .style("width", "90%")
-    .style("text-align", "left");
+  let table = d3
+    .select('#metaTableContainer')
+    .append('table')
+    .style('border-collapse', 'collapse')
+    .style('width', '90%')
+    .style('text-align', 'left');
 
   // Headers
-  let header = table.append("thead").append("tr")
-  let headers = header.selectAll("th")
+  let header = table.append('thead').append('tr');
+  let headers = header
+    .selectAll('th')
     .data(tableHeaders.slice(1)) // remove first col
-    .enter().append("th")
-    .text(function(d) { return d; })
-    .style("border", "1px darkgray solid")
-    .style("padding", "5px")
-    .style("background-color", "lightgray")
-    .style("font-weight", "bold");
+    .enter()
+    .append('th')
+    .text(function (d) {
+      return d;
+    })
+    .style('border', '1px darkgray solid')
+    .style('padding', '5px')
+    .style('background-color', 'lightgray')
+    .style('font-weight', 'bold');
 
   // Sorting
-  headers
-    .on("click", function(event, col) {
-      const prevSortColumn = sortColumn;
-      sortColumn = tableHeaders.indexOf(col);
+  headers.on('click', function (event, col) {
+    const prevSortColumn = sortColumn;
+    sortColumn = tableHeaders.indexOf(col);
 
-      if (prevSortColumn !== sortColumn) {
-        sortAscending = false;
-      }
-      else {
-        sortAscending = !sortAscending;
-      }
-      sortDataFromTableOrder();
-      drawMetaDataTable(); // updateCharts(); // For now we only want to update the table
-    });
+    if (prevSortColumn !== sortColumn) {
+      sortAscending = false;
+    } else {
+      sortAscending = !sortAscending;
+    }
+    sortDataFromTableOrder();
+    drawMetaDataTable(); // updateCharts(); // For now we only want to update the table
+  });
 
   function planetBinViz(planetRadius) {
     const size = 11;
     const planetBinDomain = [1.5, 2.75, 4.0, 10.0];
 
-    const rScale = d3.scaleThreshold()
+    const rScale = d3
+      .scaleThreshold()
       .domain(planetBinDomain) // planet bin top
       .range([3, 5, 7, 10, 12]);
 
-    const colorScale = d3.scaleThreshold()
+    const colorScale = d3
+      .scaleThreshold()
       .domain(planetBinDomain) // planet bin top
       .range(['#a6611a', '#80cdc1', '#018571', '#dfc27d', 'lightgray']);
 
-    let safeColor = (r) => { return isNaN(parseFloat(r)) ? 'white' : colorScale(r); };
+    let safeColor = (r) => {
+      return isNaN(parseFloat(r)) ? 'white' : colorScale(r);
+    };
 
-    return d3.select(this).append("svg").attr("width", 2 * size).attr("height", 2 * size)
-      .append("circle")
-      .style("fill", safeColor(planetRadius))
-      .attr("r", rScale(planetRadius))
-      .attr("cx", size)
-      .attr("cy", size);
+    return d3
+      .select(this)
+      .append('svg')
+      .attr('width', 2 * size)
+      .attr('height', 2 * size)
+      .append('circle')
+      .style('fill', safeColor(planetRadius))
+      .attr('r', rScale(planetRadius))
+      .attr('cx', size)
+      .attr('cy', size);
   }
 
-  let body = table.append("tbody");
+  let body = table.append('tbody');
 
   // Data
-  let trows = body.selectAll("tr.tabledata")
+  let trows = body
+    .selectAll('tr.tabledata')
     .data(dataRows)
-    .enter().append("tr")
-    .attr("class", "tabledata")
-    .attr("id", row => `row-${row[0]}`) // first col is id
-    .on("mouseover", function (event, row, i) {
-      d3.select(this).classed("highlighted", true);
+    .enter()
+    .append('tr')
+    .attr('class', 'tabledata')
+    .attr('id', (row) => `row-${row[0]}`) // first col is id
+    .on('mouseover', function (event, row, i) {
+      d3.select(this).classed('highlighted', true);
       onTableRowMouseOver(row[0]);
     })
-    .on("mouseout", function (event, row, i) {
-      d3.select(this).classed("highlighted", false);
+    .on('mouseout', function (event, row, i) {
+      d3.select(this).classed('highlighted', false);
       onTableRowMouseOut(row[0]);
     });
 
-  trows.selectAll("td")
-    .data(row => row.slice(1)) // remove first col
-    .enter().append("td")
-    .text(function(d) {
+  trows
+    .selectAll('td')
+    .data((row) => row.slice(1)) // remove first col
+    .enter()
+    .append('td')
+    .text(function (d) {
       if (isNaN(d)) {
         return d;
       }
@@ -306,12 +352,13 @@ function drawMetaDataTable() {
     });
 
   // Add a column to show the planet bin viz
-  header.append("th").text("");
-  trows.selectAll("td.binViz")
-    .data(d => [d[4]]) // 4 is index of radius
+  header.append('th').text('');
+  trows
+    .selectAll('td.binViz')
+    .data((d) => [d[4]]) // 4 is index of radius
     .enter()
-    .append("td")
-    .attr("class", "binViz")
+    .append('td')
+    .attr('class', 'binViz')
     .each(planetBinViz);
 }
 
@@ -331,7 +378,9 @@ function setScatterPointHighlight(id, isHighlighted) {
   const othersOpacity = isHighlighted ? 0.0 : 1.0;
   const points = document.querySelectorAll(`.foregroundCircle:not(.scatterPoint-${id})`);
   if (points && points.length > 0) {
-    points.forEach(p => { p.style.opacity = othersOpacity; });
+    points.forEach((p) => {
+      p.style.opacity = othersOpacity;
+    });
   }
 }
 
@@ -359,15 +408,15 @@ function highlightTableRow(id) {
   // Hightlight table row
   let row = document.querySelector(`tr#row-${id}`);
   if (row) {
-    row.classList.add("highlighted");
+    row.classList.add('highlighted');
   }
 }
 
 function clearHighlightedTableRows() {
   // Hightlight table row
-  let allItemsToClear = document.querySelectorAll(".highlighted");
-  allItemsToClear.forEach(item => {
-    item.classList.remove("highlighted");
+  let allItemsToClear = document.querySelectorAll('.highlighted');
+  allItemsToClear.forEach((item) => {
+    item.classList.remove('highlighted');
   });
 }
 
@@ -426,13 +475,12 @@ function onPointMouseOut(id, chartId) {
   parallelCoordsHandle.onLineMouseout();
 }
 
-
 //////////////////////////////////////////////////////////////
 //////////////////////// Update //////////////////////////////
 //////////////////////////////////////////////////////////////
 
 function updateChartColorMapping() {
-  parallelCoordsHandle.updateParallelLineColors("parallel_coords", colorFunction);
+  parallelCoordsHandle.updateParallelLineColors('parallel_coords', colorFunction);
   // For now, update the entire scatterplot chart. Later we should just set the color correctly
   updateScatterPlotMatrix();
 }
@@ -453,16 +501,19 @@ function updateParallelCoordinates() {
   };
 
   // A little ugly, but we want to put the dicsoverymethod column first in the list
-  if (pcColumns.includes("discoverymethod")) {
-    const foundIdx = pcColumns.findIndex(e => e === "discoverymethod");
+  if (pcColumns.includes('discoverymethod')) {
+    const foundIdx = pcColumns.findIndex((e) => e === 'discoverymethod');
     // Remove and add to beginning
     pcColumns.splice(foundIdx, 1);
-    pcColumns.unshift("discoverymethod");
+    pcColumns.unshift('discoverymethod');
     chartMargin.left = 140;
   }
 
   const pcChartOptions = {
-    w: document.getElementById("all_charts").offsetWidth - chartMargin.left - chartMargin.right,
+    w:
+      document.getElementById('all_charts').offsetWidth -
+      chartMargin.left -
+      chartMargin.right,
     h: 300,
     margin: chartMargin,
     color: colorFunction,
@@ -476,16 +527,21 @@ function updateParallelCoordinates() {
     uncertaintyData: uncertaintyData
   };
 
-  parallelCoordsHandle = new ParallelCoordinatesChart("parallel_coords", dataToShow, pcChartOptions);
+  parallelCoordsHandle = new ParallelCoordinatesChart(
+    'parallel_coords',
+    dataToShow,
+    pcChartOptions
+  );
   parallelCoordsHandle.render();
 
   // Add double click listener to axis headers
-  d3.select("#parallel_coords").selectAll(".legend")
-    .on("dblclick", (event, d) => {
+  d3.select('#parallel_coords')
+    .selectAll('.legend')
+    .on('dblclick', (event, d) => {
       colorColumn = d;
       updateColorMap();
       updateChartColorMapping();
-    })
+    });
 }
 
 function updateScatterPlotMatrix() {
@@ -497,17 +553,17 @@ function updateScatterPlotMatrix() {
   }
 
   if (matrixColumns.length === 0) {
-    document.getElementById("scatter_plot_matrix").innerHTML =
+    document.getElementById('scatter_plot_matrix').innerHTML =
       "<p class='hint' id='scattermatrix_hint'><- Select some columns to the left to show scatter plot matrix here</p>";
     return;
   }
 
-  document.getElementById("scatter_plot_matrix").innerHTML = "";
+  document.getElementById('scatter_plot_matrix').innerHTML = '';
 
-  ScatterplotMatrix("scatter_plot_matrix", dataToShow, {
+  ScatterplotMatrix('scatter_plot_matrix', dataToShow, {
     columns: matrixColumns,
     colors: colorFunction, // switch to use same kind of color function as PC
-    z: d => d.id, // Color column
+    z: (d) => d.id, // Color column
     isFiltered: (id) => {
       return brushSelection ? !brushSelection.includes(id) : false;
     },
@@ -517,12 +573,13 @@ function updateScatterPlotMatrix() {
   });
 
   // Add double click listener to axis headers
-  d3.select("#scatter_plot_matrix").selectAll(".legend")
-    .on("dblclick", (event, d) => {
+  d3.select('#scatter_plot_matrix')
+    .selectAll('.legend')
+    .on('dblclick', (event, d) => {
       colorColumn = d;
       updateColorMap();
       updateChartColorMapping();
-    })
+    });
 }
 
 function updateCharts() {

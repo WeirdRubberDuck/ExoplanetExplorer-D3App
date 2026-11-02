@@ -67,7 +67,7 @@ export function Header() {
               size={'sm'}
               onClick={() => {
                 luaApi?.setPropertyValueSingle(
-                  'Modules.ExoplanetsExpertTool.ExoplanetsToolGui.DataViewer.ExternalSelection',
+                  'Modules.ExoplanetExplorer.ExoplanetsToolGui.DataViewer.ExternalSelection',
                   filteredIds ?? []
                 );
               }}

@@ -29,7 +29,7 @@ export const setupPropertySubscriptions = createAsyncThunk(
 
     // Filtered data rows from OpenSpace's ExoplanetExplorer UI
     const subscription = api.subscribeToProperty(
-      'Modules.ExoplanetsExpertTool.FilteredDataRows'
+      'Modules.ExoplanetExplorer.FilteredDataRows'
     );
     (async () => {
       for await (const data of subscription) {
@@ -40,7 +40,7 @@ export const setupPropertySubscriptions = createAsyncThunk(
     })();
 
     const hoverSubscription = api.subscribeToProperty(
-      'Modules.ExoplanetsExpertTool.HoveredIndex'
+      'Modules.ExoplanetExplorer.HoveredIndex'
     );
     (async () => {
       for await (const data of hoverSubscription) {

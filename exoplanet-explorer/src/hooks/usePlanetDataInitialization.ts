@@ -141,6 +141,7 @@ async function fetchPlanetData(url: string) {
  **/
 async function initializeData(
   hostedRelativePath: string | undefined,
+  loadedDataFile: string | undefined,
   isCurrent: () => boolean
 ): Promise<DataInitializationResult | undefined> {
   let planetData: Awaited<ReturnType<typeof fetchPlanetData>> | undefined;
@@ -148,13 +149,18 @@ async function initializeData(
     kind: 'builtin',
     name: 'exoplanets'
   };
-  let requestedFileUnavailable = false;
+  const requestedFileName = loadedDataFile
+    ? normalizeOpenSpacePath(loadedDataFile).split('/').pop()
+    : undefined;
+  let dataFileName = 'aggregated_data.csv';
+  let requestedFileUnavailable = Boolean(loadedDataFile && !hostedRelativePath);
   let usedBundledFallback = false;
 
   if (hostedRelativePath) {
     try {
       planetData = await fetchPlanetData(buildOpenSpaceDataUrl(hostedRelativePath));
       source = { kind: 'file', name: hostedRelativePath };
+      dataFileName = requestedFileName ?? hostedRelativePath;
     } catch {
       requestedFileUnavailable = true;
     }
@@ -165,6 +171,7 @@ async function initializeData(
       planetData = await fetchPlanetData(buildOpenSpaceDataUrl('aggregated_data.csv'));
     } catch {
       planetData = await fetchPlanetData(fallbackDataUrl);
+      dataFileName = 'aggregated_data.json';
       usedBundledFallback = true;
     }
   }
@@ -173,20 +180,20 @@ async function initializeData(
     return undefined;
   }
 
-  store.dispatch(initializeDataAction({ rows: planetData, source }));
+  store.dispatch(initializeDataAction({ rows: planetData, source, dataFileName }));
 
   const warnings: string[] = [];
   if (requestedFileUnavailable && usedBundledFallback) {
     warnings.push(
-      'The currently loaded OpenSpace file and default data could not be loaded; using the bundled dataset, which may be outdated.'
+      `The webpage could not access the currently loaded OpenSpace file "${requestedFileName}" or the default dataset. Using the bundled dataset "${dataFileName}", which may be outdated.`
     );
   } else if (requestedFileUnavailable) {
     warnings.push(
-      'The currently loaded OpenSpace file could not be loaded; using the default dataset.'
+      `The webpage could not access the currently loaded OpenSpace file "${requestedFileName}". Using the default OpenSpace dataset "${dataFileName}" instead.`
     );
   } else if (usedBundledFallback) {
     warnings.push(
-      'OpenSpace data could not be loaded; using the bundled dataset, which may be outdated.'
+      `OpenSpace data could not be loaded; using the bundled dataset "${dataFileName}", which may be outdated.`
     );
   }
 
@@ -287,6 +294,7 @@ export function usePlanetDataInitialization() {
       try {
         const dataInitialization = await initializeData(
           hostedRelativePath,
+          loadedDataFile,
           () => active && currentRequestId === requestId
         );
         if (!dataInitialization || !active || currentRequestId !== requestId) {

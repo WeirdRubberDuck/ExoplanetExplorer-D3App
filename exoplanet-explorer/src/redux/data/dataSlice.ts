@@ -5,6 +5,7 @@ import { type DatasetSource, getDatasetKey } from '@/utils/datasetColumns';
 import { hasValue } from '@/utils/util';
 
 interface DataState {
+  dataFileName: string | undefined;
   /**
    * Identifies saved column preferences by source kind, source name and sorted column
    * names. Unchanged filenames and columns reuse preferences even if values change.
@@ -42,6 +43,7 @@ interface DataState {
 }
 
 const initialState: DataState = {
+  dataFileName: undefined,
   datasetKey: '',
   datasetRevision: 0,
   full: [],
@@ -62,6 +64,7 @@ export const dataSlice = createSlice({
       action: PayloadAction<{
         rows: Record<string, DataItem[string]>[];
         source: DatasetSource;
+        dataFileName?: string;
       }>
     ) => {
       state.uncertaintyDomains = {};
@@ -128,6 +131,9 @@ export const dataSlice = createSlice({
 
       state.columns = Object.keys(fullData[0] || {}).filter((col) => col !== 'id');
       state.datasetKey = getDatasetKey(action.payload.source, state.columns);
+      state.dataFileName =
+        action.payload.dataFileName ??
+        (action.payload.source.kind === 'file' ? action.payload.source.name : undefined);
       state.datasetRevision += 1;
       state.columnData = {};
 

@@ -8,7 +8,7 @@ import { usePlanetDataInitialization } from '@/hooks/usePlanetDataInitialization
 import { startupConfig } from '@/utils/urlConfig';
 
 export function HomePage() {
-  const [warningsDismissed, setWarningsDismissed] = useState(false);
+  const [dismissedWarnings, setDismissedWarnings] = useState<string[]>();
   const { startupInfo, error, setError } = usePlanetDataInitialization();
 
   useEffect(() => {
@@ -39,13 +39,14 @@ export function HomePage() {
   const { warnings, uncertaintyColumns } = startupInfo;
 
   const warning =
-    warnings.length > 0 && !warningsDismissed ? (
+    warnings.length > 0 && warnings !== dismissedWarnings ? (
       <Alert
         color={'yellow'}
         mb={'sm'}
-        title={'Startup warnings'}
+        title={'Warnings'}
         withCloseButton
-        onClose={() => setWarningsDismissed(true)}
+        onClose={() => setDismissedWarnings(warnings)}
+        style={{ overflowWrap: 'anywhere' }}
       >
         {warnings.join(' ')}
       </Alert>

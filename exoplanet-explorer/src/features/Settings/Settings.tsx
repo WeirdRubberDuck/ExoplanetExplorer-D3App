@@ -4,6 +4,7 @@ import {
   ActionIcon,
   Button,
   Checkbox,
+  Code,
   Drawer,
   MultiSelect,
   Select,
@@ -29,7 +30,7 @@ const astronomyLogDefaultColumns: Column[] = [
 ];
 
 export function Settings() {
-  const { columns, columnData } = useAppSelector((state) => state.data);
+  const { columns, columnData, dataFileName } = useAppSelector((state) => state.data);
   const objectNameColumn = useAppSelector((state) => state.local.objectNameColumn);
   const crossFiltering = useAppSelector((state) => state.local.crossFiltering);
 
@@ -64,6 +65,14 @@ export function Settings() {
         size={400}
       >
         <Stack>
+          {dataFileName && (
+            <Stack gap={4}>
+              <Text size={'sm'} fw={500}>
+                Loaded data file
+              </Text>
+              <Code style={{ overflowWrap: 'anywhere' }}>{dataFileName}</Code>
+            </Stack>
+          )}
           <Select
             label={'Object name column'}
             value={objectNameColumn}

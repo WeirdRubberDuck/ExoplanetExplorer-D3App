@@ -9,6 +9,7 @@ export function StandaloneChartHeader() {
   const dispatch = useAppDispatch();
   const autoSync = useAppSelector((state) => state.local.autoSyncOpenSpaceSelection);
   const filteredIds = useAppSelector((state) => state.data.filteredPlanetsFromOpenSpace);
+  const dataFileName = useAppSelector((state) => state.data.dataFileName);
 
   return (
     <Box
@@ -21,6 +22,11 @@ export function StandaloneChartHeader() {
     >
       <Group justify={'space-between'} gap={'sm'}>
         <ConnectionStatusHint />
+        {dataFileName && (
+          <Text size={'xs'} c={'dimmed'} truncate={'end'} maw={240}>
+            {dataFileName}
+          </Text>
+        )}
         <Group gap={'sm'}>
           {autoSync && (
             <Text size={'xs'} c={'dimmed'} mt={4} role={'status'}>

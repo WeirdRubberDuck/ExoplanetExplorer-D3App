@@ -4,7 +4,11 @@
 
 import OpenSpaceApi from 'openspace-api-js';
 
-import { resolveApiEndpoint, startupConfig } from '@/utils/urlConfig';
+import {
+  resolveApiEndpoint,
+  resolveWebSocketEndpoint,
+  startupConfig
+} from '@/utils/urlConfig';
 
 declare global {
   interface Window {
@@ -16,5 +20,9 @@ declare global {
 }
 
 export const apiEndpoint = resolveApiEndpoint(startupConfig, window.OpenSpaceEnvironment);
+export const dataEndpoint = resolveWebSocketEndpoint(
+  startupConfig,
+  window.OpenSpaceEnvironment
+);
 
 export const api = OpenSpaceApi(apiEndpoint.host, apiEndpoint.port);

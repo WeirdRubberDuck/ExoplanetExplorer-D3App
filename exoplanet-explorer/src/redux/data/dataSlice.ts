@@ -169,7 +169,7 @@ export const dataSlice = createSlice({
       }
     },
     setFilteredPlanetsFromOpenSpace: (state, action: PayloadAction<number[]>) => {
-      state.filteredPlanetsFromOpenSpace = action.payload;
+      state.filteredPlanetsFromOpenSpace = [...new Set(action.payload)];
     },
     setHasActiveFilters: (state, action: PayloadAction<boolean>) => {
       state.hasActiveFilters = action.payload;

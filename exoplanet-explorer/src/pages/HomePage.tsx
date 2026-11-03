@@ -4,143 +4,20 @@ import { Alert, Box, Group, Loader } from '@mantine/core';
 import { CornerPlot } from '@/features/CornerPlot/CornerPlot';
 import { ParallelCoordinates } from '@/features/ParallelCoordinates/ParallelCoordinates';
 import { SelectionList } from '@/features/SelectionList/SelectionList';
-import { initializeData } from '@/redux/data/dataSlice';
-import {
-  setCornerPlotSelectedColumns,
-  setParallelCoordinatesColumnOrder,
-  setParallelCoordinatesSelectedColumns
-} from '@/redux/local/localSlice';
-import { store } from '@/redux/store';
-import { parseDataset } from '@/utils/datasetParsing';
-import { getEligibleUncertaintyColumns, startupConfig } from '@/utils/urlConfig';
-
-// OpenSpace serves the data on its websocket port.
-const openSpaceDataPath = 'exoplanetexplorer/data/aggregated_data.csv';
-
-const dataUrl = import.meta.env.DEV
-  ? `/openspace/${openSpaceDataPath}`
-  : `http://localhost:4680/${openSpaceDataPath}`;
-
-// If we can't access the data from the OpenSpace server, use the local fallback URL.
-// This dataset will not be up to date compared to the OpenSpace server.
-const fallbackDataUrl = new URL('../data/aggregated_data.json', import.meta.url).href;
-
-interface PageInitialization {
-  warnings: string[];
-  uncertaintyColumns: string[];
-}
-
-let initialization: Promise<PageInitialization> | undefined;
-
-async function fetchPlanetData(url: string) {
-  const response = await fetch(url);
-  if (!response.ok) throw new Error(`Could not load planet data (${response.status}).`);
-  try {
-    return parseDataset(await response.text(), url);
-  } catch (reason) {
-    throw new Error(
-      `Could not load planet data from ${url}: ${reason instanceof Error ? reason.message : 'Could not read dataset.'}`
-    );
-  }
-}
-
-function initializePage() {
-  initialization ??= (async () => {
-    let planetData;
-    let usedFallback = false;
-    try {
-      planetData = await fetchPlanetData(dataUrl);
-    } catch {
-      planetData = await fetchPlanetData(fallbackDataUrl);
-      usedFallback = true;
-    }
-    store.dispatch(
-      initializeData({
-        rows: planetData,
-        source: { kind: 'builtin', name: 'exoplanets' }
-      })
-    );
-
-    const warnings = [...startupConfig.warnings];
-    if (usedFallback) {
-      warnings.unshift(
-        'OpenSpace data could not be loaded; using the bundled dataset, which may be outdated.'
-      );
-    }
-    const { chart, columns: requestedColumns } = startupConfig;
-
-    if (chart && requestedColumns) {
-      const { columns, columnData } = store.getState().data;
-      const selectedColumns = requestedColumns.filter(
-        (column) =>
-          columns.includes(column) &&
-          (chart === 'parallelcoordinates' || columnData[column]?.type === 'number')
-      );
-      if (selectedColumns.length === 0) {
-        warnings.push('No valid URL columns; keeping the saved or default columns.');
-      } else {
-        if (selectedColumns.length !== requestedColumns.length) {
-          warnings.push('Unavailable or nonnumeric URL columns were ignored.');
-        }
-        if (chart === 'parallelcoordinates') {
-          store.dispatch(setParallelCoordinatesSelectedColumns(selectedColumns));
-          store.dispatch(setParallelCoordinatesColumnOrder(selectedColumns));
-        } else {
-          store.dispatch(setCornerPlotSelectedColumns(selectedColumns));
-        }
-      }
-    }
-
-    let uncertaintyColumns: string[] = [];
-    if (chart === 'parallelcoordinates' && startupConfig.uncertaintyColumns) {
-      const { data, local } = store.getState();
-      uncertaintyColumns = getEligibleUncertaintyColumns(
-        startupConfig.uncertaintyColumns,
-        local.parallelCoordinates.settings.selectedColumns,
-        data.columnData,
-        data.uncertaintyDomains
-      );
-      if (uncertaintyColumns.length !== startupConfig.uncertaintyColumns.length) {
-        warnings.push(
-          'Uncertainty columns that are not selected numeric axes with uncertainty data were ignored.'
-        );
-      }
-    }
-    return { warnings, uncertaintyColumns };
-  })();
-
-  return initialization;
-}
+import { usePlanetDataInitialization } from '@/hooks/usePlanetDataInitialization';
+import { startupConfig } from '@/utils/urlConfig';
 
 export function HomePage() {
-  const [pageInitialization, setPageInitialization] = useState<PageInitialization>();
-  const [error, setError] = useState<string>();
   const [warningsDismissed, setWarningsDismissed] = useState(false);
+  const { startupInfo, error, setError } = usePlanetDataInitialization();
 
   useEffect(() => {
-    let active = true;
     if (startupConfig.chart) {
       document.title =
         startupConfig.chart === 'parallelcoordinates'
           ? 'Parallel Coordinates | Exoplanet Explorer'
           : 'Scatterplot Matrix | Exoplanet Explorer';
     }
-    void initializePage()
-      .then((messages) => {
-        if (active) {
-          setPageInitialization(messages);
-        }
-      })
-      .catch((reason: unknown) => {
-        if (active) {
-          setError(
-            reason instanceof Error ? reason.message : 'Could not load planet data.'
-          );
-        }
-      });
-    return () => {
-      active = false;
-    };
   }, []);
 
   if (error)
@@ -155,11 +32,11 @@ export function HomePage() {
       </Alert>
     );
 
-  if (!pageInitialization) {
+  if (!startupInfo) {
     return <Loader aria-label={'Loading planet data'} />;
   }
 
-  const { warnings, uncertaintyColumns } = pageInitialization;
+  const { warnings, uncertaintyColumns } = startupInfo;
 
   const warning =
     warnings.length > 0 && !warningsDismissed ? (

@@ -47,6 +47,21 @@ export function MissingValueAxis({ dimension, y, onBrush }: Props) {
       r={hovered ? 7 : 5}
       fill={colorForMode(brushMode)}
       onClick={onClick}
+      role={'button'}
+      tabIndex={0}
+      aria-label={`Missing-value filter for ${dimension.key}: ${
+        brushMode === undefined
+          ? 'off'
+          : brushMode === NanBrushMode.Block
+            ? 'exclude missing values'
+            : 'only missing values'
+      }`}
+      onKeyDown={(event) => {
+        if (event.key === 'Enter' || event.key === ' ') {
+          event.preventDefault();
+          onClick();
+        }
+      }}
     />
   );
 }

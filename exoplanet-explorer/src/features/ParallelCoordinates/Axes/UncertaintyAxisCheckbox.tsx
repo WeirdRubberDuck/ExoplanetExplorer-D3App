@@ -29,7 +29,21 @@ export function UncertaintyAxisCheckbox({
   }
 
   return (
-    <g transform={`translate(${-halfSize}, ${y - halfSize})`} onClick={handleClick}>
+    <g
+      transform={`translate(${-halfSize}, ${y - halfSize})`}
+      role={'checkbox'}
+      aria-label={'Show uncertainty axis'}
+      aria-checked={checked}
+      tabIndex={0}
+      onClick={handleClick}
+      onKeyDown={(event) => {
+        if (event.key === ' ' || event.key === 'Enter') {
+          event.preventDefault();
+          handleClick();
+        }
+      }}
+    >
+      {' '}
       <rect ry={2} rx={2} width={size} height={size} stroke={'darkgray'} fill={'white'} />
       <path
         d={checkmark || undefined}

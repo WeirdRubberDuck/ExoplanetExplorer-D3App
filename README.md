@@ -9,4 +9,4 @@ The `old-page` is an archived version of the webpage, before it was implemented 
 The webpage requires a [specific branch in OpenSpace](https://github.com/OpenSpace/OpenSpace/tree/project/exoplanet-explorer-gaia).  
 
 ## Publications
-![Short Paper at IEEE VIS 2023](https://doi.org/10.1109/VIS54172.2023.00025)
+[Short Paper at IEEE VIS 2023](https://doi.org/10.1109/VIS54172.2023.00025)

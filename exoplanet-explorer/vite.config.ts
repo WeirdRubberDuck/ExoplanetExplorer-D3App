@@ -1,0 +1,32 @@
+import react from '@vitejs/plugin-react';
+import path from 'path';
+import { defineConfig } from 'vite';
+
+// https://vite.dev/config/
+export default defineConfig({
+  plugins: [react()],
+  base: './',
+  // base: '/exoplanetexplorer/1/', // This is where the page is hosted on the server
+  server: {
+    proxy: {
+      '/openspace': {
+        target: 'http://localhost:4680',
+        changeOrigin: true,
+        rewrite: (requestPath) => requestPath.replace(/^\/openspace/, '')
+      }
+    }
+  },
+  resolve: {
+    alias: {
+      '@/api': path.resolve(__dirname, './src/api'),
+      '@/components': path.resolve(__dirname, './src/components'),
+      '@/features': path.resolve(__dirname, './src/features'),
+      '@/hooks': path.resolve(__dirname, './src/hooks'),
+      '@/pages': path.resolve(__dirname, './src/pages'),
+      '@/public': path.resolve(__dirname, './public'),
+      '@/redux': path.resolve(__dirname, './src/redux'),
+      '@/types': path.resolve(__dirname, './src/types'),
+      '@/utils': path.resolve(__dirname, './src/utils')
+    }
+  }
+});

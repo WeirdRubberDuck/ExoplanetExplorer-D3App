@@ -101,7 +101,9 @@ export const dataSlice = createSlice({
               };
             }
           }
-          newEntry[key] = item[key];
+          if (key !== 'id') {
+            newEntry[key] = item[key];
+          }
         }
 
         // Compute percentage uncertainty for each column that has both upper and lower
@@ -110,7 +112,13 @@ export const dataSlice = createSlice({
           const value = hasValue(item[col]) ? Number(item[col]) : null;
 
           const { upper, lower } = uncertaintyEntry[col];
-          if (value !== null && lower !== null && upper !== null) {
+          if (
+            value !== null &&
+            value !== 0 &&
+            lower != null &&
+            upper != null &&
+            [value, lower, upper].every(Number.isFinite)
+          ) {
             const percentage =
               (100.0 * (Math.abs(upper) + Math.abs(lower))) / Math.abs(value);
             uncertaintyEntry[col].percentage = percentage;
@@ -129,7 +137,9 @@ export const dataSlice = createSlice({
       state.full = fullData;
       state.uncertainty = uncertaintyData;
 
-      state.columns = Object.keys(fullData[0] || {}).filter((col) => col !== 'id');
+      state.columns = [...new Set(fullData.flatMap((row) => Object.keys(row)))].filter(
+        (col) => col !== 'id'
+      );
       state.datasetKey = getDatasetKey(action.payload.source, state.columns);
       state.dataFileName =
         action.payload.dataFileName ??
@@ -156,10 +166,9 @@ export const dataSlice = createSlice({
           .map((v) => Number(v))
           .filter((v): v is number => Number.isFinite(v));
 
-        const MIN_NUMERIC_SAMPLE_SIZE = 5;
         const numericRatio =
           values.length === 0 ? 0 : numericValues.length / values.length;
-        const isNumeric = values.length >= MIN_NUMERIC_SAMPLE_SIZE && numericRatio > 0.8;
+        const isNumeric = values.length > 0 && numericRatio > 0.8;
 
         if (isNumeric) {
           state.columnData[key] = {

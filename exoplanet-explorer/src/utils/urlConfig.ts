@@ -153,7 +153,7 @@ export function buildChartUrl(
     url.searchParams.set('uncertaintycolumns', config.uncertaintyColumns.join(','));
   }
   url.searchParams.set('host', config.host);
-  url.searchParams.set('port', String(config.port));
+  url.searchParams.set('apiport', String(config.port));
   url.searchParams.set('autosync', String(config.autoSync));
   if (config.hideTopBar !== undefined) {
     url.searchParams.set('hidetopbar', String(config.hideTopBar));

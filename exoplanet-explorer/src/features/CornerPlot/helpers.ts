@@ -189,6 +189,9 @@ export function buildDensityBins(
   const bins = new Map<string, number>();
 
   points.forEach((point) => {
+    if (point.x < 0 || point.x > cellSize || point.y < 0 || point.y > cellSize) {
+      return;
+    }
     const xIndex = Math.max(
       0,
       Math.min(gridSize - 1, Math.floor((point.x / cellSize) * gridSize))

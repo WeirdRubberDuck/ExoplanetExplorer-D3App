@@ -20,6 +20,8 @@ export function PlanetListItem({ id }: { id: number }) {
     <Text
       key={id}
       size={'sm'}
+      h={30}
+      truncate={'end'}
       px={'xs'}
       py={2}
       bg={isHovered ? 'var(--mantine-primary-color-filled)' : undefined}

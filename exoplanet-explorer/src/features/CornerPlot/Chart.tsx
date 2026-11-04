@@ -126,7 +126,7 @@ export function CornerPlotChart({
     }
 
     if (cornerPlotFilteredIds === undefined) {
-      return parallelCoordinatesFilteredIds;
+      return parallelAffectsCorner ? parallelCoordinatesFilteredIds : undefined;
     }
 
     if (!parallelAffectsCorner || parallelCoordinatesFilteredIds === undefined) {

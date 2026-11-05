@@ -19,10 +19,10 @@ const config: Config = {
   },
 
   // Set the production url of your site here
-  url: 'https://openspace-exoplanet-explorer.example.com',
+  url: 'https://research.openspaceproject.com',
   // Set the /<baseUrl>/ pathname under which your site is served
   // For GitHub pages deployment, it is often '/<projectName>/'
-  baseUrl: '/',
+  baseUrl: '/exoplanetexplorer/docs/',
 
   // GitHub pages deployment config.
   // If you aren't using GitHub pages, you don't need these.
@@ -44,7 +44,8 @@ const config: Config = {
       'classic',
       {
         docs: {
-          sidebarPath: './sidebars.ts'
+          sidebarPath: './sidebars.ts',
+          routeBasePath: '/guide'
           // Please change this to your repo.
           // Remove this to remove the "edit this page" links.
           // editUrl:
@@ -136,7 +137,7 @@ const config: Config = {
           items: [
             {
               label: 'Guide',
-              to: '/docs/intro'
+              to: '/guide/intro'
             }
           ]
         },

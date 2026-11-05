@@ -43,6 +43,39 @@ The `datafile` value identifies the dataset to load. In the example below, `${MO
 The `data_mapping` section connects fields that have a specific role in the explorer to column names in the dataset. The left side is the field the explorer expects; the right side is the matching column in the CSV. For example, some of the key parameters are
 the columns identifying the object, and that specify its position, in this case the right ascension, declination, and distance, and the planet name.
 
+### Equatorial or Galactic Coordinates
+
+The ExoplanetExplorer supports two main coordinate systems for specifying the positions of objects in the dataset: Equatorial coordinates (Right Ascension, Declination, and Distance) and Galactic Cartesian coordinates (X, Y, Z). You need to choose one of these systems and map the corresponding columns in your dataset accordingly.
+
+The default mapping uses Equatorial coordinates:
+```json
+"data_mapping": {
+    "position_ra": "ra",
+    "position_dec": "dec",
+    "position_distance": "sy_dist",
+    ...
+}
+```
+
+To use Galactic XYZ coordinates instead, you would use the mapping shown in the next section:
+
+```json
+"data_mapping": {
+    "position_type": "galactic_cartesian",
+    "position_x": "x",
+    "position_y": "y",
+    "position_z": "z",
+    "position_unit": "Parsec",
+    ...
+}
+```
+
+Note that here the `position_type` is set to `"galactic_cartesian"`, indicating that the coordinates are in the Galactic XYZ system.
+
+The `position_unit` specifies the unit of measurement for the coordinates and applies to both `position_distance` in Right Ascension, Declination, and Distance as well as Galactic XYZ coordinates. The default unit is parsecs.
+
+The data values for `position_ra` and `position_dec` should be given in degrees.
+
 ### Exoplanet-Specific Mappings
 
 A number of the parameters in the data mapping are designed to specifically enable features relevant for exoplanets. This includes identifying the host star for each planet, which is crucial for grouping planets within their respective systems.
